@@ -2,7 +2,7 @@
 
 Official repository of group Nguyen, Donauer, Kohnle, Schulz and Sorg for winter semester 25.
 
-University.
+University Aalen.
 ## Installation
 
 ## Usage
