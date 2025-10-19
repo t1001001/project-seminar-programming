@@ -1,0 +1,5 @@
+.vscode
+.gitattributes
+.gitignore
+target/
+.DS_Store
