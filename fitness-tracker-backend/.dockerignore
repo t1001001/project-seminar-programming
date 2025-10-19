@@ -1,6 +1,5 @@
 .vscode
 .gitattributes
 .gitignore
-.mvn/wrapper/maven-wrapper.properties
 target/
 .DS_Store
