@@ -8,10 +8,10 @@
 		<version>3.5.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>fitness-tracker</artifactId>
+	<groupId>hs.aalen</groupId>
+	<artifactId>fitness-tracker-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>fitness-tracker</name>
+	<name>fitness-tracker-backend</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
