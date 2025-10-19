@@ -1,3 +1,1 @@
-public class PlansRepository {
-    
-}
+package hs.aalen.fitness_tracker_backend.plans.repository;

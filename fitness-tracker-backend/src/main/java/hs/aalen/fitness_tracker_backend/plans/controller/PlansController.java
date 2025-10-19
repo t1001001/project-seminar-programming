@@ -1,3 +1,1 @@
-public class PlansController {
-    
-}
+package hs.aalen.fitness_tracker_backend.plans.controller;

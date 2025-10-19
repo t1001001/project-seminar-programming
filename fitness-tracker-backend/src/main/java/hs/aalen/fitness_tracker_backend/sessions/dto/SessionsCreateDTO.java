@@ -1,3 +1,1 @@
-public class SessionsCreateDTO {
-    
-}
+package hs.aalen.fitness_tracker_backend.sessions.dto;

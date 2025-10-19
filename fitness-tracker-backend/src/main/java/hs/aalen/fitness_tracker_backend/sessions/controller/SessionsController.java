@@ -1,3 +1,1 @@
-public class SessionsController {
-    
-}
+package hs.aalen.fitness_tracker_backend.sessions.controller;

@@ -1,3 +1,1 @@
-public class SessionsRepository {
-    
-}
+package hs.aalen.fitness_tracker_backend.sessions.repository;

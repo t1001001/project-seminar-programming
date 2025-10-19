@@ -1,3 +1,1 @@
-public class ExercisesCreateDTO {
-    
-}
+package hs.aalen.fitness_tracker_backend.exercises.dto;

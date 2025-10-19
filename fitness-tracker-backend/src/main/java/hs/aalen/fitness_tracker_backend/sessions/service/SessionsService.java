@@ -1,3 +1,1 @@
-public class SessionsService {
-    
-}
+package hs.aalen.fitness_tracker_backend.sessions.service;

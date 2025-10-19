@@ -1,3 +1,1 @@
-public class PlansCreateDTO {
-    
-}
+package hs.aalen.fitness_tracker_backend.plans.dto;
