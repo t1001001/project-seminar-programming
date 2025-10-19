@@ -1,21 +1,14 @@
 package hs.aalen.fitness_tracker_backend.exercises.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import java.util.List;
+import java.util.UUID;
 
 @Data
-public class ExerciseCreateDto {
-
-    @NotBlank
+public class ExerciseResponseDto {
+    private UUID id;
     private String name;
-
-    @NotBlank
     private String category;
-
-    @NotEmpty
     private List<String> muscleGroups;
-
     private String description;
 }
