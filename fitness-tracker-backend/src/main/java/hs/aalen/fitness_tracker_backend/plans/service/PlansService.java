@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ExercisesService {
+public class PlansService {
 
     private final PlansRepository repository;
     private final ModelMapper mapper = new ModelMapper();
 
-    public ExercisesService(PlansRepository repository) {
+    public PlansService(PlansRepository repository) {
         this.repository = repository;
     }
 
