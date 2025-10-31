@@ -1,0 +1,30 @@
+### Get all sessions
+GET http://localhost:8080/api/v1/sessions
+
+### Get a single session
+GET http://localhost:8080/api/v1/sessions/123e4567-e89b-12d3-a456-426614174000
+
+### Create a new session
+POST http://localhost:8080/api/v1/sessions
+Content-Type: application/json
+
+{
+  "planId": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Push Day",
+  "scheduledDate": "2025-11-01",
+  "exerciseExecutions": []
+}
+
+### Update a session
+PUT http://localhost:8080/api/v1/sessions/123e4567-e89b-12d3-a456-426614174000
+Content-Type: application/json
+
+{
+  "planId": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Push Day Updated",
+  "scheduledDate": "2025-11-15",
+  "exerciseExecutions": []
+}
+
+### Delete a session
+DELETE http://localhost:8080/api/v1/sessions/123e4567-e89b-12d3-a456-426614174000

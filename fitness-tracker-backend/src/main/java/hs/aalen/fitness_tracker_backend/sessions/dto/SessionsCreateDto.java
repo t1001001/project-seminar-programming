@@ -14,7 +14,7 @@ import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 @Data
 public class SessionsCreateDto {
 
-    @NotBlank
+    @NotNull
     private UUID planId;
 
     @NotBlank
