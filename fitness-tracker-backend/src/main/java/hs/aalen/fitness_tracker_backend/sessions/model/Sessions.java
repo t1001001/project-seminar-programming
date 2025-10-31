@@ -22,7 +22,7 @@ public class Sessions {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private UUID planId;
 
     @Column(nullable = false)

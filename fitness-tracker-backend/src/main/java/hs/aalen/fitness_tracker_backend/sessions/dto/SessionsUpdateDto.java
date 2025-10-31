@@ -14,7 +14,6 @@ import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 @Data
 public class SessionsUpdateDto {
 
-    @NotNull
     private UUID planId;
 
     @NotBlank
@@ -23,6 +22,5 @@ public class SessionsUpdateDto {
     @NotNull
     private LocalDate scheduledDate;
 
-    @NotEmpty
     private List<Exercises> exerciseExecutions;
 }
