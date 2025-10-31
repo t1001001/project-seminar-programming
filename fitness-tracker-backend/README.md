@@ -35,7 +35,7 @@ In order to run the backend, simply build and run the Docker container.
 
 ```bash
 docker build -t fitness-tracker-backend-app .
-docker run -p 8080:8080 fitness-tracker-backend
+docker run -p 8080:8080 fitness-tracker-backend-app
 ```
 
 # Endpoints
