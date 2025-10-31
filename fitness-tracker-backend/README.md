@@ -1,33 +1,9 @@
 # Prerequisites
 
-Before running the project, install the following dependencies.
+Before running the project, install the following dependencies:
 
-**1. Java 21**
-```bash
-sudo apt update
-sudo apt install -y openjdk-21-jdk
-java -version
-```
+[Docker](https://docs.docker.com/desktop/)
 
-**2. Maven**
-```bash
-sudo apt update
-sudo apt install -y maven
-```
-
-**3. Docker & Docker Compose**
-```bash
-sudo apt remove docker docker-engine docker.io containerd runc
-sudo apt update
-sudo apt install -y ca-certificates curl gnupg lsb-release
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-```
 
 # Usage
 
@@ -126,5 +102,80 @@ POST api/v1/exercises
         "Rücken"
     ],
     "description": "Beugen der Knie mit Langhantel auf den Schultern"
+}
+```
+
+## Sessions endpoint
+
+### Get all sessions
+**Method:** ```GET```
+
+**Path:** ```api/v1/sessions```
+
+**Request example:**
+```
+GET api/v1/sessions
+```
+
+**Response example:**
+```json
+[
+    {
+    "id": "303bd884-d55b-43fe-beed-ceea9dadbfe4",
+    "planId": null,
+    "name": "Leg Day",
+    "scheduledDate": "2025-10-30",
+    "exerciseExecutions": []
+  }
+]
+```
+
+### Get a session by ID
+**Method:** ```GET```
+
+**Path:** ```api/v1/sessions/{id}```
+
+**Request example:**
+```
+GET api/v1/sessions/303bd884-d55b-43fe-beed-ceea9dadbfe4
+```
+
+**Response example:**
+```json
+{
+    "id": "303bd884-d55b-43fe-beed-ceea9dadbfe4",
+    "planId": null,
+    "name": "Leg Day",
+    "scheduledDate": "2025-10-30",
+    "exerciseExecutions": []
+  }
+```
+
+### Create a session
+
+**Method:** ```POST```
+
+**Path:** ```api/v1/sessions```
+
+**Request example:**
+
+```
+POST api/v1/sessions
+```
+```json
+{
+  "name": "Leg Day",
+  "scheduledDate": "2025-10-30"
+}
+```
+
+**Response example:**
+```json
+{
+  "id": "303bd884-d55b-43fe-beed-ceea9dadbfe4",
+  "planId": null,
+  "name": "Leg Day",
+  "scheduledDate": "2025-10-30",
+  "exerciseExecutions": null
 }
 ```
