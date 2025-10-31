@@ -12,7 +12,7 @@ Content-Type: application/json
   "planId": "123e4567-e89b-12d3-a456-426614174000",
   "name": "Push Day",
   "scheduledDate": "2025-11-01",
-  "exerciseExecutions": []
+  "exerciseExecutions": [ ]
 }
 
 ### Update a session
