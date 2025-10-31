@@ -1,7 +1,7 @@
 package hs.aalen.fitness_tracker_backend.sessions.service;
 
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsCreateDto;
-import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsCreateDto;
+import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsResponseDto;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
 import jakarta.persistence.EntityNotFoundException;
