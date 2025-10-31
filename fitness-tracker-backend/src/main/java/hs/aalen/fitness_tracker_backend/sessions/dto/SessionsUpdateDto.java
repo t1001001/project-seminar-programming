@@ -12,9 +12,9 @@ import java.util.UUID;
 import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 
 @Data
-public class SessionsCreateDto {
+public class SessionsUpdateDto {
 
-    @NotBlank
+    @NotNull
     private UUID planId;
 
     @NotBlank
