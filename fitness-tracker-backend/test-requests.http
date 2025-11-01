@@ -1,0 +1,42 @@
+### Get all sessions
+GET http://localhost:8080/api/v1/sessions
+
+### Get a single session
+GET http://localhost:8080/api/v1/sessions/1caf4211-9dac-449e-ad36-427914e49e6e
+
+### Create a new session
+POST http://localhost:8080/api/v1/sessions
+Content-Type: application/json
+
+{
+  "name": "Leg Day",
+  "scheduledDate": "2025-10-30"
+}
+
+### new ex
+POST http://localhost:8080/api/v1/exercises
+Content-Type: application/json
+
+{
+    "name": "Kniebeugen",
+    "category": "Freihantel",
+    "muscleGroups": [
+        "Beine",
+        "Rücken"
+    ]
+    
+}
+
+### Update a session
+PUT http://localhost:8080/api/v1/sessions/1caf4211-9dac-449e-ad36-427914e49e6e
+Content-Type: application/json
+
+{
+  # "planId": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Push Day Updated",
+  "scheduledDate": "2025-11-15",
+  "exerciseExecutions": []
+}
+
+### Delete a session
+DELETE http://localhost:8080/api/v1/sessions/123e4567-e89b-12d3-a456-426614174000
