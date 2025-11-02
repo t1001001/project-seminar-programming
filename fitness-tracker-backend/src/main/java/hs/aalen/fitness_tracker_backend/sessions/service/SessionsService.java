@@ -51,10 +51,15 @@ public class SessionsService {
                     "Session with this name and date already exists in this plan"
             );
         }
-
+        Plans plan = plansRepository.findById(dto.getPlanId())
+                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
         Sessions session = mapper.map(dto, Sessions.class);
+        session.setId(null);
+        session.setPlan(plan);
         Sessions saved = sessionsRepository.save(session);
-        return mapper.map(saved, SessionsResponseDto.class);
+        SessionsResponseDto response = mapper.map(saved, SessionsResponseDto.class);
+        response.setPlanId(saved.getPlan().getId());
+        return response;
     }
 
     public SessionsResponseDto update(UUID id, SessionsUpdateDto dto) {
