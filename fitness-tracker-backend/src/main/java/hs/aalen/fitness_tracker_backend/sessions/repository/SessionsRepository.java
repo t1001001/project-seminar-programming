@@ -14,7 +14,7 @@ public interface SessionsRepository extends JpaRepository<Sessions, UUID> {
     Optional<Sessions> findByNameIgnoreCase(String name);
     
     // NEUE Methode hinzufügen:
-    Optional<Sessions> findByNameAndScheduledDateAndPlanId(
+    Optional<Sessions> findByNameAndScheduledDateAndPlan_Id(
         String name, 
         LocalDate scheduledDate, 
         UUID planId
