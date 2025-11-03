@@ -6,7 +6,10 @@ import lombok.Setter;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
+import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 
 import java.time.LocalDate;
 
@@ -22,8 +25,10 @@ public class Sessions {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = true)
-    private UUID planId;
+    @ManyToOne
+    @JoinColumn(name = "plan_id")
+    @JsonBackReference
+    private Plans plan;
 
     @Column(nullable = false)
     private String name;
