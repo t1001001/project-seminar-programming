@@ -6,6 +6,8 @@ import lombok.Setter;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 
@@ -25,6 +27,7 @@ public class Sessions {
 
     @ManyToOne
     @JoinColumn(name = "plan_id")
+    @JsonBackReference
     private Plans plan;
 
     @Column(nullable = false)

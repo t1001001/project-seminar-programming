@@ -64,6 +64,7 @@ public class SessionsService {
         Sessions session = mapper.map(dto, Sessions.class);
         session.setId(null);
         session.setPlan(plan);
+        plan.getSessions().add(session);
         session.setExerciseExecutions(exercises);
         Sessions saved = sessionsRepository.save(session);
         SessionsResponseDto response = mapper.map(saved, SessionsResponseDto.class);
@@ -97,8 +98,13 @@ public class SessionsService {
                 .orElseThrow(() -> new EntityNotFoundException("Exercise not found")))
             .toList();
 
+        if (!existingSession.getPlan().equals(plan)) {
+            existingSession.getPlan().getSessions().remove(existingSession);
+            plan.getSessions().add(existingSession);
+            existingSession.setPlan(plan);
+        }
+
         // Update fields
-        existingSession.setPlan(plan);
         existingSession.setName(dto.getName());
         existingSession.setScheduledDate(dto.getScheduledDate());
         existingSession.setExerciseExecutions(exercises);
