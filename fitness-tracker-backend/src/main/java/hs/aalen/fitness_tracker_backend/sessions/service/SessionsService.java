@@ -2,6 +2,8 @@ package hs.aalen.fitness_tracker_backend.sessions.service;
 
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 import hs.aalen.fitness_tracker_backend.plans.repository.PlansRepository;
+import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
+import hs.aalen.fitness_tracker_backend.exercises.repository.ExercisesRepository;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsCreateDto;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsResponseDto;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsUpdateDto;
@@ -20,11 +22,13 @@ public class SessionsService {
 
     private final SessionsRepository sessionsRepository;
     private final PlansRepository plansRepository;
+    private final ExercisesRepository exercisesRepository;
     private final ModelMapper mapper = new ModelMapper();
 
-    public SessionsService(SessionsRepository sessionsRepository, PlansRepository plansRepository) {
+    public SessionsService(SessionsRepository sessionsRepository, PlansRepository plansRepository, ExercisesRepository exercisesRepository) {
         this.sessionsRepository = sessionsRepository;
         this.plansRepository = plansRepository;
+        this.exercisesRepository = exercisesRepository;
     }
 
     public List<SessionsResponseDto> getAll() {
@@ -53,12 +57,18 @@ public class SessionsService {
         }
         Plans plan = plansRepository.findById(dto.getPlanId())
                 .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+        List<Exercises> exercises = dto.getExerciseExecutions().stream()
+            .map(id -> exercisesRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Exercise not found")))
+            .toList();
         Sessions session = mapper.map(dto, Sessions.class);
         session.setId(null);
         session.setPlan(plan);
+        session.setExerciseExecutions(exercises);
         Sessions saved = sessionsRepository.save(session);
         SessionsResponseDto response = mapper.map(saved, SessionsResponseDto.class);
         response.setPlanId(saved.getPlan().getId());
+        response.setExerciseExecutions(saved.getExerciseExecutions());
         return response;
     }
 
@@ -82,11 +92,16 @@ public class SessionsService {
         Plans plan = plansRepository.findById(dto.getPlanId())
                 .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
 
+        List<Exercises> exercises = dto.getExerciseExecutions().stream()
+            .map(exerciseId -> exercisesRepository.findById(exerciseId)
+                .orElseThrow(() -> new EntityNotFoundException("Exercise not found")))
+            .toList();
+
         // Update fields
         existingSession.setPlan(plan);
         existingSession.setName(dto.getName());
         existingSession.setScheduledDate(dto.getScheduledDate());
-        existingSession.setExerciseExecutions(dto.getExerciseExecutions());
+        existingSession.setExerciseExecutions(exercises);
 
         Sessions saved = sessionsRepository.save(existingSession);
         return mapper.map(saved, SessionsResponseDto.class);

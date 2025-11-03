@@ -8,8 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
-
 @Data
 public class SessionsUpdateDto {
 
@@ -21,5 +19,5 @@ public class SessionsUpdateDto {
     @NotNull
     private LocalDate scheduledDate;
 
-    private List<Exercises> exerciseExecutions;
+    private List<UUID> exerciseExecutions;
 }
