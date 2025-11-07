@@ -105,6 +105,77 @@ POST api/v1/exercises
 }
 ```
 
+## Plans endpoint
+
+### Get all plans
+**Method:** ```GET```
+
+**Path:** ```api/v1/plans```
+
+**Request example:**
+```
+GET api/v1/plans
+```
+
+**Response example:**
+```json
+[
+  {
+    "id": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
+    "name": "Push Day",
+    "description": "Trainingsplan für Brust, Schulter und Trizeps.",
+    "sessions": []
+  }
+]
+```
+
+### Get a plan by ID
+**Method:** ```GET```
+
+**Path:** ```api/v1/exercises/{id}```
+
+**Request example:**
+```
+GET api/v1/plans/38cb6d7c-9e29-4352-873d-bdf1825b0aad
+```
+
+**Response example:**
+```json
+{
+  "id": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
+  "name": "Push Day",
+  "description": "Trainingsplan für Brust, Schulter und Trizeps.",
+  "sessions": []
+}
+```
+
+### Create a plan
+**Method:** ```POST```
+
+**Path:** ```api/v1/plans```
+
+**Request example:**
+```
+POST api/v1/plans
+```
+```json
+{
+    "name": "Leg Day",
+    "description": "Trainingsplan für Beine"
+}
+```
+** Please note that there is an optional field "session" which takes a list of session IDs**
+
+**Response example:**
+```json
+{
+    "id": "b72b2159-ffbe-4a4b-9398-c72f32452f8d",
+    "name": "Leg Day",
+    "description": "Trainingsplan für Beine",
+    "sessions": null
+}
+```
+
 ## Sessions endpoint
 
 ### Get all sessions
