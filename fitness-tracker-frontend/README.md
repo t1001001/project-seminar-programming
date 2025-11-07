@@ -106,3 +106,19 @@ CREATE fitness-tracker-frontend/public/favicon.ico (15086 bytes)
 ✔ Packages installed successfully.
     Directory is already under version control. Skipping initialization of git.
 PS C:\Users\\Desktop\Projekt-Seminar\project-seminar-programming>
+
+----------------------------------------------------------------------------
+npm run build -- --watch
+"To run build in "fitness-tracker-frontend" integrated terminal
+"Watch rebuilds the files when something is changed"
+
+
+To install dependencies
+npm ci
+
+Backend --> Über Main
+
+Frontend:
+
+cd fitness-tracker-frontend
+npm start

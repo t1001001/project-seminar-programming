@@ -50,3 +50,8 @@ buildNumber.properties
 
 # VS Code
 .vscode/
+
+# Angular / Node                              
+fitness-tracker-frontend/node_modules/     
+fitness-tracker-frontend/dist/              
+npm-debug.log*                            
