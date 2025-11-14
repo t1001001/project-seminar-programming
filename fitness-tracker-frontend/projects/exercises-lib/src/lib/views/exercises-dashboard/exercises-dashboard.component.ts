@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Exercise } from '../../domain/models/exercise.model';
@@ -7,28 +7,27 @@ import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card.comp
 
 @Component({
   selector: 'ex-exercises-dashboard',
-  standalone: true,
-  imports: [CommonModule, ExerciseCardComponent],
+  imports: [AsyncPipe, ExerciseCardComponent],
   template: `
     <section class="exercise-dashboard">
       <h2>Exercises</h2>
 
-      <ng-container *ngIf="exercises$ | async as exercises; else loading">
-        <p *ngIf="!exercises.length" class="empty-state">
-          No exercises available. Create one to get started.
-        </p>
-
-        <div class="list" *ngIf="exercises.length">
-          <ex-exercise-card
-            *ngFor="let exercise of exercises"
-            [exercise]="exercise"
-          ></ex-exercise-card>
-        </div>
-      </ng-container>
-
-      <ng-template #loading>
+      @if (exercises$ | async; as exercises) {
+        @if (!exercises.length) {
+          <p class="empty-state">
+            No exercises available. Create one to get started.
+          </p>
+        }
+        @if (exercises.length) {
+          <div class="list">
+            @for (exercise of exercises; track exercise.id) {
+              <ex-exercise-card [exercise]="exercise" />
+            }
+          </div>
+        }
+      } @else {
         <p>Loading exercises…</p>
-      </ng-template>
+      }
     </section>
   `,
   styles: [

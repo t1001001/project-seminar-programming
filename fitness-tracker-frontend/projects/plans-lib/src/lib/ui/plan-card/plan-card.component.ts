@@ -1,20 +1,19 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Plan } from '../../domain/models/plan.model';
 
 @Component({
   selector: 'pl-plan-card',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [TitleCasePipe],
   template: `
     <article class="plan-card">
       <header>
-        <h3>{{ plan?.title }}</h3>
-        <small>{{ plan?.difficulty | titlecase }}</small>
+        <h3>{{ plan()?.title }}</h3>
+        <small>{{ plan()?.difficulty | titlecase }}</small>
       </header>
-      <p>{{ plan?.description || 'No plan description provided.' }}</p>
+      <p>{{ plan()?.description || 'No plan description provided.' }}</p>
       <footer>
-        Sessions: {{ plan?.sessionCount }}
+        Sessions: {{ plan()?.sessionCount }}
       </footer>
     </article>
   `,
@@ -42,5 +41,5 @@ import { Plan } from '../../domain/models/plan.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanCardComponent {
-  @Input() plan: Plan | null = null;
+  plan = input<Plan | null>(null);
 }

@@ -1,16 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { HomeFeature } from '../../domain/models/home-feature.model';
 
 @Component({
   selector: 'home-feature-card',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <article class="feature-card">
-      <div class="icon" aria-hidden="true">{{ feature?.icon }}</div>
-      <h3>{{ feature?.title }}</h3>
-      <p>{{ feature?.description }}</p>
+      <div class="icon" aria-hidden="true">{{ feature().icon }}</div>
+      <h3>{{ feature().title }}</h3>
+      <p>{{ feature().description }}</p>
     </article>
   `,
   styles: [
@@ -45,5 +43,5 @@ import { HomeFeature } from '../../domain/models/home-feature.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeFeatureCardComponent {
-  @Input({ required: true }) feature!: HomeFeature;
+  feature = input.required<HomeFeature>();
 }

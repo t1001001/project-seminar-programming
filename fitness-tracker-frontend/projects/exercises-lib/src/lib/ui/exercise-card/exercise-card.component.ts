@@ -1,20 +1,19 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { UpperCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Exercise } from '../../domain/models/exercise.model';
 
 @Component({
   selector: 'ex-exercise-card',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [UpperCasePipe],
   template: `
     <article class="exercise-card">
       <header>
-        <h3>{{ exercise?.name }}</h3>
-        <span class="badge">{{ exercise?.intensity | uppercase }}</span>
+        <h3>{{ exercise()?.name }}</h3>
+        <span class="badge">{{ exercise()?.intensity | uppercase }}</span>
       </header>
-      <p>{{ exercise?.description || 'No description provided.' }}</p>
+      <p>{{ exercise()?.description || 'No description provided.' }}</p>
       <footer>
-        Duration: {{ exercise?.durationMinutes }} min
+        Duration: {{ exercise()?.durationMinutes }} min
       </footer>
     </article>
   `,
@@ -47,5 +46,5 @@ import { Exercise } from '../../domain/models/exercise.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseCardComponent {
-  @Input() exercise: Exercise | null = null;
+  exercise = input<Exercise | null>(null);
 }

@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-plans-overview',
-  standalone: true,
   imports: [],
   templateUrl: './plans-overview.html',
   styleUrl: './plans-overview.scss',

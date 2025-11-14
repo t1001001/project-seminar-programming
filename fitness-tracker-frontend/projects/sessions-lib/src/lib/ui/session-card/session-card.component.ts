@@ -1,20 +1,19 @@
-import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Session } from '../../domain/models/session.model';
 
 @Component({
   selector: 'ss-session-card',
-  standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [DatePipe],
   template: `
-    <article class="session-card" [class.session-card--completed]="session?.completed">
+    <article class="session-card" [class.session-card--completed]="session()?.completed">
       <header>
-        <h3>Session {{ session?.id }}</h3>
-        <small>{{ session?.scheduledAt | date: 'medium' }}</small>
+        <h3>Session {{ session()?.id }}</h3>
+        <small>{{ session()?.scheduledAt | date: 'medium' }}</small>
       </header>
-      <p>{{ session?.notes || 'No session notes yet.' }}</p>
+      <p>{{ session()?.notes || 'No session notes yet.' }}</p>
       <footer>
-        Status: {{ session?.completed ? 'Completed' : 'Scheduled' }}
+        Status: {{ session()?.completed ? 'Completed' : 'Scheduled' }}
       </footer>
     </article>
   `,
@@ -44,5 +43,5 @@ import { Session } from '../../domain/models/session.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SessionCardComponent {
-  @Input() session: Session | null = null;
+  session = input<Session | null>(null);
 }

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HomeFeature } from '../../domain/models/home-feature.model';
@@ -7,8 +7,7 @@ import { HomeFeatureCardComponent } from '../../ui/home-feature-card/home-featur
 
 @Component({
   selector: 'home-home-dashboard',
-  standalone: true,
-  imports: [CommonModule, HomeFeatureCardComponent],
+  imports: [AsyncPipe, HomeFeatureCardComponent],
   template: `
     <section class="home-dashboard">
       <header>
@@ -17,9 +16,13 @@ import { HomeFeatureCardComponent } from '../../ui/home-feature-card/home-featur
         <p class="subtext">Plan your next move and stay in sync with your goals.</p>
       </header>
 
-      <div class="features" *ngIf="features$ | async as features">
-        <home-feature-card *ngFor="let feature of features" [feature]="feature" />
-      </div>
+      @if (features$ | async; as features) {
+        <div class="features">
+          @for (feature of features; track feature.title) {
+            <home-feature-card [feature]="feature" />
+          }
+        </div>
+      }
     </section>
   `,
   styles: [

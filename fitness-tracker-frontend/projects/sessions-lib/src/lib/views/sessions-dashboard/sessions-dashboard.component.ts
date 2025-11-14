@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Session } from '../../domain/models/session.model';
@@ -7,24 +7,27 @@ import { SessionCardComponent } from '../../ui/session-card/session-card.compone
 
 @Component({
   selector: 'ss-sessions-dashboard',
-  standalone: true,
-  imports: [CommonModule, SessionCardComponent],
+  imports: [AsyncPipe, SessionCardComponent],
   template: `
     <section class="session-dashboard">
       <h2>Sessions</h2>
 
-      <ng-container *ngIf="sessions$ | async as sessions; else loading">
-        <p *ngIf="!sessions.length" class="empty-state">
-          No sessions scheduled.
-        </p>
-        <div *ngIf="sessions.length" class="list">
-          <ss-session-card *ngFor="let session of sessions" [session]="session" />
-        </div>
-      </ng-container>
-
-      <ng-template #loading>
+      @if (sessions$ | async; as sessions) {
+        @if (!sessions.length) {
+          <p class="empty-state">
+            No sessions scheduled.
+          </p>
+        }
+        @if (sessions.length) {
+          <div class="list">
+            @for (session of sessions; track session.id) {
+              <ss-session-card [session]="session" />
+            }
+          </div>
+        }
+      } @else {
         <p>Loading sessions…</p>
-      </ng-template>
+      }
     </section>
   `,
   styles: [
