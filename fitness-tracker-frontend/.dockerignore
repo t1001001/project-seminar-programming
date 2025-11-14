@@ -1,0 +1,12 @@
+.DS_Store
+.angular
+.log
+.npm
+.nyc_output
+.sass-cache
+coverage
+dist
+node_modules
+tmp
+*.log
+*.tsbuildinfo
