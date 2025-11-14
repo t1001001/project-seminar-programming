@@ -93,6 +93,96 @@
           }
         }
       }
+    },
+    "exercises-lib": {
+      "projectType": "library",
+      "root": "projects/exercises-lib",
+      "sourceRoot": "projects/exercises-lib/src",
+      "prefix": "ex",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/exercises-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/exercises-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/exercises-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "plans-lib": {
+      "projectType": "library",
+      "root": "projects/plans-lib",
+      "sourceRoot": "projects/plans-lib/src",
+      "prefix": "pl",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/plans-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/plans-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/plans-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "sessions-lib": {
+      "projectType": "library",
+      "root": "projects/sessions-lib",
+      "sourceRoot": "projects/sessions-lib/src",
+      "prefix": "ss",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/sessions-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/sessions-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/sessions-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
     }
   }
 }
