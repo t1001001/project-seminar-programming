@@ -7,6 +7,9 @@
       "exercises-lib": [
         "./projects/exercises-lib/src/public-api"
       ],
+      "home-lib": [
+        "./projects/home-lib/src/public-api"
+      ],
       "plans-lib": [
         "./projects/plans-lib/src/public-api"
       ],
@@ -58,6 +61,12 @@
     },
     {
       "path": "./projects/sessions-lib/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/home-lib/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/home-lib/tsconfig.spec.json"
     }
   ]
 }
