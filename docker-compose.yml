@@ -1,0 +1,16 @@
+services:
+  backend:
+    image: fitness-tracker-backend-app
+    build:
+      context: ./fitness-tracker-backend
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: fitness-tracker-frontend-app
+    build:
+      context: ./fitness-tracker-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend

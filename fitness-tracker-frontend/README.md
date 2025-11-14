@@ -36,6 +36,17 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+## Running with Docker
+
+You can bundle and serve the compiled Angular app via nginx using the provided Dockerfile.
+
+```bash
+docker build -t fitness-tracker-frontend-app .
+docker run -p 4200:80 fitness-tracker-frontend-app
+```
+
+Open `http://localhost:4200` in your browser once the container is running.
+
 ## Running unit tests
 
 To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
