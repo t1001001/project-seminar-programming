@@ -1,7 +1,8 @@
+import { Exercise } from 'exercises-lib';
+
 export interface Session {
   id: string;
-  planId: string;
-  scheduledAt: string;
-  completed: boolean;
-  notes?: string;
+  name: string;
+  scheduledDate: string; 
+  exerciseExecutions: Exercise[];
 }
