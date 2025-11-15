@@ -1,22 +1,16 @@
-# Build static assets
-FROM node:22-alpine AS build
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Install deps with cache-friendly copy
+# Install dependencies
 COPY package*.json ./
 RUN npm ci
 
-# Copy sources and build Angular app
+# Copy source files
 COPY . .
-RUN npm run build -- --configuration=production
 
-# Serve via nginx
-FROM nginx:1.27-alpine
+# Expose Angular dev server port
+EXPOSE 4200
 
-WORKDIR /usr/share/nginx/html
-
-# Copy built assets into nginx html directory
-COPY --from=build /app/dist/fitness-tracker-frontend/browser .
-
-EXPOSE 80
+# Start Angular dev server
+CMD ["npm", "start", "--", "--host", "0.0.0.0", "--poll", "2000"]
