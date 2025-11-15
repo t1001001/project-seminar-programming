@@ -1,50 +1,28 @@
-import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { Router } from '@angular/router';
 import { Exercise } from '../../domain/models/exercise.model';
 
 @Component({
   selector: 'ex-exercise-card',
-  imports: [UpperCasePipe],
-  template: `
-    <article class="exercise-card">
-      <header>
-        <h3>{{ exercise()?.name }}</h3>
-        <span class="badge">{{ exercise()?.intensity | uppercase }}</span>
-      </header>
-      <p>{{ exercise()?.description || 'No description provided.' }}</p>
-      <footer>
-        Duration: {{ exercise()?.durationMinutes }} min
-      </footer>
-    </article>
-  `,
-  styles: [
-    `
-      .exercise-card {
-        border: 1px solid #e2e8f0;
-        border-radius: 0.75rem;
-        padding: 1rem;
-        background: white;
-      }
-      header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-      }
-      .badge {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        color: #475569;
-      }
-      footer {
-        margin-top: 0.5rem;
-        font-size: 0.875rem;
-        color: #475569;
-      }
-    `,
-  ],
+  imports: [MatCardModule, MatButtonModule],
+  templateUrl: './exercise-card.component.html',
+  styleUrl: './exercise-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseCardComponent {
-  exercise = input<Exercise | null>(null);
+  private readonly router = inject(Router);
+  
+  exercise = input.required<Exercise>();
+  delete = output<string>();
+
+  onCardClick(): void {
+    this.router.navigate(['/exercises', this.exercise().id]);
+  }
+
+  onDelete(event: Event): void {
+    event.stopPropagation();
+    this.delete.emit(this.exercise().id);
+  }
 }
