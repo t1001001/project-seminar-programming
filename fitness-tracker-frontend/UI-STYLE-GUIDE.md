@@ -203,6 +203,46 @@ this.dialog.open(Component, {
 - **Destructive Action**: Use delete button style (coral red)
 - **Cancel**: Use text button style (no background, green on hover)
 
+## 📢 Snackbar (Notifications)
+
+### Configuration
+
+```typescript
+this.snackBar.open(message, action, {
+  duration: 3000,
+  horizontalPosition: 'center',
+  verticalPosition: 'bottom',
+  panelClass: ['custom-snackbar-class'], // Optional
+});
+```
+
+### Styling
+
+**Default Snackbar:**
+```scss
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--fitness-dark);
+  --mat-snack-bar-button-color: var(--fitness-primary);
+}
+```
+
+**Error Variant:**
+```scss
+.error-snackbar {
+  --mdc-snackbar-container-color: #FF6B6B;
+  --mat-snack-bar-button-color: #FFFFFF;
+}
+```
+
+### Guidelines
+
+- **Duration**: 3-5 seconds
+- **Position**: `horizontalPosition: 'center'`, `verticalPosition: 'bottom'`
+- **Action Button Color**: Use `var(--fitness-primary)` for default, white for errors
+- **Background**: Dark (`var(--fitness-dark)`) for default, coral red (`#FF6B6B`) for errors
+- **Message**: Keep concise and clear
+- **Panel Classes**: Use custom classes for variants (error, warning, info)
+
 ## 📱 Responsive Breakpoints
 
 ```css
