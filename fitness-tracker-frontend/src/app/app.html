@@ -1,15 +1,21 @@
-<main class="app-shell">
-  <header class="app-header">
-    <h1>Fitness Tracker</h1>
-    <nav>
-      <a routerLink="/home" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a>
-      <a routerLink="/exercises" routerLinkActive="active" ariaCurrentWhenActive="page">Exercises</a>
-      <a routerLink="/plans" routerLinkActive="active" ariaCurrentWhenActive="page">Plans</a>
-      <a routerLink="/sessions" routerLinkActive="active" ariaCurrentWhenActive="page">Sessions</a>
+<mat-toolbar class="app-toolbar">
+  <div class="toolbar-content">
+    <div class="app-brand">
+      <svg class="app-logo-full" viewBox="0 0 280 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 0C13.4315 0 0 13.4315 0 30C0 46.5685 13.4315 60 30 60V30H60C60 13.4315 46.5685 0 30 0Z" fill="#0DF259"/>
+        <text x="75" y="42" font-family="'Poppins', sans-serif" font-size="36" font-weight="700" fill="#111813" letter-spacing="-1">FitTrack</text>
+      </svg>
+    </div>
+    <nav class="app-nav">
+      <a mat-button routerLink="/home" routerLinkActive="active-link">Home</a>
+      <a mat-button routerLink="/exercises" routerLinkActive="active-link">Exercises</a>
+      <a mat-button routerLink="/plans" routerLinkActive="active-link">Plans</a>
+      <a mat-button routerLink="/sessions" routerLinkActive="active-link">Sessions</a>
     </nav>
-  </header>
+    <span class="spacer"></span>
+  </div>
+</mat-toolbar>
 
-  <section class="app-content">
-    <router-outlet />
-  </section>
+<main class="app-content">
+  <router-outlet />
 </main>
