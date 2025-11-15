@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
+import { ExerciseDetailComponent } from 'exercises-lib';
 
 @Component({
   selector: 'app-exercises-details',
-  imports: [],
-  templateUrl: './exercises-details.html',
+  imports: [ExerciseDetailComponent],
+  template: `<ex-exercise-detail />`,
   styleUrl: './exercises-details.scss',
 })
-export class ExercisesDetails {
-
-}
+export class ExercisesDetails {}
