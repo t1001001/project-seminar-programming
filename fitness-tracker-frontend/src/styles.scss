@@ -86,3 +86,21 @@ html, body {
   --fitness-white: #FFFFFF;
   --fitness-dark: #111813;
 }
+
+// Custom dialog styling
+.custom-dialog-container .mat-mdc-dialog-container {
+  background-color: #FFF !important;
+  border-radius: 12px !important;
+}
+
+// Custom snackbar styling
+.success-snackbar {
+  .mdc-snackbar__surface {
+    background-color: var(--fitness-primary) !important;
+  }
+  
+  .mat-mdc-snack-bar-label {
+    color: var(--fitness-dark) !important;
+    font-weight: 500;
+  }
+}
