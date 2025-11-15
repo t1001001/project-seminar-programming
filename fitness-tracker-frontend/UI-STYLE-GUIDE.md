@@ -60,10 +60,15 @@ transform: translateY(-2px);
 box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
 ```
 
-### Update Button (Blue)
+**Usage:**
+- Use for create/add actions
+- For edit actions specifically, include an `edit` icon (pen) before the button text
+- Edit button example: `<mat-icon>edit</mat-icon> Edit`
+
+### Update Button (Light Blue)
 ```css
-background-color: #3B82F6;
-color: white;
+background-color: #74C4FC;
+color: var(--fitness-dark);
 border-radius: 8px;
 padding: 0.5rem 1.5rem;
 font-weight: 500;
@@ -74,10 +79,15 @@ transition: all 0.2s ease;
 
 **Hover State:**
 ```css
-background-color: #2563EB;
+background-color: #5AB8FA;
 transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+box-shadow: 0 4px 12px rgba(116, 196, 252, 0.3);
 ```
+
+**Usage:**
+- Use for update/edit actions that modify existing data
+- Always use this specific blue color (#74C4FC) for consistency
+- Pairs with Cancel (text button) and Delete (coral red) buttons
 
 ### Delete Button (Coral Red)
 ```css
@@ -97,6 +107,10 @@ background-color: #FF5252;
 transform: translateY(-2px);
 box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
 ```
+
+**Icon:**
+- Always include a `delete` icon (trash can) before the button text
+- Example: `<mat-icon>delete</mat-icon> Delete`
 
 ### Text Button (Cancel, Secondary Actions)
 ```css
@@ -118,6 +132,9 @@ color: var(--fitness-primary);
 
 ### FAB (Floating Action Button)
 ```css
+position: fixed;
+bottom: 2rem;
+left: 2rem;
 background-color: var(--fitness-primary);
 color: var(--fitness-dark);
 border-radius: 28px;
@@ -126,6 +143,7 @@ height: 56px;
 font-weight: 600;
 text-transform: none;
 box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
+z-index: 100;
 transition: all 0.2s ease;
 ```
 
@@ -135,6 +153,46 @@ background-color: #0BE84D;
 transform: translateY(-2px);
 box-shadow: 0 6px 16px rgba(13, 242, 89, 0.4);
 ```
+
+**Icon:**
+- Always include an `add` icon (plus sign) before the button text
+- Icon size: `24px`
+- Icon margin-right: `0.5rem`
+- Example: `<span class="material-icons">add</span> Create`
+
+**Usage:**
+- Use for primary create/add actions on overview/list pages
+- Always use extended FAB (with text) rather than icon-only
+- Fixed position at bottom-left of the page
+- Stays visible while scrolling
+
+**Responsive:**
+```css
+@media (max-width: 768px) {
+  bottom: 1rem;
+  left: 1rem;
+}
+```
+
+### Button Usage Guidelines
+
+**Action Type → Button Style:**
+- **Create/Add**: Primary Button (Green `#0DF259`)
+- **Update/Edit**: Update Button (Light Blue `#74C4FC`)
+- **Delete/Remove**: Delete Button (Coral Red `#FF6B6B`)
+- **Cancel/Back**: Text Button (Transparent, no background)
+- **Main Page Action**: FAB (Green, floating)
+
+**Important Rules:**
+- ✅ Always use Light Blue (`#74C4FC`) for update/edit actions
+- ✅ Always use Coral Red (`#FF6B6B`) for delete/remove actions
+- ✅ Always use Green (`#0DF259`) for create/add actions
+- ✅ Never mix button colors - each action type has one designated color
+- ✅ Update buttons should always have dark text (`var(--fitness-dark)`)
+- ✅ Delete buttons should always have white text
+- ✅ Delete buttons must include a `delete` icon (trash can) before the text
+- ✅ Edit buttons must include an `edit` icon (pen) before the text
+- ✅ FAB buttons for create actions must include an `add` icon (plus sign) before the text
 
 ## 🏷️ Tags & Chips
 
