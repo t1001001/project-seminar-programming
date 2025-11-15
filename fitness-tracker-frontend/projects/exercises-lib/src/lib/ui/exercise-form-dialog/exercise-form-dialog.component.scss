@@ -4,6 +4,7 @@ mat-dialog-content {
   gap: 1rem;
   min-width: 400px;
   padding: 1rem 0;
+  overflow: visible !important;
 }
 
 mat-form-field {
