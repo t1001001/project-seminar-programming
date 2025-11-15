@@ -1,0 +1,93 @@
+.exercise-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.back-btn {
+  align-self: flex-start;
+  color: var(--fitness-dark) !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  color: var(--fitness-primary) !important;
+}
+
+.back-btn .material-icons {
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.detail-card {
+  background-color: #FFF !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(17, 24, 19, 0.1) !important;
+  box-shadow: none !important;
+  max-width: 800px;
+}
+
+.detail-card mat-card-content {
+  padding: 2rem !important;
+}
+
+h1 {
+  margin: 0 0 2rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--fitness-dark);
+}
+
+.detail-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-actions {
+  padding: 1.5rem 2rem !important;
+  border-top: 1px solid rgba(17, 24, 19, 0.1);
+}
+
+.update-btn {
+  background-color: #3B82F6 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease;
+}
+
+.update-btn:hover:not(:disabled) {
+  background-color: #2563EB !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+.update-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .detail-card mat-card-content {
+    padding: 1.5rem !important;
+  }
+
+  mat-card-actions {
+    padding: 1rem 1.5rem !important;
+  }
+}
