@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
@@ -17,6 +18,7 @@ import { ExerciseProvider } from '../../services/providers/exercise.provider';
     MatCardModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatSnackBarModule,
     ReactiveFormsModule,
@@ -34,6 +36,8 @@ export class ExerciseDetailComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   private exerciseId: string | null = null;
+  exercise: Exercise | null = null;
+  isEditMode = false;
 
   readonly form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -53,6 +57,7 @@ export class ExerciseDetailComponent implements OnInit {
     this.exerciseProvider.getExercises().subscribe(exercises => {
       const exercise = exercises.find(ex => ex.id === id);
       if (exercise) {
+        this.exercise = exercise;
         this.form.patchValue({
           name: exercise.name,
           category: exercise.category,
@@ -87,5 +92,22 @@ export class ExerciseDetailComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  enableEditMode(): void {
+    this.isEditMode = true;
+  }
+
+  cancelEdit(): void {
+    this.isEditMode = false;
+    if (this.exerciseId) {
+      this.loadExercise(this.exerciseId);
+    }
+    this.form.markAsPristine();
+  }
+
+  saveChanges(): void {
+    this.onUpdate();
+    this.isEditMode = false;
   }
 }
