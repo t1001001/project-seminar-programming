@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { Exercise } from '../../domain/models/exercise.model';
 
 @Component({
   selector: 'ex-exercise-card',
-  imports: [MatCardModule, MatButtonModule],
+  imports: [MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './exercise-card.component.html',
   styleUrl: './exercise-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

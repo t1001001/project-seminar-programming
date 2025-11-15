@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface DeleteDialogData {
   exerciseName: string;
@@ -8,7 +9,7 @@ export interface DeleteDialogData {
 
 @Component({
   selector: 'ex-exercise-delete-dialog',
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './exercise-delete-dialog.component.html',
   styleUrl: './exercise-delete-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
