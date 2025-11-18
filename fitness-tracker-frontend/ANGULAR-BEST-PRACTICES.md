@@ -391,6 +391,89 @@ export class DataService {
 }
 ```
 
+### Service Layer Architecture
+
+For libraries, use a two-tier service architecture:
+
+1. **Provider Services** - Handle data storage and state management
+2. **Logic Services** - Orchestrate business logic and call providers
+
+```typescript
+// provider-services/exercise-provider.service.ts
+// ✅ Define models in provider service (co-located)
+export interface Exercise {
+  id: string;
+  name: string;
+  category: string;
+  muscleGroups: string[];
+  description?: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class ExerciseProviderService {
+  private exercises$ = new BehaviorSubject<Exercise[]>([]);
+
+  getExercises(): Observable<Exercise[]> {
+    return this.exercises$.asObservable();
+  }
+
+  addExercise(exercise: Omit<Exercise, 'id'>): void {
+    const newExercise: Exercise = {
+      ...exercise,
+      id: Date.now().toString(),
+    };
+    const current = this.exercises$.value;
+    this.exercises$.next([...current, newExercise]);
+  }
+
+  updateExercise(exercise: Exercise): void {
+    const current = this.exercises$.value;
+    const index = current.findIndex(ex => ex.id === exercise.id);
+    if (index !== -1) {
+      const updated = [...current];
+      updated[index] = exercise;
+      this.exercises$.next(updated);
+    }
+  }
+
+  deleteExercise(id: string): void {
+    const current = this.exercises$.value;
+    this.exercises$.next(current.filter(ex => ex.id !== id));
+  }
+}
+
+// logic-services/exercise-logic.service.ts
+// ✅ Import model and service from provider
+import { Exercise, ExerciseProviderService } from '../provider-services/exercise-provider.service';
+
+@Injectable({ providedIn: 'root' })
+export class ExerciseLogicService {
+  private readonly provider = inject(ExerciseProviderService);
+
+  loadExercises(): Observable<Exercise[]> {
+    return this.provider.getExercises();
+  }
+
+  createExercise(exercise: Omit<Exercise, 'id'>): void {
+    this.provider.addExercise(exercise);
+  }
+
+  updateExercise(exercise: Exercise): void {
+    this.provider.updateExercise(exercise);
+  }
+
+  removeExercise(id: string): void {
+    this.provider.deleteExercise(id);
+  }
+}
+```
+
+**Benefits:**
+- Clear separation of concerns
+- Provider handles state, logic handles orchestration
+- Models co-located with the data they represent
+- Easy to test and maintain
+
 ---
 
 ## File Organization
@@ -424,24 +507,67 @@ projects/
 ├── library-name/
 │   ├── src/
 │   │   ├── lib/
-│   │   │   ├── domain/          # Models, interfaces
-│   │   │   ├── services/        # Business logic
-│   │   │   │   ├── business/
-│   │   │   │   └── providers/
-│   │   │   ├── ui/              # Reusable UI components
+│   │   │   ├── logic-services/      # Business logic services
+│   │   │   │   ├── service-name.service.ts
+│   │   │   │   └── service-name.service.spec.ts
+│   │   │   ├── provider-services/   # Data providers (models defined here)
+│   │   │   │   ├── provider-name.service.ts
+│   │   │   │   └── provider-name.service.spec.ts
+│   │   │   ├── ui/                  # Reusable UI components
 │   │   │   │   └── component-name/
 │   │   │   │       ├── component-name.component.ts
 │   │   │   │       ├── component-name.component.html
 │   │   │   │       ├── component-name.component.scss
 │   │   │   │       └── component-name.component.spec.ts
-│   │   │   └── views/           # Page-level components
-│   │   │       └── view-name/
-│   │   │           ├── view-name.component.ts
-│   │   │           ├── view-name.component.html
-│   │   │           ├── view-name.component.scss
-│   │   │           └── view-name.component.spec.ts
-│   │   └── public-api.ts
+│   │   │   ├── views/               # Page-level components
+│   │   │   │   └── view-name/
+│   │   │   │       ├── view-name.component.ts
+│   │   │   │       ├── view-name.component.html
+│   │   │   │       ├── view-name.component.scss
+│   │   │   │       └── view-name.component.spec.ts
+│   │   │   └── library-name.ts      # Barrel export file
+│   │   └── public-api.ts            # Public API (exports from library-name.ts)
 ```
+
+**Key Principles:**
+- **logic-services/**: Contains business logic that orchestrates data operations
+- **provider-services/**: Contains data providers and model interfaces (co-located)
+- **ui/**: Reusable, presentation-focused components (cards, dialogs, forms)
+- **views/**: Page-level components that compose UI components
+- **Barrel exports**: Use a central `library-name.ts` file to re-export all public APIs
+- **No separate models folder**: Define interfaces in the service files where they're used
+
+### Barrel Export Pattern
+
+Use a barrel file to centralize all library exports:
+
+```typescript
+// lib/library-name.ts
+// Services
+export * from './logic-services/exercise-logic.service';
+export * from './provider-services/exercise-provider.service';
+
+// UI Components
+export * from './ui/component-name/component-name.component';
+
+// View Components
+export * from './views/view-name/view-name.component';
+```
+
+```typescript
+// public-api.ts
+/*
+ * Public API Surface of library-name
+ */
+
+export * from './lib/library-name';
+```
+
+This approach:
+- Centralizes all exports in one place
+- Makes it easier to manage what's public vs internal
+- Simplifies the public API surface
+- Matches Angular CLI conventions
 
 ---
 
