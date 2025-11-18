@@ -42,4 +42,11 @@ public class ExercisesService {
         Exercises saved = repository.save(exercise);
         return mapper.map(saved, ExerciseResponseDto.class);
     }
+
+    public void delete(UUID id) {
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("Session not found");
+        }
+        repository.deleteById(id);
+    }
 }
