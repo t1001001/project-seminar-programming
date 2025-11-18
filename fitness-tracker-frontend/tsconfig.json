@@ -6,15 +6,6 @@
     "paths": {
       "exercises-lib": [
         "./projects/exercises-lib/src/public-api"
-      ],
-      "home-lib": [
-        "./projects/home-lib/src/public-api"
-      ],
-      "plans-lib": [
-        "./projects/plans-lib/src/public-api"
-      ],
-      "sessions-lib": [
-        "./projects/sessions-lib/src/public-api"
       ]
     },
     "strict": true,
@@ -49,24 +40,6 @@
     },
     {
       "path": "./projects/exercises-lib/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/plans-lib/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/plans-lib/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/sessions-lib/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/sessions-lib/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/home-lib/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/home-lib/tsconfig.spec.json"
     }
   ]
 }
