@@ -8,9 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { Exercise } from '../../domain/models/exercise.model';
-import { ExerciseService } from '../../services/business/exercise.service';
-import { ExerciseProvider } from '../../services/providers/exercise.provider';
+import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
+import { Exercise, ExerciseProviderService } from '../../provider-services/exercise-provider.service';
 
 @Component({
   selector: 'ex-exercise-detail',
@@ -30,8 +29,8 @@ import { ExerciseProvider } from '../../services/providers/exercise.provider';
 export class ExerciseDetailComponent implements OnInit {
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
-  private readonly exerciseService = inject(ExerciseService);
-  private readonly exerciseProvider = inject(ExerciseProvider);
+  private readonly exerciseService = inject(ExerciseLogicService);
+  private readonly exerciseProvider = inject(ExerciseProviderService);
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
 

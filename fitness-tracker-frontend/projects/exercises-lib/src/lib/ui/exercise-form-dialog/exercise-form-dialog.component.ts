@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Exercise } from '../../domain/models/exercise.model';
+import { Exercise } from '../../provider-services/exercise-provider.service';
 
 @Component({
   selector: 'ex-exercise-form-dialog',

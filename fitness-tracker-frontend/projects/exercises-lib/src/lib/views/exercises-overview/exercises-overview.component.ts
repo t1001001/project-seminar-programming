@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import { Exercise } from '../../domain/models/exercise.model';
-import { ExerciseService } from '../../services/business/exercise.service';
+import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
+import { Exercise } from '../../provider-services/exercise-provider.service';
 import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card.component';
 import { ExerciseDeleteDialogComponent, DeleteDialogData } from '../../ui/exercise-delete-dialog/exercise-delete-dialog.component';
 import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exercise-form-dialog.component';
@@ -17,7 +17,7 @@ import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exerc
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisesOverviewComponent {
-  private readonly exerciseService = inject(ExerciseService);
+  private readonly exerciseService = inject(ExerciseLogicService);
   private readonly dialog = inject(MatDialog);
 
   readonly exercises$: Observable<Exercise[]> = this.exerciseService.loadExercises();
