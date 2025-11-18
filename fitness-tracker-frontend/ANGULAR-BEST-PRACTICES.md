@@ -478,27 +478,75 @@ export class ExerciseLogicService {
 
 ## File Organization
 
-### Project Structure
+### Application Structure
+
+For the main Angular application, use a simple, flat structure:
 
 ```
 src/
 ├── app/
-│   ├── core/                    # Singleton services, guards, interceptors
-│   │   ├── services/
-│   │   ├── guards/
-│   │   └── interceptors/
-│   ├── shared/                  # Shared components, directives, pipes
-│   │   ├── components/
-│   │   ├── directives/
-│   │   └── pipes/
-│   ├── features/                # Feature modules (lazy loaded)
-│   │   ├── feature-name/
-│   │   │   ├── components/
-│   │   │   ├── services/
-│   │   │   └── feature-name.routes.ts
-│   └── app.routes.ts
-└── assets/
+│   ├── pages/                   # Page components (route targets)
+│   │   └── feature-name/
+│   │       ├── page-name/
+│   │       │   ├── page-name.ts
+│   │       │   ├── page-name.html
+│   │       │   ├── page-name.scss
+│   │       │   └── page-name.spec.ts
+│   ├── app.ts                   # Root component
+│   ├── app.html                 # Root template
+│   ├── app.scss                 # Root styles
+│   ├── app.routes.ts            # Route configuration
+│   └── app.config.ts            # App configuration
+├── assets/                      # Static assets
+└── main.ts                      # Bootstrap file
 ```
+
+**Key Principles:**
+- **pages/**: Contains page-level components that are route targets
+- **Flat structure**: Pages import components from libraries (e.g., `exercises-lib`)
+- **Thin pages**: Page components are simple wrappers that compose library components
+- **No business logic in app**: All logic lives in libraries
+
+**Example Page Component:**
+```typescript
+// pages/exercises/exercises-overview/exercises-overview.ts
+import { Component } from '@angular/core';
+import { ExercisesOverviewComponent } from 'exercises-lib';
+
+@Component({
+  selector: 'app-exercises-overview',
+  imports: [ExercisesOverviewComponent],
+  template: `<ex-exercises-overview />`,
+  styleUrl: './exercises-overview.scss',
+})
+export class ExercisesOverview {}
+```
+
+**Example Routes:**
+```typescript
+// app.routes.ts
+import { Routes } from '@angular/router';
+import { ExercisesOverview } from './pages/exercises/exercises-overview/exercises-overview';
+import { ExercisesDetails } from './pages/exercises/exercises-details/exercises-details';
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: '/exercises',
+    pathMatch: 'full',
+  },
+  {
+    path: 'exercises',
+    component: ExercisesOverview,
+  },
+  {
+    path: 'exercises/:id',
+    component: ExercisesDetails,
+  },
+];
+```
+
+---
 
 ### Library Structure (for Angular libraries)
 
