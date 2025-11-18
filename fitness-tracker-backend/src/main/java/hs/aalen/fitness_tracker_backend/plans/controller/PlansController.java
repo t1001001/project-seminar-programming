@@ -2,6 +2,7 @@ package hs.aalen.fitness_tracker_backend.plans.controller;
 
 import hs.aalen.fitness_tracker_backend.plans.dto.PlansCreateDTO;
 import hs.aalen.fitness_tracker_backend.plans.dto.PlansResponseDTO;
+import hs.aalen.fitness_tracker_backend.plans.dto.PlansUpdateDto;
 import hs.aalen.fitness_tracker_backend.plans.service.PlansService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -40,6 +41,31 @@ public class PlansController {
         try {
             PlansResponseDTO created = service.create(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteExercise(@PathVariable UUID id) {
+        try {
+            service.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateSession(
+            @PathVariable UUID id, 
+            @Valid @RequestBody PlansUpdateDto dto) {
+        try {
+            PlansResponseDTO updated = service.update(id, dto);
+            return ResponseEntity.ok(updated);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
