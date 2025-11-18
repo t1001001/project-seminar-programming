@@ -42,4 +42,11 @@ public class PlansService {
         Plans saved = repository.save(plans);
         return mapper.map(saved, PlansResponseDTO.class);
     }
+
+    public void delete(UUID id) {
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("Plan not found");
+        }
+        repository.deleteById(id);
+    }
 }

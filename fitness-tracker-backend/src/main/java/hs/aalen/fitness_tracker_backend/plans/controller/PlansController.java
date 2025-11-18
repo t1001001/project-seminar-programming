@@ -45,4 +45,14 @@ public class PlansController {
                     .body(e.getMessage());
         }
     }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteExercise(@PathVariable UUID id) {
+        try {
+            service.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }
