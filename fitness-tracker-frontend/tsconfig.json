@@ -9,6 +9,9 @@
       ],
       "plans-lib": [
         "./projects/plans-lib/src/public-api"
+      ],
+      "sessions-lib": [
+        "./projects/sessions-lib/src/public-api"
       ]
     },
     "strict": true,
@@ -49,6 +52,12 @@
     },
     {
       "path": "./projects/plans-lib/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/sessions-lib/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/sessions-lib/tsconfig.spec.json"
     }
   ]
 }
