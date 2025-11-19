@@ -395,8 +395,8 @@ export class DataService {
 
 For libraries, use a two-tier service architecture:
 
-1. **Provider Services** - Handle data storage and state management
-2. **Logic Services** - Orchestrate business logic and call providers
+1. **Provider Services** - Handle HTTP communication with backend APIs
+2. **Logic Services** - Handle business logic, error handling, and side effects
 
 ```typescript
 // provider-services/exercise-provider.service.ts
@@ -409,70 +409,152 @@ export interface Exercise {
   description?: string;
 }
 
+export interface ExerciseCreate {
+  name: string;
+  category: string;
+  muscleGroups: string[];
+  description?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExerciseProviderService {
-  private exercises$ = new BehaviorSubject<Exercise[]>([]);
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:8080/api/v1/exercises';
 
-  getExercises(): Observable<Exercise[]> {
-    return this.exercises$.asObservable();
+  // Stateless HTTP pass-through - no error handling
+  getAllExercises(): Observable<Exercise[]> {
+    return this.http.get<Exercise[]>(this.apiUrl);
   }
 
-  addExercise(exercise: Omit<Exercise, 'id'>): void {
-    const newExercise: Exercise = {
-      ...exercise,
-      id: Date.now().toString(),
-    };
-    const current = this.exercises$.value;
-    this.exercises$.next([...current, newExercise]);
+  createExercise(exercise: ExerciseCreate): Observable<Exercise> {
+    return this.http.post<Exercise>(this.apiUrl, exercise);
   }
 
-  updateExercise(exercise: Exercise): void {
-    const current = this.exercises$.value;
-    const index = current.findIndex(ex => ex.id === exercise.id);
-    if (index !== -1) {
-      const updated = [...current];
-      updated[index] = exercise;
-      this.exercises$.next(updated);
-    }
+  getExerciseById(id: string): Observable<Exercise> {
+    return this.http.get<Exercise>(`${this.apiUrl}/${id}`);
   }
 
-  deleteExercise(id: string): void {
-    const current = this.exercises$.value;
-    this.exercises$.next(current.filter(ex => ex.id !== id));
+  updateExercise(id: string, exercise: ExerciseCreate): Observable<Exercise> {
+    return this.http.put<Exercise>(`${this.apiUrl}/${id}`, exercise);
+  }
+
+  deleteExercise(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
 
 // logic-services/exercise-logic.service.ts
 // ✅ Import model and service from provider
-import { Exercise, ExerciseProviderService } from '../provider-services/exercise-provider.service';
+import { Exercise, ExerciseCreate, ExerciseProviderService } from '../provider-services/exercise-provider.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExerciseLogicService {
-  private readonly provider = inject(ExerciseProviderService);
+  private exerciseProviderService = inject(ExerciseProviderService);
+  
+  // Event emission for cross-component communication
+  private createdExerciseSubject = new Subject<Exercise>();
+  createdExercise$ = this.createdExerciseSubject.asObservable();
 
-  loadExercises(): Observable<Exercise[]> {
-    return this.provider.getExercises();
+  createExercise(exercise: ExerciseCreate): Observable<Exercise> {
+    return this.exerciseProviderService.createExercise(exercise).pipe(
+      tap((createdExercise) => {
+        this.createdExerciseSubject.next(createdExercise);
+      }),
+      catchError((err) => {
+        let errorMessage = 'Failed to create exercise';
+        
+        if (err.status === 409) {
+          errorMessage = err.error || 'Exercise with this name already exists';
+        } else if (err.status === 400) {
+          errorMessage = 'Invalid exercise data. Please check all required fields.';
+        } else if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+        
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 
-  createExercise(exercise: Omit<Exercise, 'id'>): void {
-    this.provider.addExercise(exercise);
+  getAllExercises(): Observable<Exercise[]> {
+    return this.exerciseProviderService.getAllExercises().pipe(
+      tap((exercises: Exercise[]) => {
+        console.log(exercises); // Logging side effect
+      }),
+      catchError((err) => {
+        let errorMessage = 'Failed to load exercises';
+        
+        if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+        
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 
-  updateExercise(exercise: Exercise): void {
-    this.provider.updateExercise(exercise);
+  getExerciseById(id: string): Observable<Exercise> {
+    return this.exerciseProviderService.getExerciseById(id).pipe(
+      catchError((err) => {
+        let errorMessage = 'Failed to load exercise details';
+        
+        if (err.status === 404) {
+          errorMessage = 'Exercise not found. It may have been deleted.';
+        } else if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+        
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 
-  removeExercise(id: string): void {
-    this.provider.deleteExercise(id);
+  updateExercise(id: string, exercise: ExerciseCreate): Observable<Exercise> {
+    return this.exerciseProviderService.updateExercise(id, exercise).pipe(
+      catchError((err) => {
+        let errorMessage = 'Failed to update exercise';
+        
+        if (err.status === 404) {
+          errorMessage = 'Exercise not found. It may have been deleted.';
+        } else if (err.status === 409) {
+          errorMessage = err.error || 'Exercise with this name already exists';
+        } else if (err.status === 400) {
+          errorMessage = 'Invalid exercise data. Please check all required fields.';
+        } else if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+        
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  removeExercise(id: string): Observable<void> {
+    return this.exerciseProviderService.deleteExercise(id).pipe(
+      catchError((err) => {
+        let errorMessage = 'Failed to delete exercise';
+        
+        if (err.status === 404) {
+          errorMessage = 'Exercise not found. It may have been already deleted.';
+        } else if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+        
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 }
 ```
 
 **Benefits:**
 - Clear separation of concerns
-- Provider handles state, logic handles orchestration
+- Provider handles HTTP communication (stateless)
+- Logic handles error transformation and business rules
+- Centralized error handling with user-friendly messages
 - Models co-located with the data they represent
 - Easy to test and maintain
+- Components receive simple `err.message` strings
 
 ---
 
