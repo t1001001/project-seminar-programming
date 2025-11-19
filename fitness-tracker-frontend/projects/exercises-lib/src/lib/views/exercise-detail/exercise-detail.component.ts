@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
-import { Exercise, ExerciseProviderService } from '../../provider-services/exercise-provider.service';
+import { Exercise } from '../../provider-services/exercise-provider.service';
 
 @Component({
   selector: 'ex-exercise-detail',
@@ -30,7 +30,6 @@ export class ExerciseDetailComponent implements OnInit {
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly exerciseService = inject(ExerciseLogicService);
-  private readonly exerciseProvider = inject(ExerciseProviderService);
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -54,27 +53,19 @@ export class ExerciseDetailComponent implements OnInit {
   }
 
   private loadExercise(id: string): void {
-    // First, try to load from backend
-    this.exerciseService.loadExercises().subscribe({
-      next: () => {
-        // Then get the specific exercise from the cache
-        this.exerciseProvider.getExercises().subscribe(exercises => {
-          const exercise = exercises.find(ex => ex.id === id);
-          if (exercise) {
-            this.exercise = exercise;
-            this.form.patchValue({
-              name: exercise.name,
-              category: exercise.category,
-              description: exercise.description || '',
-              muscleGroups: exercise.muscleGroups.join(', '),
-            });
-            this.cdr.markForCheck();
-          }
+    this.exerciseService.getExerciseById(id).subscribe({
+      next: (exercise) => {
+        this.exercise = exercise;
+        this.form.patchValue({
+          name: exercise.name,
+          category: exercise.category,
+          description: exercise.description || '',
+          muscleGroups: exercise.muscleGroups.join(', '),
         });
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('Error loading exercises:', err);
-        this.snackBar.open('Failed to load exercise details', 'Close', {
+        this.snackBar.open(err.message, 'Close', {
           duration: 3000,
           horizontalPosition: 'center',
           verticalPosition: 'bottom',
@@ -115,24 +106,7 @@ export class ExerciseDetailComponent implements OnInit {
           });
         },
         error: (err) => {
-          console.error('Error updating exercise:', err);
-          let errorMessage = 'Failed to update exercise';
-          
-          if (err.status === 404) {
-            // Not Found
-            errorMessage = 'Exercise not found. It may have been deleted.';
-          } else if (err.status === 409) {
-            // Conflict - Name already exists
-            errorMessage = err.error || 'Exercise with this name already exists';
-          } else if (err.status === 400) {
-            // Bad Request - Validation error
-            errorMessage = 'Invalid exercise data. Please check all required fields.';
-          } else if (err.status === 0) {
-            // Network error
-            errorMessage = 'Cannot connect to server. Please check your connection.';
-          }
-          
-          this.snackBar.open(errorMessage, 'Close', {
+          this.snackBar.open(err.message, 'Close', {
             duration: 5000,
             horizontalPosition: 'center',
             verticalPosition: 'bottom',

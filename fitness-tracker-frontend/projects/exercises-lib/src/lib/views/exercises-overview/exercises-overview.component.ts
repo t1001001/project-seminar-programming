@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/cor
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
 import { Exercise } from '../../provider-services/exercise-provider.service';
 import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card.component';
@@ -22,12 +22,17 @@ export class ExercisesOverviewComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly exercises$: Observable<Exercise[]> = this.exerciseService.getExercises();
+  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  readonly exercises$: Observable<Exercise[]> = this.refreshTrigger$.pipe(
+    switchMap(() => this.exerciseService.getAllExercises())
+  );
 
   ngOnInit(): void {
-    this.exerciseService.loadExercises().subscribe({
-      error: (err) => console.error('Error loading exercises:', err)
-    });
+    // exercises$ will automatically fetch on initialization
+  }
+
+  private refreshExercises(): void {
+    this.refreshTrigger$.next();
   }
 
   openCreateDialog(): void {
@@ -40,6 +45,7 @@ export class ExercisesOverviewComponent implements OnInit {
       if (result) {
         this.exerciseService.createExercise(result).subscribe({
           next: () => {
+            this.refreshExercises();
             this.snackBar.open('Exercise created successfully!', 'Close', {
               duration: 3000,
               horizontalPosition: 'center',
@@ -47,21 +53,7 @@ export class ExercisesOverviewComponent implements OnInit {
             });
           },
           error: (err) => {
-            console.error('Error creating exercise:', err);
-            let errorMessage = 'Failed to create exercise';
-            
-            if (err.status === 409) {
-              // Conflict - Name already exists
-              errorMessage = err.error || 'Exercise with this name already exists';
-            } else if (err.status === 400) {
-              // Bad Request - Validation error
-              errorMessage = 'Invalid exercise data. Please check all required fields.';
-            } else if (err.status === 0) {
-              // Network error
-              errorMessage = 'Cannot connect to server. Please check your connection.';
-            }
-            
-            this.snackBar.open(errorMessage, 'Close', {
+            this.snackBar.open(err.message, 'Close', {
               duration: 5000,
               horizontalPosition: 'center',
               verticalPosition: 'bottom',
@@ -83,6 +75,7 @@ export class ExercisesOverviewComponent implements OnInit {
       if (confirmed) {
         this.exerciseService.removeExercise(id).subscribe({
           next: () => {
+            this.refreshExercises();
             this.snackBar.open('Exercise deleted successfully!', 'Close', {
               duration: 3000,
               horizontalPosition: 'center',
@@ -90,18 +83,7 @@ export class ExercisesOverviewComponent implements OnInit {
             });
           },
           error: (err) => {
-            console.error('Error deleting exercise:', err);
-            let errorMessage = 'Failed to delete exercise';
-            
-            if (err.status === 404) {
-              // Not Found
-              errorMessage = 'Exercise not found. It may have been already deleted.';
-            } else if (err.status === 0) {
-              // Network error
-              errorMessage = 'Cannot connect to server. Please check your connection.';
-            }
-            
-            this.snackBar.open(errorMessage, 'Close', {
+            this.snackBar.open(err.message, 'Close', {
               duration: 5000,
               horizontalPosition: 'center',
               verticalPosition: 'bottom',
