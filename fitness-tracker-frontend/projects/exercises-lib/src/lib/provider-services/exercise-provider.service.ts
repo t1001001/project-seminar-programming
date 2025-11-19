@@ -1,8 +1,16 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 export interface Exercise {
-  id: string;
+  id: string; // UUID from backend
+  name: string;
+  category: string;
+  muscleGroups: string[];
+  description?: string;
+}
+
+export interface ExerciseCreate {
   name: string;
   category: string;
   muscleGroups: string[];
@@ -11,69 +19,50 @@ export interface Exercise {
 
 @Injectable({ providedIn: 'root' })
 export class ExerciseProviderService {
-  private exercises$ = new BehaviorSubject<Exercise[]>([
-    {
-      id: '1',
-      name: 'Bench Press',
-      category: 'Strength',
-      description: 'Classic upper body exercise for building chest strength',
-      muscleGroups: ['Chest', 'Triceps', 'Shoulders'],
-    },
-    {
-      id: '2',
-      name: 'Squats',
-      category: 'Strength',
-      description: 'Fundamental lower body compound movement',
-      muscleGroups: ['Quadriceps', 'Glutes', 'Hamstrings'],
-    },
-    {
-      id: '3',
-      name: 'Running',
-      category: 'Cardio',
-      description: 'Cardiovascular endurance training',
-      muscleGroups: ['Legs', 'Cardiovascular'],
-    },
-    {
-      id: '4',
-      name: 'Pull-ups',
-      category: 'Strength',
-      description: 'Bodyweight exercise for back and arm development',
-      muscleGroups: ['Back', 'Biceps', 'Forearms'],
-    },
-    {
-      id: '5',
-      name: 'Plank',
-      category: 'Core',
-      description: 'Isometric core stability exercise',
-      muscleGroups: ['Abs', 'Core', 'Shoulders'],
-    },
-  ]);
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost:8080/api/v1/exercises';
+  
+  private exercises$ = new BehaviorSubject<Exercise[]>([]);
 
   getExercises(): Observable<Exercise[]> {
     return this.exercises$.asObservable();
   }
 
-  addExercise(exercise: Omit<Exercise, 'id'>): void {
-    const newExercise: Exercise = {
-      ...exercise,
-      id: Date.now().toString(),
-    };
-    const current = this.exercises$.value;
-    this.exercises$.next([...current, newExercise]);
+  loadExercises(): Observable<Exercise[]> {
+    return this.http.get<Exercise[]>(this.apiUrl).pipe(
+      tap(exercises => this.exercises$.next(exercises))
+    );
   }
 
-  updateExercise(exercise: Exercise): void {
-    const current = this.exercises$.value;
-    const index = current.findIndex(ex => ex.id === exercise.id);
-    if (index !== -1) {
-      const updated = [...current];
-      updated[index] = exercise;
-      this.exercises$.next(updated);
-    }
+  addExercise(exercise: ExerciseCreate): Observable<Exercise> {
+    return this.http.post<Exercise>(this.apiUrl, exercise).pipe(
+      tap(newExercise => {
+        const current = this.exercises$.value;
+        this.exercises$.next([...current, newExercise]);
+      })
+    );
   }
 
-  deleteExercise(id: string): void {
-    const current = this.exercises$.value;
-    this.exercises$.next(current.filter(ex => ex.id !== id));
+  updateExercise(id: string, exercise: ExerciseCreate): Observable<Exercise> {
+    return this.http.put<Exercise>(`${this.apiUrl}/${id}`, exercise).pipe(
+      tap(updatedExercise => {
+        const current = this.exercises$.value;
+        const index = current.findIndex(ex => ex.id === id);
+        if (index !== -1) {
+          const updated = [...current];
+          updated[index] = updatedExercise;
+          this.exercises$.next(updated);
+        }
+      })
+    );
+  }
+
+  deleteExercise(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
+        const current = this.exercises$.value;
+        this.exercises$.next(current.filter(ex => ex.id !== id));
+      })
+    );
   }
 }
