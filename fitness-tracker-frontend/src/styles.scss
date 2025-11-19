@@ -1,1 +1,106 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+// Custom color palette for Fitness Tracker
+$fitness-primary: (
+  50: #e1fef0,
+  100: #b3fcd9,
+  200: #80fac0,
+  300: #4df8a7,
+  400: #26f794,
+  500: #0DF259,  // Main bright green
+  600: #0bdb51,
+  700: #09c247,
+  800: #07aa3d,
+  900: #03852d,
+  contrast: (
+    50: #111813,
+    100: #111813,
+    200: #111813,
+    300: #111813,
+    400: #111813,
+    500: #111813,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+  )
+);
+
+$fitness-accent: (
+  50: #e2e4e3,
+  100: #b7bbb9,
+  200: #878e8b,
+  300: #57615d,
+  400: #333f3a,
+  500: #111813,  // Dark
+  600: #0f1511,
+  700: #0c110e,
+  800: #0a0e0b,
+  900: #050806,
+  contrast: (
+    50: #111813,
+    100: #111813,
+    200: #111813,
+    300: #ffffff,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+  )
+);
+
+html {
+  @include mat.theme((
+    color: (
+      primary: $fitness-primary,
+      tertiary: $fitness-accent,
+    ),
+    typography: Poppins,
+    density: 0,
+  ));
+  
+  // Override Material's background color
+  background-color: #F5F8F6 !important;
+}
+
+body {
+  color-scheme: light;
+  background-color: #F5F8F6 !important;  // Light gray background
+  color: #111813;  // Dark text
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 0;
+  height: 100%;
+}
+
+html, body { 
+  height: 100%;
+  background-color: #F5F8F6 !important;
+}
+
+// Custom CSS variables for easy access
+:root {
+  --fitness-primary: #0DF259;
+  --fitness-light-gray: #F5F8F6;
+  --fitness-white: #FFFFFF;
+  --fitness-dark: #111813;
+}
+
+// Custom dialog styling
+.custom-dialog-container .mat-mdc-dialog-container {
+  background-color: #FFF !important;
+  border-radius: 12px !important;
+}
+
+// Custom snackbar styling
+.success-snackbar {
+  .mdc-snackbar__surface {
+    background-color: var(--fitness-primary) !important;
+  }
+  
+  .mat-mdc-snack-bar-label {
+    color: var(--fitness-dark) !important;
+    font-weight: 500;
+  }
+}

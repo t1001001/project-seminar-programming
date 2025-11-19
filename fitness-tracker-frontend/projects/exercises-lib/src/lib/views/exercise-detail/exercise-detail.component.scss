@@ -1,0 +1,200 @@
+.exercise-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  align-self: flex-start;
+  color: var(--fitness-dark) !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  color: var(--fitness-primary) !important;
+}
+
+.back-btn .material-icons {
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.required-hint {
+  margin: 0 0 1rem 0;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.detail-card {
+  background-color: #FFF !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(17, 24, 19, 0.1) !important;
+  box-shadow: none !important;
+  width: 100%;
+}
+
+.detail-card mat-card-content {
+  padding: 2rem !important;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--fitness-dark);
+}
+
+.edit-btn {
+  background-color: var(--fitness-primary) !important;
+  color: var(--fitness-dark) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+  background-color: #0BE84D !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3) !important;
+}
+
+.detail-view {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(17, 24, 19, 0.08);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--fitness-dark);
+}
+
+.muscle-groups {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.muscle-chip {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #f1f5f9;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--fitness-dark);
+}
+
+.description-text {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(17, 24, 19, 0.8);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.detail-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-actions {
+  padding: 1.5rem 2rem !important;
+  border-top: 1px solid rgba(17, 24, 19, 0.1);
+}
+
+.update-btn {
+  background-color: #74C4FC !important;
+  color: var(--fitness-dark) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease;
+}
+
+.update-btn:hover:not(:disabled) {
+  background-color: #5AB8FA !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(116, 196, 252, 0.3) !important;
+}
+
+.cancel-btn {
+  color: var(--fitness-dark) !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: transparent !important;
+  color: var(--fitness-primary) !important;
+}
+
+.update-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .detail-card mat-card-content {
+    padding: 1.5rem !important;
+  }
+
+  mat-card-actions {
+    padding: 1rem 1.5rem !important;
+  }
+}

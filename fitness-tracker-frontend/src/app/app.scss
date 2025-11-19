@@ -1,0 +1,157 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--fitness-light-gray);
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: var(--fitness-light-gray) !important;
+  color: var(--fitness-dark) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(17, 24, 19, 0.1);
+  min-height: 80px !important;
+  height: 80px !important;
+  padding: 0 !important;
+}
+
+.toolbar-content {
+  width: 100%;
+  height: 100%;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.app-logo-full {
+  height: 45px;
+  width: auto;
+  max-width: 100%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.5rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-left: 2rem;
+}
+
+.app-nav a {
+  color: var(--fitness-dark);
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  border-radius: 6px !important;
+  padding: 0.75rem 1.5rem !important;
+  background-color: transparent;
+  
+  &:hover {
+    color: var(--fitness-primary);
+    background-color: transparent;
+  }
+}
+
+.app-nav a.active-link {
+  background-color: var(--fitness-primary);
+  color: var(--fitness-dark);
+  
+  &:hover {
+    background-color: var(--fitness-primary);
+    color: var(--fitness-dark);
+  }
+}
+
+.app-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+// Responsive styles
+@media (max-width: 1024px) {
+  .app-nav {
+    position: static;
+    transform: none;
+    margin-left: 2rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-logo-full {
+    height: 38px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-toolbar {
+    height: auto !important;
+    min-height: 64px !important;
+  }
+
+  .toolbar-content {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .app-logo-full {
+    height: 32px;
+  }
+
+  .app-nav {
+    position: static;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-left: 0;
+  }
+
+  .app-nav a {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem !important;
+  }
+
+  .spacer {
+    display: none;
+  }
+
+  .app-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-logo-full {
+    height: 28px;
+  }
+
+  .app-nav {
+    gap: 0.25rem;
+  }
+
+  .app-nav a {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem !important;
+  }
+}

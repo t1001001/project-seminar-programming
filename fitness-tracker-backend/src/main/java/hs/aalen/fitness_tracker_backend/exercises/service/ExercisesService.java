@@ -60,7 +60,7 @@ public class ExercisesService {
         Optional<Exercises> duplicate = repository.findByNameIgnoreCase(
                 dto.getName()
         );
-        if (duplicate.isPresent()) {
+        if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
             throw new IllegalArgumentException("Exercise with this name already exists");
         }
         existingExercises.setName(dto.getName());

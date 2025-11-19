@@ -1,0 +1,33 @@
+<mat-card class="exercise-card" (click)="onCardClick()">
+  <div class="card-content-wrapper">
+    <div class="info-section">
+      <h3 class="exercise-name">{{ exercise().name }}</h3>
+      <div class="details-row">
+        <div class="detail-item">
+          <span class="detail-label">Category:</span>
+          <span class="detail-value">{{ exercise().category }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Muscle Groups:</span>
+          <div class="muscle-groups">
+            @for (muscle of exercise().muscleGroups; track muscle) {
+              <span class="muscle-chip">{{ muscle }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="actions-section">
+      <button mat-raised-button class="delete-btn" (click)="onDelete($event)">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </div>
+  </div>
+  <div class="card-footer">
+    <span class="click-hint">
+      View details
+      <span class="material-icons">arrow_forward</span>
+    </span>
+  </div>
+</mat-card>

@@ -1,0 +1,35 @@
+<section class="exercises-overview">
+  <header class="overview-header">
+    <h1>Exercises Overview</h1>
+  </header>
+
+  @if (exercises$ | async; as exercises) {
+    @if (!exercises.length) {
+      <p class="empty-state">
+        No exercises available. Create one to get started.
+      </p>
+    }
+    @if (exercises.length) {
+      <div class="exercises-list">
+        @for (exercise of exercises; track exercise.id) {
+          <ex-exercise-card 
+            [exercise]="exercise" 
+            (delete)="onDelete($event, exercise.name)"
+          />
+        }
+      </div>
+    }
+  } @else {
+    <p>Loading exercises…</p>
+  }
+
+  <button 
+    mat-fab 
+    extended 
+    class="create-fab" 
+    (click)="openCreateDialog()"
+  >
+    <span class="material-icons">add</span>
+    Create
+  </button>
+</section>
