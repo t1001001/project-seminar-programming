@@ -5,8 +5,6 @@ import hs.aalen.fitness_tracker_backend.exercises.dto.ExerciseResponseDto;
 import hs.aalen.fitness_tracker_backend.exercises.dto.ExercisesUpdateDto;
 import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 import hs.aalen.fitness_tracker_backend.exercises.repository.ExercisesRepository;
-import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsResponseDto;
-import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
