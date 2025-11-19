@@ -1,12 +1,10 @@
 package hs.aalen.fitness_tracker_backend.plans.service;
 
-import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 import hs.aalen.fitness_tracker_backend.plans.dto.PlansCreateDTO;
 import hs.aalen.fitness_tracker_backend.plans.dto.PlansResponseDTO;
 import hs.aalen.fitness_tracker_backend.plans.dto.PlansUpdateDto;
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 import hs.aalen.fitness_tracker_backend.plans.repository.PlansRepository;
-import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsResponseDto;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,6 +13,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -63,6 +62,14 @@ public class PlansService {
     public PlansResponseDTO update(UUID id, PlansUpdateDto dto) {
         Plans existingPlan = repository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+
+        Optional<Plans> duplicate = repository.findByNameIgnoreCase(
+            dto.getName()
+        );
+
+        if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Plan with this name already exists");
+        }
 
         List<Sessions> sessions = dto.getSessions().stream()
             .map(sessionId -> sessionsRepository.findById(sessionId)
