@@ -6,6 +6,9 @@
     "paths": {
       "exercises-lib": [
         "./projects/exercises-lib/src/public-api"
+      ],
+      "plans-lib": [
+        "./projects/plans-lib/src/public-api"
       ]
     },
     "strict": true,
@@ -40,6 +43,12 @@
     },
     {
       "path": "./projects/exercises-lib/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/plans-lib/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/plans-lib/tsconfig.spec.json"
     }
   ]
 }
