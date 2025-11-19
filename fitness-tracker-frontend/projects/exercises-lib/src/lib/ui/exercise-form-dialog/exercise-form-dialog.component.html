@@ -1,27 +1,35 @@
 <h2 mat-dialog-title>Create New Exercise</h2>
 <mat-dialog-content>
+  <p class="required-hint">* Required fields</p>
   <form [formGroup]="form" class="exercise-form">
     <mat-form-field appearance="outline">
-      <mat-label>Name</mat-label>
-      <input matInput formControlName="name" placeholder="Enter exercise name" />
+      <mat-label>Name *</mat-label>
+      <input matInput formControlName="name" placeholder="Enter exercise name" required />
       @if (form.get('name')?.invalid && form.get('name')?.touched) {
         <mat-error>Name is required (min 2 characters)</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>Category</mat-label>
-      <input matInput formControlName="category" placeholder="e.g., Strength, Cardio" />
+      <mat-label>Category *</mat-label>
+      <input matInput formControlName="category" placeholder="e.g., Strength, Cardio" required />
+      @if (form.get('category')?.invalid && form.get('category')?.touched) {
+        <mat-error>Category is required</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>Muscle Groups</mat-label>
+      <mat-label>Muscle Groups *</mat-label>
       <input 
         matInput 
         formControlName="muscleGroups" 
         placeholder="Separate with commas (e.g., Chest, Triceps)" 
+        required
       />
-      <mat-hint>Enter muscle groups separated by commas</mat-hint>
+      <mat-hint>Enter at least one muscle group separated by commas</mat-hint>
+      @if (form.get('muscleGroups')?.invalid && form.get('muscleGroups')?.touched) {
+        <mat-error>At least one muscle group is required</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline">

@@ -25,9 +25,9 @@ export class ExerciseFormDialogComponent {
 
   readonly form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    category: [''],
+    category: ['', [Validators.required]],
     description: [''],
-    muscleGroups: [''],
+    muscleGroups: ['', [Validators.required]],
   });
 
   onCreate(): void {

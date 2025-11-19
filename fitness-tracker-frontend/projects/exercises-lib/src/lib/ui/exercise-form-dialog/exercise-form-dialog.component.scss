@@ -7,6 +7,19 @@ mat-dialog-content {
   overflow: visible !important;
 }
 
+.required-hint {
+  margin: 0 0 1rem 0;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.exercise-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 mat-form-field {
   width: 100%;
 }

@@ -47,10 +47,11 @@
         </div>
       } @else if (isEditMode) {
         <!-- Edit mode form -->
+        <p class="required-hint">* Required fields</p>
         <form [formGroup]="form" class="detail-form">
           <mat-form-field appearance="outline">
             <mat-label>Name</mat-label>
-            <input matInput formControlName="name" />
+            <input matInput formControlName="name" required />
             @if (form.get('name')?.invalid && form.get('name')?.touched) {
               <mat-error>Name is required (min 2 characters)</mat-error>
             }
@@ -58,13 +59,19 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Category</mat-label>
-            <input matInput formControlName="category" />
+            <input matInput formControlName="category" required />
+            @if (form.get('category')?.invalid && form.get('category')?.touched) {
+              <mat-error>Category is required</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Muscle Groups</mat-label>
-            <input matInput formControlName="muscleGroups" />
-            <mat-hint>Separate with commas</mat-hint>
+            <input matInput formControlName="muscleGroups" required />
+            <mat-hint>Enter at least one muscle group separated by commas</mat-hint>
+            @if (form.get('muscleGroups')?.invalid && form.get('muscleGroups')?.touched) {
+              <mat-error>At least one muscle group is required</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
