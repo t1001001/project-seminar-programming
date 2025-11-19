@@ -16,12 +16,12 @@ docker run -p 8080:8080 fitness-tracker-backend-app
 
 # Endpoints
 
-## Exercises endpoint
+## Exercises Endpoint
 
 ### Get all exercises
-**Method:** ```GET```
+**Method:** `GET`
 
-**Path:** ```api/v1/exercises```
+**Path:** `api/v1/exercises`
 
 **Request example:**
 ```
@@ -33,22 +33,22 @@ GET api/v1/exercises
 [
     {
         "id": "38cb6d7c-9e29-4352-873d-bdf1825b0aad",
-        "name": "Bankdrücken",
-        "category": "Freihantel",
+        "name": "Deadlift",
+        "category": "Barbell",
         "muscleGroups": [
-            "Brust",
-            "Trizeps",
-            "Schulter"
+            "Back",
+            "Hamstrings",
+            "Glutes"
         ],
-        "description": "Drücken der Langhantel von der Brust"
+        "description": "Lifting a loaded barbell from the ground to hip level"
     }
 ]
 ```
 
 ### Get an exercise by ID
-**Method:** ```GET```
+**Method:** `GET`
 
-**Path:** ```api/v1/exercises/{id}```
+**Path:** `api/v1/exercises/{id}`
 
 **Request example:**
 ```
@@ -59,21 +59,21 @@ GET api/v1/exercises/38cb6d7c-9e29-4352-873d-bdf1825b0aad
 ```json
 {
     "id": "38cb6d7c-9e29-4352-873d-bdf1825b0aad",
-    "name": "Bankdrücken",
-    "category": "Freihantel",
+    "name": "Deadlift",
+    "category": "Barbell",
     "muscleGroups": [
-        "Brust",
-        "Trizeps",
-        "Schulter"
+        "Back",
+        "Hamstrings",
+        "Glutes"
     ],
-    "description": "Drücken der Langhantel von der Brust"
+    "description": "Lifting a loaded barbell from the ground to hip level"
 }
 ```
 
 ### Create an exercise
-**Method:** ```POST```
+**Method:** `POST`
 
-**Path:** ```api/v1/exercises```
+**Path:** `api/v1/exercises`
 
 **Request example:**
 ```
@@ -81,13 +81,14 @@ POST api/v1/exercises
 ```
 ```json
 {
-    "name": "Kniebeugen",
-    "category": "Freihantel",
+    "name": "Overhead Press",
+    "category": "Barbell",
     "muscleGroups": [
-        "Beine",
-        "Rücken"
+        "Shoulders",
+        "Triceps",
+        "Core"
     ],
-    "description": "Beugen der Knie mit Langhantel auf den Schultern"
+    "description": "Pressing a barbell overhead from shoulder height"
 }
 ```
 
@@ -95,22 +96,74 @@ POST api/v1/exercises
 ```json
 {
     "id": "017d0949-34d8-464b-ba07-c74bafba9c02",
-    "name": "Kniebeugen",
-    "category": "Freihantel",
+    "name": "Overhead Press",
+    "category": "Barbell",
     "muscleGroups": [
-        "Beine",
-        "Rücken"
+        "Shoulders",
+        "Triceps",
+        "Core"
     ],
-    "description": "Beugen der Knie mit Langhantel auf den Schultern"
+    "description": "Pressing a barbell overhead from shoulder height"
 }
 ```
 
-## Plans endpoint
+### Update an exercise
+**Method:** `PUT`
+
+**Path:** `api/v1/exercises/{id}`
+
+**Request example:**
+```
+PUT api/v1/exercises/017d0949-34d8-464b-ba07-c74bafba9c02
+```
+```json
+{
+    "name": "Military Press",
+    "category": "Barbell",
+    "muscleGroups": [
+        "Shoulders",
+        "Triceps",
+        "Upper Chest"
+    ],
+    "description": "Strict overhead press with feet together"
+}
+```
+
+**Response example:**
+```json
+{
+    "id": "017d0949-34d8-464b-ba07-c74bafba9c02",
+    "name": "Military Press",
+    "category": "Barbell",
+    "muscleGroups": [
+        "Shoulders",
+        "Triceps",
+        "Upper Chest"
+    ],
+    "description": "Strict overhead press with feet together"
+}
+```
+
+### Delete an exercise
+**Method:** `DELETE`
+
+**Path:** `api/v1/exercises/{id}`
+
+**Request example:**
+```
+DELETE api/v1/exercises/017d0949-34d8-464b-ba07-c74bafba9c02
+```
+
+**Response:** `204 No Content`
+
+---
+
+## Plans Endpoint
 
 ### Get all plans
-**Method:** ```GET```
+**Method:** `GET`
 
-**Path:** ```api/v1/plans```
+**Path:** `api/v1/plans`
 
 **Request example:**
 ```
@@ -122,37 +175,37 @@ GET api/v1/plans
 [
   {
     "id": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
-    "name": "Push Day",
-    "description": "Trainingsplan für Brust, Schulter und Trizeps.",
+    "name": "Upper Body Strength",
+    "description": "Focus on building upper body strength and muscle mass.",
     "sessions": []
   }
 ]
 ```
 
 ### Get a plan by ID
-**Method:** ```GET```
+**Method:** `GET`
 
-**Path:** ```api/v1/exercises/{id}```
+**Path:** `api/v1/plans/{id}`
 
 **Request example:**
 ```
-GET api/v1/plans/38cb6d7c-9e29-4352-873d-bdf1825b0aad
+GET api/v1/plans/ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d
 ```
 
 **Response example:**
 ```json
 {
   "id": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
-  "name": "Push Day",
-  "description": "Trainingsplan für Brust, Schulter und Trizeps.",
+  "name": "Upper Body Strength",
+  "description": "Focus on building upper body strength and muscle mass.",
   "sessions": []
 }
 ```
 
 ### Create a plan
-**Method:** ```POST```
+**Method:** `POST`
 
-**Path:** ```api/v1/plans```
+**Path:** `api/v1/plans`
 
 **Request example:**
 ```
@@ -160,28 +213,70 @@ POST api/v1/plans
 ```
 ```json
 {
-    "name": "Leg Day",
-    "description": "Trainingsplan für Beine"
+    "name": "Lower Body Power",
+    "description": "Explosive lower body training program"
 }
 ```
-** Please note that there is an optional field "session" which takes a list of session IDs**
+
+**Note:** There is an optional field `sessions` which takes a list of session IDs.
 
 **Response example:**
 ```json
 {
     "id": "b72b2159-ffbe-4a4b-9398-c72f32452f8d",
-    "name": "Leg Day",
-    "description": "Trainingsplan für Beine",
-    "sessions": null
+    "name": "Lower Body Power",
+    "description": "Explosive lower body training program",
+    "sessions": []
 }
 ```
 
-## Sessions endpoint
+### Update a plan
+**Method:** `PUT`
+
+**Path:** `api/v1/plans/{id}`
+
+**Request example:**
+```
+PUT api/v1/plans/b72b2159-ffbe-4a4b-9398-c72f32452f8d
+```
+```json
+{
+    "name": "Lower Body Hypertrophy",
+    "description": "Muscle building program for legs and glutes",
+    "sessions": []
+}
+```
+
+**Response example:**
+```json
+{
+    "id": "b72b2159-ffbe-4a4b-9398-c72f32452f8d",
+    "name": "Lower Body Hypertrophy",
+    "description": "Muscle building program for legs and glutes",
+    "sessions": []
+}
+```
+
+### Delete a plan
+**Method:** `DELETE`
+
+**Path:** `api/v1/plans/{id}`
+
+**Request example:**
+```
+DELETE api/v1/plans/b72b2159-ffbe-4a4b-9398-c72f32452f8d
+```
+
+**Response:** `204 No Content`
+
+---
+
+## Sessions Endpoint
 
 ### Get all sessions
-**Method:** ```GET```
+**Method:** `GET`
 
-**Path:** ```api/v1/sessions```
+**Path:** `api/v1/sessions`
 
 **Request example:**
 ```
@@ -192,19 +287,19 @@ GET api/v1/sessions
 ```json
 [
     {
-    "id": "303bd884-d55b-43fe-beed-ceea9dadbfe4",
-    "planId": null,
-    "name": "Leg Day",
-    "scheduledDate": "2025-10-30",
-    "exerciseExecutions": []
-  }
+        "id": "303bd884-d55b-43fe-beed-ceea9dadbfe4",
+        "planId": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
+        "name": "Wednesday Workout",
+        "scheduledDate": "2025-11-20",
+        "exerciseExecutions": []
+    }
 ]
 ```
 
 ### Get a session by ID
-**Method:** ```GET```
+**Method:** `GET`
 
-**Path:** ```api/v1/sessions/{id}```
+**Path:** `api/v1/sessions/{id}`
 
 **Request example:**
 ```
@@ -215,38 +310,109 @@ GET api/v1/sessions/303bd884-d55b-43fe-beed-ceea9dadbfe4
 ```json
 {
     "id": "303bd884-d55b-43fe-beed-ceea9dadbfe4",
-    "planId": null,
-    "name": "Leg Day",
-    "scheduledDate": "2025-10-30",
+    "planId": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
+    "name": "Wednesday Workout",
+    "scheduledDate": "2025-11-20",
     "exerciseExecutions": []
-  }
+}
 ```
 
 ### Create a session
+**Method:** `POST`
 
-**Method:** ```POST```
-
-**Path:** ```api/v1/sessions```
+**Path:** `api/v1/sessions`
 
 **Request example:**
-
 ```
 POST api/v1/sessions
 ```
 ```json
 {
-  "name": "Leg Day",
-  "scheduledDate": "2025-10-30"
+    "planId": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
+    "name": "Friday Session",
+    "scheduledDate": "2025-11-22",
+    "exerciseExecutions": [
+        "38cb6d7c-9e29-4352-873d-bdf1825b0aad",
+        "017d0949-34d8-464b-ba07-c74bafba9c02"
+    ]
+}
+```
+
+**Note:** Both `planId` and `exerciseExecutions` are optional fields.
+
+**Response example:**
+```json
+{
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "planId": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
+    "name": "Friday Session",
+    "scheduledDate": "2025-11-22",
+    "exerciseExecutions": [
+        {
+            "id": "38cb6d7c-9e29-4352-873d-bdf1825b0aad",
+            "name": "Deadlift",
+            "category": "Barbell",
+            "muscleGroups": ["Back", "Hamstrings", "Glutes"],
+            "description": "Lifting a loaded barbell from the ground to hip level"
+        },
+        {
+            "id": "017d0949-34d8-464b-ba07-c74bafba9c02",
+            "name": "Overhead Press",
+            "category": "Barbell",
+            "muscleGroups": ["Shoulders", "Triceps", "Core"],
+            "description": "Pressing a barbell overhead from shoulder height"
+        }
+    ]
+}
+```
+
+### Update a session
+**Method:** `PUT`
+
+**Path:** `api/v1/sessions/{id}`
+
+**Request example:**
+```
+PUT api/v1/sessions/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+```
+```json
+{
+    "planId": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
+    "name": "Friday Evening Session",
+    "scheduledDate": "2025-11-22",
+    "exerciseExecutions": [
+        "38cb6d7c-9e29-4352-873d-bdf1825b0aad"
+    ]
 }
 ```
 
 **Response example:**
 ```json
 {
-  "id": "303bd884-d55b-43fe-beed-ceea9dadbfe4",
-  "planId": null,
-  "name": "Leg Day",
-  "scheduledDate": "2025-10-30",
-  "exerciseExecutions": null
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "planId": "ca8a5e76-f8ae-4b55-9bf6-7efbaedcac7d",
+    "name": "Friday Evening Session",
+    "scheduledDate": "2025-11-22",
+    "exerciseExecutions": [
+        {
+            "id": "38cb6d7c-9e29-4352-873d-bdf1825b0aad",
+            "name": "Deadlift",
+            "category": "Barbell",
+            "muscleGroups": ["Back", "Hamstrings", "Glutes"],
+            "description": "Lifting a loaded barbell from the ground to hip level"
+        }
+    ]
 }
 ```
+
+### Delete a session
+**Method:** `DELETE`
+
+**Path:** `api/v1/sessions/{id}`
+
+**Request example:**
+```
+DELETE api/v1/sessions/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+```
+
+**Response:** `204 No Content`
