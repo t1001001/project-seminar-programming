@@ -92,6 +92,9 @@ export class ExerciseLogicService {
 
         if (err.status === 404) {
           errorMessage = 'Exercise not found. It may have been already deleted.';
+        } else if (err.status === 500) {
+          // Backend returns 500 when exercise is referenced in sessions.
+          errorMessage = 'Cannot delete exercise: it is currently being used in one or more training sessions.';
         } else if (err.status === 0) {
           errorMessage = 'Cannot connect to server. Please check your connection.';
         }
