@@ -4,7 +4,7 @@
     <p class="required-hint">* Required fields</p>
     <form [formGroup]="form" class="plan-form">
         <mat-form-field appearance="outline">
-            <mat-label>Name *</mat-label>
+            <mat-label>Name</mat-label>
             <input matInput formControlName="name" placeholder="e.g., Push/Pull/Legs" required>
             @if (form.get('name')?.invalid && form.get('name')?.touched) {
             <mat-error>Name is required (min 2 characters)</mat-error>
