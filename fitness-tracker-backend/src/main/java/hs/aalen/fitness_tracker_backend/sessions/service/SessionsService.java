@@ -25,7 +25,8 @@ public class SessionsService {
     private final ExercisesRepository exercisesRepository;
     private final ModelMapper mapper = new ModelMapper();
 
-    public SessionsService(SessionsRepository sessionsRepository, PlansRepository plansRepository, ExercisesRepository exercisesRepository) {
+    public SessionsService(SessionsRepository sessionsRepository, PlansRepository plansRepository,
+            ExercisesRepository exercisesRepository) {
         this.sessionsRepository = sessionsRepository;
         this.plansRepository = plansRepository;
         this.exercisesRepository = exercisesRepository;
@@ -49,26 +50,33 @@ public class SessionsService {
         if (sessionsRepository.findByNameAndScheduledDateAndPlan_Id(
                 dto.getName(),
                 dto.getScheduledDate(),
-                dto.getPlanId()
-        ).isPresent()) {
+                dto.getPlanId()).isPresent()) {
             throw new IllegalArgumentException(
-                    "Session with this name and date already exists in this plan"
-            );
+                    "Session with this name and date already exists in this plan");
         }
-        Plans plan = plansRepository.findById(dto.getPlanId())
-                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+
+        Plans plan = null;
+        if (dto.getPlanId() != null) {
+            plan = plansRepository.findById(dto.getPlanId())
+                    .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+        }
+
         List<Exercises> exercises = dto.getExerciseExecutions().stream()
-            .map(id -> exercisesRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Exercise not found")))
-            .toList();
+                .map(id -> exercisesRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Exercise not found")))
+                .toList();
         Sessions session = mapper.map(dto, Sessions.class);
         session.setId(null);
         session.setPlan(plan);
-        plan.getSessions().add(session);
+
+        if (plan != null) {
+            plan.getSessions().add(session);
+        }
+
         session.setExerciseExecutions(exercises);
         Sessions saved = sessionsRepository.save(session);
         SessionsResponseDto response = mapper.map(saved, SessionsResponseDto.class);
-        response.setPlanId(saved.getPlan().getId());
+        response.setPlanId(saved.getPlan() != null ? saved.getPlan().getId() : null);
         response.setExerciseExecutions(saved.getExerciseExecutions());
         return response;
     }
@@ -81,28 +89,34 @@ public class SessionsService {
         Optional<Sessions> duplicate = sessionsRepository.findByNameAndScheduledDateAndPlan_Id(
                 dto.getName(),
                 dto.getScheduledDate(),
-                dto.getPlanId()
-        );
+                dto.getPlanId());
 
         if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
             throw new IllegalArgumentException(
-                    "Session with this name and date already exists in this plan"
-            );
+                    "Session with this name and date already exists in this plan");
         }
 
-        Plans plan = plansRepository.findById(dto.getPlanId())
-                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+        Plans plan = null;
+        if (dto.getPlanId() != null) {
+            plan = plansRepository.findById(dto.getPlanId())
+                    .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+        }
 
         List<Exercises> exercises = dto.getExerciseExecutions().stream()
-            .map(exerciseId -> exercisesRepository.findById(exerciseId)
-                .orElseThrow(() -> new EntityNotFoundException("Exercise not found")))
-            .toList();
+                .map(exerciseId -> exercisesRepository.findById(exerciseId)
+                        .orElseThrow(() -> new EntityNotFoundException("Exercise not found")))
+                .toList();
 
-        if (!existingSession.getPlan().equals(plan)) {
+        // Handle plan change
+        if (existingSession.getPlan() != null && !existingSession.getPlan().equals(plan)) {
             existingSession.getPlan().getSessions().remove(existingSession);
-            plan.getSessions().add(existingSession);
-            existingSession.setPlan(plan);
         }
+
+        if (plan != null && !plan.equals(existingSession.getPlan())) {
+            plan.getSessions().add(existingSession);
+        }
+
+        existingSession.setPlan(plan);
 
         // Update fields
         existingSession.setName(dto.getName());
