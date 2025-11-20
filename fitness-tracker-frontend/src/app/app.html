@@ -6,11 +6,14 @@
         <text x="75" y="42" font-family="'Poppins', sans-serif" font-size="36" font-weight="700" fill="#111813" letter-spacing="-1">FitTrack</text>
       </svg>
     </div>
-    <nav class="app-nav">
-      <a mat-button routerLink="/home" routerLinkActive="active-link">Home</a>
-      <a mat-button routerLink="/exercises" routerLinkActive="active-link">Exercises</a>
-      <a mat-button routerLink="/plans" routerLinkActive="active-link">Plans</a>
-      <a mat-button routerLink="/sessions" routerLinkActive="active-link">Sessions</a>
+    <button mat-icon-button class="hamburger-btn" (click)="toggleMenu()" [class.open]="menuOpen">
+      <mat-icon>{{ menuOpen ? 'close' : 'menu' }}</mat-icon>
+    </button>
+    <nav class="app-nav" [class.open]="menuOpen">
+      <a mat-button routerLink="/home" routerLinkActive="active-link" (click)="closeMenu()">Home</a>
+      <a mat-button routerLink="/exercises" routerLinkActive="active-link" (click)="closeMenu()">Exercises</a>
+      <a mat-button routerLink="/plans" routerLinkActive="active-link" (click)="closeMenu()">Plans</a>
+      <a mat-button routerLink="/sessions" routerLinkActive="active-link" (click)="closeMenu()">Sessions</a>
     </nav>
     <span class="spacer"></span>
   </div>

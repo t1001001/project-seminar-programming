@@ -43,6 +43,17 @@
   flex: 1 1 auto;
 }
 
+.hamburger-btn {
+  display: none;
+  color: var(--fitness-dark) !important;
+  
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
 .app-nav {
   display: flex;
   gap: 0.5rem;
@@ -103,33 +114,57 @@
 
 @media (max-width: 768px) {
   .app-toolbar {
-    height: auto !important;
+    height: 64px !important;
     min-height: 64px !important;
   }
 
   .toolbar-content {
-    flex-direction: column;
+    flex-direction: row;
     padding: 1rem;
-    gap: 1rem;
+    gap: 0;
   }
 
   .app-logo-full {
     height: 32px;
   }
 
+  .hamburger-btn {
+    display: flex;
+    margin-left: auto;
+  }
+
   .app-nav {
-    position: static;
-    transform: none;
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    flex-direction: column;
+    background-color: var(--fitness-light-gray);
+    border-bottom: 1px solid rgba(17, 24, 19, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
     gap: 0.5rem;
     margin-left: 0;
+    transition: none;
+    z-index: 999;
+
+    &.open {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+      transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    }
   }
 
   .app-nav a {
-    font-size: 0.9rem;
-    padding: 0.5rem 1rem !important;
+    width: 100%;
+    text-align: left;
+    font-size: 1rem;
+    padding: 0.75rem 1rem !important;
+    justify-content: flex-start;
   }
 
   .spacer {
@@ -146,12 +181,8 @@
     height: 28px;
   }
 
-  .app-nav {
-    gap: 0.25rem;
-  }
-
   .app-nav a {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.75rem !important;
+    font-size: 0.95rem;
+    padding: 0.7rem 1rem !important;
   }
 }
