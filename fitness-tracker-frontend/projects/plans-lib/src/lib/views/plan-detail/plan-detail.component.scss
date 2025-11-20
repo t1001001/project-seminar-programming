@@ -184,6 +184,11 @@ mat-card-actions {
     &.last-item {
         margin-bottom: 0;
     }
+
+    &:has(.timeline-content:hover) .timeline-marker {
+        transform: scale(1.3);
+        box-shadow: 0 0 0 3px rgba(13, 242, 89, 0.4);
+    }
 }
 
 .timeline-marker {
@@ -197,6 +202,7 @@ mat-card-actions {
     border: 3px solid #fff;
     box-shadow: 0 0 0 2px rgba(13, 242, 89, 0.3);
     z-index: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .timeline-content {

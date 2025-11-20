@@ -2,7 +2,9 @@
     <div class="card-content-wrapper">
         <div class="info-section">
             <h3>{{ plan().name }}</h3>
-            <p class="description">{{ plan().description }}</p>
+            @if (plan().description) {
+            <p class="description"><strong>Description:</strong> {{ plan().description }}</p>
+            }
 
             <div class="details-row">
                 <div class="stat-chip">
