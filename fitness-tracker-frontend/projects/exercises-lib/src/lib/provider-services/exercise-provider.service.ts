@@ -17,6 +17,13 @@ export interface ExerciseCreate {
   description?: string;
 }
 
+export interface ExerciseUpdate {
+  name: string;
+  category: string;
+  muscleGroups: string[];
+  description?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExerciseProviderService {
   private http = inject(HttpClient);
@@ -34,7 +41,7 @@ export class ExerciseProviderService {
     return this.http.get<Exercise>(`${this.apiUrl}/${id}`);
   }
 
-  updateExercise(id: string, exercise: ExerciseCreate): Observable<Exercise> {
+  updateExercise(id: string, exercise: ExerciseUpdate): Observable<Exercise> {
     return this.http.put<Exercise>(`${this.apiUrl}/${id}`, exercise);
   }
 

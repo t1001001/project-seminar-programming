@@ -34,9 +34,9 @@ export class ExerciseFormDialogComponent {
     if (this.form.valid) {
       const formValue = this.form.value;
       const exercise: Omit<Exercise, 'id'> = {
-        name: formValue.name,
-        category: formValue.category,
-        description: formValue.description,
+        name: formValue.name?.trim() || '',
+        category: formValue.category?.trim() || '',
+        description: formValue.description?.trim() || '',
         muscleGroups: formValue.muscleGroups
           ? formValue.muscleGroups.split(',').map((group: string) => group.trim())
           : [],

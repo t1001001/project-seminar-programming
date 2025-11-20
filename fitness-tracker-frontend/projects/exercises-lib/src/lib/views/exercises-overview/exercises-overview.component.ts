@@ -50,6 +50,7 @@ export class ExercisesOverviewComponent implements OnInit {
               duration: 3000,
               horizontalPosition: 'center',
               verticalPosition: 'bottom',
+              panelClass: ['success-snackbar']
             });
           },
           error: (err) => {
@@ -57,6 +58,7 @@ export class ExercisesOverviewComponent implements OnInit {
               duration: 5000,
               horizontalPosition: 'center',
               verticalPosition: 'bottom',
+              panelClass: ['error-snackbar']
             });
           }
         });
@@ -80,6 +82,7 @@ export class ExercisesOverviewComponent implements OnInit {
               duration: 3000,
               horizontalPosition: 'center',
               verticalPosition: 'bottom',
+              panelClass: ['success-snackbar']
             });
           },
           error: (err) => {
@@ -87,6 +90,7 @@ export class ExercisesOverviewComponent implements OnInit {
               duration: 5000,
               horizontalPosition: 'center',
               verticalPosition: 'bottom',
+              panelClass: ['error-snackbar']
             });
           }
         });

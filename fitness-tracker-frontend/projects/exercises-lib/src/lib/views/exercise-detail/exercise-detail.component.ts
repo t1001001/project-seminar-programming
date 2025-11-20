@@ -69,6 +69,7 @@ export class ExerciseDetailComponent implements OnInit {
           duration: 3000,
           horizontalPosition: 'center',
           verticalPosition: 'bottom',
+          panelClass: ['error-snackbar']
         });
       }
     });
@@ -80,7 +81,7 @@ export class ExerciseDetailComponent implements OnInit {
       const muscleGroupsArray = formValue.muscleGroups
         ? formValue.muscleGroups.split(',').map((group: string) => group.trim()).filter((g: string) => g.length > 0)
         : [];
-      
+
       const exerciseData = {
         name: formValue.name || '',
         category: formValue.category || '',
@@ -103,6 +104,7 @@ export class ExerciseDetailComponent implements OnInit {
             duration: 3000,
             horizontalPosition: 'center',
             verticalPosition: 'bottom',
+            panelClass: ['success-snackbar']
           });
         },
         error: (err) => {
@@ -110,6 +112,7 @@ export class ExerciseDetailComponent implements OnInit {
             duration: 5000,
             horizontalPosition: 'center',
             verticalPosition: 'bottom',
+            panelClass: ['error-snackbar']
           });
         }
       });
