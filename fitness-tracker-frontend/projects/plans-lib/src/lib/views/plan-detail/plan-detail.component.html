@@ -1,0 +1,117 @@
+<section class="plan-detail">
+    <button mat-button class="back-btn" (click)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+    </button>
+
+    @if (plan$ | async; as plan) {
+    <mat-card class="detail-card">
+        <mat-card-content>
+            <div class="header">
+                <h1>Training Plan Details</h1>
+                @if (!isEditMode) {
+                <button mat-raised-button class="edit-btn" (click)="enableEditMode()">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                </button>
+                }
+            </div>
+
+            @if (!isEditMode) {
+            <!-- Read-only card view -->
+            <div class="detail-view">
+                <div class="detail-item">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">{{ plan.name }}</span>
+                </div>
+
+                @if (plan.description) {
+                <div class="detail-item">
+                    <span class="detail-label">Description:</span>
+                    <p class="description-text">{{ plan.description }}</p>
+                </div>
+                }
+
+                <div class="sessions-section">
+                    <h3>List of Sessions</h3>
+                    <div class="sessions-list">
+                        @if (plan.sessions && plan.sessions.length > 0) {
+                        <div class="timeline">
+                            @for (session of plan.sessions; track session.name; let last = $last) {
+                            <div class="timeline-item" [class.last-item]="last">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <mat-card class="session-card">
+                                        <mat-card-header>
+                                            <div mat-card-avatar class="session-avatar">
+                                                <mat-icon>fitness_center</mat-icon>
+                                            </div>
+                                            <mat-card-title>{{ session.name }}</mat-card-title>
+                                            <mat-card-subtitle>
+                                                <mat-icon class="small-icon">calendar_today</mat-icon>
+                                                {{ session.scheduledDate | date:'mediumDate' }}
+                                            </mat-card-subtitle>
+                                        </mat-card-header>
+                                        <mat-card-content>
+                                            <div class="exercises-list">
+                                                <span class="exercises-label">Exercises:</span>
+                                                @if (session.exerciseExecutions && session.exerciseExecutions.length >
+                                                0) {
+                                                <div class="chip-container">
+                                                    @for (exercise of session.exerciseExecutions; track exercise.name) {
+                                                    <span class="exercise-chip">{{ exercise.name }}</span>
+                                                    }
+                                                </div>
+                                                } @else {
+                                                <span class="no-exercises">No exercises added</span>
+                                                }
+                                            </div>
+                                        </mat-card-content>
+                                    </mat-card>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        } @else {
+                        <div class="empty-sessions">
+                            <mat-icon class="empty-icon">event_busy</mat-icon>
+                            <p>No sessions planned yet</p>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            } @else {
+            <!-- Edit mode form -->
+            <p class="required-hint">* Required fields</p>
+            <form [formGroup]="form" class="detail-form">
+                <mat-form-field appearance="outline">
+                    <mat-label>Name</mat-label>
+                    <input matInput formControlName="name" required />
+                    @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                    <mat-error>Name is required (min 2 characters)</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput formControlName="description" rows="4"></textarea>
+                </mat-form-field>
+            </form>
+            }
+        </mat-card-content>
+
+        @if (isEditMode) {
+        <mat-card-actions align="end">
+            <button mat-button class="cancel-btn" (click)="cancelEdit()">
+                Cancel
+            </button>
+            <button mat-raised-button class="update-btn" (click)="saveChanges(plan.id)"
+                [disabled]="form.invalid || !form.dirty">
+                Update
+            </button>
+        </mat-card-actions>
+        }
+    </mat-card>
+    }
+</section>

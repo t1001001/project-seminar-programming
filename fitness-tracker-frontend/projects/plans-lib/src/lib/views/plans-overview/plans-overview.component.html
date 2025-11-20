@@ -1,0 +1,27 @@
+<section class="plans-overview">
+    <header class="overview-header">
+        <h1>Training Plans</h1>
+    </header>
+
+    @if (plans$ | async; as plans) {
+    @if (!plans.length) {
+    <p class="empty-state">
+        No training plans found. Create one to get started!
+    </p>
+    }
+    @if (plans.length) {
+    <div class="plans-list">
+        @for (plan of plans; track plan.id) {
+        <lib-plan-card [plan]="plan" (delete)="onDelete($event)" />
+        }
+    </div>
+    }
+    } @else {
+    <p>Loading plans…</p>
+    }
+
+    <button mat-fab extended class="create-fab" (click)="onCreate()">
+        <span class="material-icons">add</span>
+        Create
+    </button>
+</section>
