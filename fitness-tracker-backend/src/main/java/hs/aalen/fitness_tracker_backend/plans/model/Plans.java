@@ -25,7 +25,7 @@ public class Plans {
 
     private String description;
 
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "plan")
     @JsonManagedReference
     private List<Sessions> sessions = new ArrayList<>();
 }
