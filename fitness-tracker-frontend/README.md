@@ -1,40 +1,36 @@
-# FitnessTrackerFrontend
+# Prerequisites
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9.
+Before running the project, install the following dependencies:
 
-## Development server
+[Node.js](https://nodejs.org/) (v18 or higher)
 
-To start a local development server, run:
+[Angular CLI](https://angular.dev/tools/cli) (v20.3.9 or higher)
 
-```bash
-ng serve
-```
+[Docker](https://docs.docker.com/desktop/) (optional, for containerized deployment)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Code scaffolding
+# Usage
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Development Server
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+To start the development server, run:
 
 ```bash
-ng generate --help
+npm install
+npm start
 ```
 
-## Building
+The application will be available at `http://localhost:4200/`. The app will automatically reload when you modify source files.
 
-To build the project run:
+## Building for Production
+
+To build the project for production:
 
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The build artifacts will be stored in the `dist/` directory.
 
 ## Running with Docker
 
@@ -47,24 +43,87 @@ docker run -p 4200:80 fitness-tracker-frontend-app
 
 Open `http://localhost:4200` in your browser once the container is running.
 
-## Running unit tests
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+# Project Structure
+
+This Angular application is organized into feature libraries for better modularity and maintainability:
+
+## Libraries
+
+### exercises-lib
+Manages exercise data and UI components for browsing, creating, editing, and deleting exercises.
+
+**Key Components:**
+- `ExercisesOverviewComponent` - Lists all exercises
+- `ExerciseDetailComponent` - Displays individual exercise details
+- `ExerciseFormDialogComponent` - Form for creating/editing exercises
+- `ExerciseDeleteDialogComponent` - Confirmation dialog for deletion
+
+**Services:**
+- `ExerciseLogicService` - Business logic for exercise operations
+- `ExerciseProviderService` - HTTP communication with backend API
+
+### plans-lib
+Manages training plan data and UI components for creating and organizing workout plans.
+
+**Key Components:**
+- `PlansOverviewComponent` - Lists all training plans
+- `PlanDetailComponent` - Displays individual plan details
+- `PlanFormDialogComponent` - Form for creating/editing plans
+- `PlanDeleteDialogComponent` - Confirmation dialog for deletion
+- `PlanCardComponent` - Card display for plan summaries
+
+**Services:**
+- `PlanLogicService` - Business logic for plan operations
+- `PlanProviderService` - HTTP communication with backend API
+
+### sessions-lib
+Manages workout session data (planned for future implementation).
+
+### home-lib
+Contains the home page and landing components.
+
+
+# Testing
+
+## Unit Tests
+
+To execute unit tests with the [Karma](https://karma-runner.github.io) test runner:
 
 ```bash
-ng test
+npm test
 ```
 
-## Running end-to-end tests
+## End-to-End Tests
 
-For end-to-end (e2e) testing, run:
+For end-to-end (e2e) testing:
 
 ```bash
 ng e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Note: Angular CLI does not include an e2e testing framework by default. You can choose one that suits your needs.
 
-## Additional Resources
+
+# Code Scaffolding
+
+Angular CLI includes powerful code scaffolding tools. To generate a new component:
+
+```bash
+ng generate component component-name
+```
+
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`):
+
+```bash
+ng generate --help
+```
+
+
+# Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+For project-specific architecture and library organization, see [LIBRARY-ARCHITECTURE.md](projects/LIBRARY-ARCHITECTURE.md).
+
+For UI styling guidelines and component patterns, see [UI-STYLE-GUIDE.md](UI-STYLE-GUIDE.md).
