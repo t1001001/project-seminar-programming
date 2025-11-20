@@ -1,0 +1,28 @@
+<mat-card class="plan-card" (click)="onCardClick()">
+    <div class="card-content-wrapper">
+        <div class="info-section">
+            <h3>{{ plan().name }}</h3>
+            <p class="description">{{ plan().description }}</p>
+
+            <div class="details-row">
+                <div class="stat-chip">
+                    <span class="label">Sessions</span>
+                    <span class="value">{{ plan().sessionsCount || 0 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions-section">
+            <button mat-raised-button class="delete-btn" (click)="onDelete($event)">
+                <mat-icon>delete</mat-icon>
+                Delete
+            </button>
+        </div>
+    </div>
+    <div class="card-footer">
+        <span class="click-hint">
+            View details
+            <span class="material-icons">arrow_forward</span>
+        </span>
+    </div>
+</mat-card>
