@@ -53,28 +53,33 @@ public class PlansService {
     }
 
     public void delete(UUID id) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Plan not found");
+        Plans plan = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+
+        // Orphan all sessions by setting their plan reference to null
+        for (Sessions session : plan.getSessions()) {
+            session.setPlan(null);
         }
-        repository.deleteById(id);
+        plan.getSessions().clear();
+
+        repository.delete(plan);
     }
 
     public PlansResponseDTO update(UUID id, PlansUpdateDto dto) {
         Plans existingPlan = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
 
         Optional<Plans> duplicate = repository.findByNameIgnoreCase(
-            dto.getName()
-        );
+                dto.getName());
 
         if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
             throw new IllegalArgumentException("Plan with this name already exists");
         }
 
         List<Sessions> sessions = dto.getSessions().stream()
-            .map(sessionId -> sessionsRepository.findById(sessionId)
-                .orElseThrow(() -> new EntityNotFoundException("Session not found")))
-            .collect(Collectors.toCollection(ArrayList::new));
+                .map(sessionId -> sessionsRepository.findById(sessionId)
+                        .orElseThrow(() -> new EntityNotFoundException("Session not found")))
+                .collect(Collectors.toCollection(ArrayList::new));
 
         existingPlan.setName(dto.getName());
         existingPlan.setDescription(dto.getDescription());
