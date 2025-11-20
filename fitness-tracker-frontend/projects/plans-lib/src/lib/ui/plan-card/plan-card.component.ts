@@ -7,7 +7,7 @@ import { TrainingPlan } from '../../provider-services/plan-provider.service';
 
 @Component({
     selector: 'lib-plan-card',
-    standalone: true,
+
     imports: [MatCardModule, MatButtonModule, MatIconModule],
     templateUrl: './plan-card.component.html',
     styleUrl: './plan-card.component.scss',

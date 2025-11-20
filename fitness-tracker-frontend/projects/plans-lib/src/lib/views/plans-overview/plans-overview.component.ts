@@ -14,7 +14,7 @@ import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-dele
 
 @Component({
     selector: 'lib-plans-overview',
-    standalone: true,
+
     imports: [
         MatButtonModule,
         MatIconModule,

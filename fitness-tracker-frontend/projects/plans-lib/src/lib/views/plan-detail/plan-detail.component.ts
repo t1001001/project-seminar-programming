@@ -15,7 +15,7 @@ import { TrainingPlan, TrainingPlanUpdate } from '../../provider-services/plan-p
 
 @Component({
     selector: 'lib-plan-detail',
-    standalone: true,
+
     imports: [
         MatButtonModule,
         MatIconModule,
