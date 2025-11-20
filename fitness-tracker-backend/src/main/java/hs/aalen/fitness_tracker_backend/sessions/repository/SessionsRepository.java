@@ -12,11 +12,12 @@ import java.time.LocalDate;
 public interface SessionsRepository extends JpaRepository<Sessions, UUID> {
     // Alte Methode entfernen oder umbenennen
     Optional<Sessions> findByNameIgnoreCase(String name);
-    
-    // NEUE Methode hinzufügen:
+
+    // Neue Methode hinzufuegen:
     Optional<Sessions> findByNameAndScheduledDateAndPlan_Id(
-        String name, 
-        LocalDate scheduledDate, 
-        UUID planId
-    );
+            String name,
+            LocalDate scheduledDate,
+            UUID planId);
+
+    long countByExerciseExecutions_Id(UUID exerciseId);
 }
