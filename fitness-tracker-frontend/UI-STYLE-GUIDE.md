@@ -12,6 +12,41 @@ This document defines the consistent styling rules for all components in the Fit
 --fitness-dark: #111813       /* Dark - Text, borders */
 ```
 
+### Global Styles (`src/styles.scss`)
+
+The application uses a global stylesheet at `src/styles.scss` that defines:
+
+1. **Material Theme Configuration**
+   - Custom color palettes for primary (green) and accent (dark) colors
+   - Typography using Poppins font
+   - Density settings
+
+2. **Page Background**
+   - `background-color: #F5F8F6` applied to `html` and `body`
+   - Light gray background for the entire application
+
+3. **Dialog Styling**
+   ```scss
+   .custom-dialog-container .mat-mdc-dialog-container {
+     background-color: #FFF !important;
+     border-radius: 12px !important;
+   }
+   ```
+   - **CRITICAL**: All dialogs must use `panelClass: 'custom-dialog-container'` to get white background
+   - This class is defined globally and applies to all Material dialogs
+
+4. **Snackbar Styling**
+   - `.success-snackbar` for success messages (green background)
+   - Default snackbar styling with dark background
+
+**Important**: When opening any Material dialog, always include:
+```typescript
+this.dialog.open(ComponentName, {
+  panelClass: 'custom-dialog-container',  // Required for white background
+  // ... other config
+});
+```
+
 ### Semantic Colors
 - **Primary Green**: `#0DF259` - Main brand color, active states, primary buttons
 - **Light Green Hover**: `#0BE84D` - Hover state for green buttons
@@ -460,6 +495,65 @@ For cards that need to display multiple pieces of information efficiently:
 - On mobile (< 768px): Stack vertically
 - Actions section becomes horizontal row at bottom
 
+### Timeline Component
+
+Used for displaying sequential events like training sessions.
+
+**HTML Structure:**
+```html
+<div class="timeline">
+  <!-- Loop for items -->
+  <div class="timeline-item" [class.last-item]="last">
+    <div class="timeline-marker"></div>
+    <div class="timeline-content">
+      <mat-card class="session-card">
+        <!-- Card Content -->
+      </mat-card>
+    </div>
+  </div>
+</div>
+```
+
+**SCSS Pattern:**
+```scss
+.timeline {
+  position: relative;
+  padding: 1rem 0 1rem 2rem;
+  margin-left: 1rem;
+  border-left: 2px solid rgba(13, 242, 89, 0.3); // Primary with opacity
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2rem;
+
+  &.last-item {
+    margin-bottom: 0;
+  }
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2.6rem;
+  top: 1.5rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: var(--fitness-primary);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(13, 242, 89, 0.3);
+  z-index: 1;
+}
+
+.timeline-content {
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px); // Vertical lift
+  }
+}
+```
+
 ### Dialog
 - White background
 - 12px border radius
@@ -495,7 +589,334 @@ For cards that need to display multiple pieces of information efficiently:
 - ✅ Add proper spacing between elements
 - ✅ Make all components responsive
 
+## 📚 Library Development Patterns
+
+This section documents the consistent patterns used across all feature libraries (e.g., `exercises-lib`, `plans-lib`) to ensure uniformity and ease of development.
+
+### Library Structure
+
+All feature libraries follow this directory structure:
+
+```
+projects/[feature]-lib/src/lib/
+├── provider-services/     # HTTP/API layer
+├── logic-services/        # Business logic layer
+├── ui/                    # Reusable UI components
+└── views/                 # Smart container components (pages)
+```
+
+**Key Principles:**
+- **Provider Services**: Handle all HTTP requests, define interfaces for data models
+- **Logic Services**: Wrap provider services, add error handling, emit events for cross-component communication
+- **UI Components**: Dumb/presentational components, receive data via `@Input()`, emit events via `@Output()`
+- **Views**: Smart components that inject services, handle routing, manage state
+
+### Component Configuration
+
+#### Angular Component Decorator
+
+**Standard Pattern:**
+```typescript
+@Component({
+  selector: 'lib-component-name',  // or 'ex-component-name' for exercises
+  imports: [
+    MatDialogModule,      // Order: Material modules first
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,  // Then Angular modules
+    AsyncPipe,           // Then pipes
+  ],
+  templateUrl: './component-name.component.html',
+  styleUrl: './component-name.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+```
+
+**Important:**
+- ❌ Do NOT use `standalone: true` - it's redundant in modern Angular
+- ✅ Always use `ChangeDetectionStrategy.OnPush` for performance
+- ✅ Order imports: Material modules → Angular modules → Pipes → Custom components
+- ✅ Use `styleUrl` (singular) not `styleUrls`
+
+### Dialog Configuration
+
+#### Opening Dialogs
+
+**Required Pattern:**
+```typescript
+const dialogRef = this.dialog.open(ComponentName, {
+  width: '500px',
+  panelClass: 'custom-dialog-container',  // CRITICAL: Required for white background
+});
+```
+
+**Critical Rules:**
+- ✅ **ALWAYS** include `panelClass: 'custom-dialog-container'` - this applies the white background from global styles
+- ✅ Standard width: `500px` for forms, `400px` for confirmations
+- ✅ For delete dialogs, pass data: `data: { itemName: name }`
+
+#### Form Dialog Component Structure
+
+**TypeScript Pattern:**
+```typescript
+export class ItemFormDialogComponent {
+  private readonly dialogRef = inject(MatDialogRef<ItemFormDialogComponent>);
+  private readonly fb = inject(FormBuilder);
+  readonly data = inject<ItemData | null>(MAT_DIALOG_DATA, { optional: true });
+
+  readonly form: FormGroup = this.fb.group({
+    name: [this.data?.name || '', [Validators.required, Validators.minLength(2)]],
+    description: [this.data?.description || ''],
+  });
+
+  get isEditMode(): boolean {
+    return !!this.data;
+  }
+
+  onSave(): void {
+    if (this.form.valid) {
+      this.dialogRef.close(this.form.value);
+    }
+  }
+
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+}
+```
+
+**HTML Pattern:**
+```html
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Item' : 'Create Item' }}</h2>
+
+<mat-dialog-content>
+  <p class="required-hint">* Required fields</p>
+  <form [formGroup]="form" class="item-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Name *</mat-label>
+      <input matInput formControlName="name" placeholder="Enter name" required />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <mat-error>Name is required (min 2 characters)</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3"
+        placeholder="Enter description"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button 
+    [class.update-btn]="isEditMode" 
+    [class.create-btn]="!isEditMode" 
+    (click)="onSave()"
+    [disabled]="form.invalid">
+    {{ isEditMode ? 'Update' : 'Create' }}
+  </button>
+</mat-dialog-actions>
+```
+
+**SCSS Pattern:**
+```scss
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 400px;
+  padding: 1rem 0;
+  overflow: visible !important;
+}
+
+.required-hint {
+  margin: 0 0 1rem 0;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+// Button styles - see Buttons section for complete styles
+```
+
+### Card Components
+
+#### Card Layout Pattern
+
+**Wrapper Structure:**
+```scss
+.card-content-wrapper {
+  background-color: #FFF;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 24, 19, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+```
+
+**Info Section:**
+```scss
+.info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--fitness-dark);
+  }
+
+  .description {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+```
+
+**Actions Section:**
+```scss
+.actions-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+```
+
+**Stat Chips:**
+```scss
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f1f5f9;
+  border-radius: 16px;
+  font-size: 0.875rem;
+
+  .label {
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .value {
+    color: var(--fitness-dark);
+    font-weight: 600;
+  }
+}
+```
+
+### Overview/List Pages
+
+#### Page Structure
+
+**Container:**
+```scss
+.page-container {
+  padding: 2rem;
+  position: relative;
+  min-height: 100%;
+}
+```
+
+**Header:**
+```scss
+.page-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--fitness-dark);
+    margin: 0;
+  }
+}
+```
+
+**Grid Layout (for cards):**
+```scss
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+```
+
+**List Layout (for rows):**
+```scss
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+```
+
+**Empty State:**
+```scss
+.empty-state {
+  grid-column: 1 / -1;  // For grid layouts
+  text-align: center;
+  padding: 4rem;
+  color: #64748b;
+  background-color: #FFF;
+  border-radius: 12px;
+  border: 1px dashed rgba(17, 24, 19, 0.2);
+}
+```
+
+### Critical Checklist for New Libraries
+
+When creating a new feature library, ensure:
+
+- [ ] Library structure follows `provider-services/`, `logic-services/`, `ui/`, `views/` pattern
+- [ ] All components use `ChangeDetectionStrategy.OnPush`
+- [ ] Components do NOT use `standalone: true`
+- [ ] Dialog opens include `panelClass: 'custom-dialog-container'`
+- [ ] Form dialogs support both create and edit modes via `MAT_DIALOG_DATA`
+- [ ] Form dialogs include "* Required fields" hint
+- [ ] Form validation uses `invalid && touched` pattern
+- [ ] Cards use white background, 12px border radius, 1.5rem padding
+- [ ] Cards have hover lift effect (`translateY(-2px)`)
+- [ ] FAB positioned at `bottom: 2rem; left: 2rem` with green background
+- [ ] Delete buttons use coral red (`#FF6B6B`) with delete icon
+- [ ] Update buttons use light blue (`#74C4FC`)
+- [ ] Create buttons use green (`#0DF259`)
+- [ ] Cancel buttons are text-only (transparent background)
+- [ ] All services use `inject()` instead of constructor injection
+- [ ] Logic services include error handling and event subjects
+- [ ] Detail pages use in-place editing pattern (not dialogs)
+- [ ] Overview pages use either grid or list layout
+- [ ] Responsive styles for mobile (`@media (max-width: 768px)`)
+
 ---
 
-**Last Updated**: November 15, 2025
-**Version**: 1.0
+**Last Updated**: November 20, 2025
+**Version**: 2.0
