@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, LowerCasePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, catchError, of, switchMap, tap } from 'rxjs';
 
@@ -24,7 +24,8 @@ import { TrainingPlan, TrainingPlanUpdate } from '../../provider-services/plan-p
         MatInputModule,
         ReactiveFormsModule,
         DatePipe,
-        AsyncPipe
+        AsyncPipe,
+        LowerCasePipe
     ],
     templateUrl: './plan-detail.html',
     styleUrl: './plan-detail.scss',
@@ -120,5 +121,9 @@ export class PlanDetailComponent implements OnInit {
                 });
             }
         });
+    }
+
+    getSessionStatus(session: any): string {
+        return session.status || 'Scheduled';
     }
 }

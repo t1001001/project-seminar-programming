@@ -7,6 +7,7 @@ export interface Session {
   id?: string;
   name: string;
   scheduledDate: string;
+  status?: string;
   exerciseExecutions?: Exercise[];
 }
 

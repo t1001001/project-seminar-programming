@@ -214,6 +214,7 @@ mat-card-actions {
 }
 
 .session-card {
+    position: relative;
     border-radius: 12px !important;
     box-shadow: none !important;
     border: 1px solid var(--fitness-border) !important;
@@ -336,4 +337,64 @@ mat-card-subtitle {
     mat-card-actions {
         padding: 1rem 1.5rem !important;
     }
+
+    .session-status-chip {
+        position: static !important;
+        margin: 1rem 1rem 0 1rem;
+        display: inline-block;
+        width: fit-content;
+    }
+}
+
+.session-status-chip {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 10;
+
+    &.completed {
+        background-color: rgba(13, 242, 89, 0.1);
+        color: var(--fitness-primary);
+        border: 1px solid rgba(13, 242, 89, 0.2);
+    }
+
+    &.today {
+        background-color: rgba(116, 196, 252, 0.1);
+        color: #74C4FC;
+        border: 1px solid rgba(116, 196, 252, 0.2);
+    }
+
+    &.scheduled {
+        background-color: var(--fitness-bg-chip);
+        color: var(--fitness-text-secondary);
+        border: 1px solid var(--fitness-border);
+    }
+}
+
+.exercises-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.count-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.25rem;
+    min-width: 1.25rem;
+    padding: 0 0.4rem;
+    background-color: var(--fitness-bg-chip);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--fitness-text-secondary);
+    border: 1px solid var(--fitness-border);
 }

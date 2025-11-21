@@ -42,6 +42,9 @@
                                 <div class="timeline-marker"></div>
                                 <div class="timeline-content">
                                     <mat-card class="session-card">
+                                        <div class="session-status-chip" [class]="getSessionStatus(session) | lowercase">
+                                            {{ getSessionStatus(session) }}
+                                        </div>
                                         <mat-card-header>
                                             <div mat-card-avatar class="session-avatar">
                                                 <mat-icon>fitness_center</mat-icon>
@@ -54,7 +57,10 @@
                                         </mat-card-header>
                                         <mat-card-content>
                                             <div class="exercises-list">
-                                                <span class="exercises-label">Exercises:</span>
+                                                <div class="exercises-header">
+                                                    <span class="count-chip">{{ session.exerciseExecutions?.length || 0 }}</span>
+                                                    <span class="exercises-label">Exercises:</span>
+                                                </div>
                                                 @if (session.exerciseExecutions && session.exerciseExecutions.length >
                                                 0) {
                                                 <div class="chip-container">
