@@ -66,6 +66,7 @@ public class DatabaseSeeder {
                 session1.setName("Monday Training");
                 session1.setScheduledDate(LocalDate.now());
                 session1.setPlan(plan1);
+                session1.setStatus(Sessions.SessionStatus.COMPLETED);
                 session1.setExerciseExecutions(List.of(exercise1, exercise2));
                 sessionsRepository.save(session1);
 

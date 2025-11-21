@@ -364,13 +364,7 @@ mat-card-subtitle {
         border: 1px solid rgba(13, 242, 89, 0.2);
     }
 
-    &.today {
-        background-color: rgba(116, 196, 252, 0.1);
-        color: #74C4FC;
-        border: 1px solid rgba(116, 196, 252, 0.2);
-    }
-
-    &.scheduled {
+    &.planned {
         background-color: var(--fitness-bg-chip);
         color: var(--fitness-text-secondary);
         border: 1px solid var(--fitness-border);

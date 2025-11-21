@@ -43,7 +43,7 @@
                                 <div class="timeline-content">
                                     <mat-card class="session-card">
                                         <div class="session-status-chip" [class]="getSessionStatus(session) | lowercase">
-                                            {{ getSessionStatus(session) }}
+                                            {{ getSessionStatus(session) | titlecase }}
                                         </div>
                                         <mat-card-header>
                                             <div mat-card-avatar class="session-avatar">
