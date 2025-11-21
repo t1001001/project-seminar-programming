@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 .exercise-card {
   background-color: #FFF !important;
   border-radius: 12px !important;
@@ -110,13 +114,19 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.exercise-card:hover .click-hint {
+  opacity: 1;
   color: var(--fitness-primary);
-  font-weight: 500;
 }
 
 .click-hint .material-icons {
-  font-size: 1.125rem;
+  font-size: 1rem;
 }
 
 @media (max-width: 768px) {
