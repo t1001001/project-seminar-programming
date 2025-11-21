@@ -445,6 +445,118 @@ For cards that need to display multiple pieces of information efficiently:
 - Dashboard widgets with controls
 - Any component where horizontal space utilization is important
 
+### View Header Layout
+
+Standard header pattern for main view pages (e.g., Plans Overview, Exercises Overview).
+
+**HTML Structure:**
+```html
+<header class="view-header">
+  <div class="header-content">
+    <h1>Page Title</h1>
+    <p class="subtitle">Descriptive subtitle for the page</p>
+  </div>
+
+  <div class="header-actions">
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <span class="material-icons">search</span>
+      <input type="text" placeholder="Search...">
+    </div>
+
+    <!-- Stat Chip (Optional) -->
+    <div class="header-stat">
+      <span class="stat-value">12</span>
+      <span class="stat-label">Items</span>
+    </div>
+  </div>
+
+  <!-- Decorative Background Icon -->
+  <div class="header-decoration">
+    <span class="material-icons">icon_name</span>
+  </div>
+</header>
+```
+
+**SCSS Pattern:**
+```scss
+.view-header {
+  background-color: transparent;
+  padding: 1rem 0 1rem 1.5rem;
+  border-left: 5px solid var(--fitness-primary); // Vertical accent
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: visible;
+}
+
+.header-content {
+  z-index: 1;
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--fitness-dark);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .subtitle {
+    color: #64748b;
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 2;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+
+  &:focus-within {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+.header-decoration {
+  position: absolute;
+  right: 0;
+  bottom: -1rem;
+  opacity: 0.03;
+  transform: rotate(-15deg);
+  pointer-events: none;
+  
+  .material-icons {
+    font-size: 10rem;
+    color: var(--fitness-dark);
+  }
+}
+```
+
+**Responsive Behavior:**
+- On mobile (< 768px):
+  - `flex-direction: column`
+  - `align-items: flex-start`
+  - Search bar expands to full width
+  - Decoration opacity reduced to 0.05
+
 ## 🎨 Component Examples
 
 ### Exercise Card
