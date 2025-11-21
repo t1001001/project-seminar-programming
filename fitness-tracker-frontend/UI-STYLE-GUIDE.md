@@ -4,12 +4,102 @@ This document defines the consistent styling rules for all components in the Fit
 
 ## 🎨 Color Palette
 
-### CSS Variables
+### Theme System
+
+The application supports **light and dark modes** with automatic theme switching and persistence.
+
+#### CSS Theme Variables
+
+All components use CSS custom properties for theming. **Always use these variables instead of hardcoded colors.**
+
+**Core Variables (Light Mode Default):**
 ```css
---fitness-primary: #0DF259    /* Bright Green - Primary actions, accents */
---fitness-light-gray: #F5F8F6 /* Light Gray - Page background */
---fitness-white: #FFFFFF      /* White - Card backgrounds */
---fitness-dark: #111813       /* Dark - Text, borders */
+/* Brand Colors (consistent across themes) */
+--fitness-primary: #0DF259;           /* Bright Green - Primary actions, accents */
+--fitness-primary-hover: #0BE84D;     /* Hover state for primary buttons */
+
+/* Background Colors */
+--fitness-bg-page: #F5F8F6;           /* Page background */
+--fitness-bg-card: #FFFFFF;           /* Card backgrounds */
+--fitness-bg-elevated: #FFFFFF;       /* Elevated surfaces */
+--fitness-bg-chip: #f1f5f9;           /* Chips, badges, tags */
+--fitness-bg-input: #FFFFFF;          /* Input field backgrounds */
+
+/* Text Colors */
+--fitness-text-primary: #111813;      /* Main text */
+--fitness-text-secondary: #64748b;    /* Secondary text, labels */
+--fitness-text-tertiary: #94a3b8;     /* Muted text, placeholders */
+
+/* Borders & Shadows */
+--fitness-border: rgba(17, 24, 19, 0.1);        /* Standard borders */
+--fitness-border-strong: rgba(17, 24, 19, 0.2); /* Emphasized borders */
+--fitness-shadow: rgba(0, 0, 0, 0.05);          /* Subtle shadows */
+--fitness-shadow-strong: rgba(0, 0, 0, 0.1);    /* Emphasized shadows */
+
+/* Legacy Variables (for backward compatibility) */
+--fitness-light-gray: #F5F8F6;
+--fitness-white: #FFFFFF;
+--fitness-dark: #111813;
+```
+
+**Dark Mode Overrides (`[data-theme="dark"]`):**
+```css
+--fitness-bg-page: #0f1511;           /* Very dark gray-green */
+--fitness-bg-card: #1a1f1c;           /* Dark card surface */
+--fitness-bg-elevated: #242a27;       /* Elevated surfaces */
+--fitness-bg-chip: #242a27;           /* Chips, badges */
+--fitness-bg-input: #1e2421;          /* Input backgrounds */
+
+--fitness-text-primary: #e8eae9;      /* Light text */
+--fitness-text-secondary: #9ca3a0;    /* Muted light text */
+--fitness-text-tertiary: #6b7270;     /* Very muted text */
+
+--fitness-border: rgba(255, 255, 255, 0.1);
+--fitness-border-strong: rgba(255, 255, 255, 0.2);
+--fitness-shadow: rgba(0, 0, 0, 0.4);
+--fitness-shadow-strong: rgba(0, 0, 0, 0.6);
+```
+
+#### Usage Guidelines
+
+**✅ DO:**
+```scss
+.my-component {
+  background-color: var(--fitness-bg-card);
+  color: var(--fitness-text-primary);
+  border: 1px solid var(--fitness-border);
+  box-shadow: 0 2px 8px var(--fitness-shadow);
+}
+```
+
+**❌ DON'T:**
+```scss
+.my-component {
+  background-color: #FFFFFF;  // Hardcoded - won't adapt to dark mode
+  color: #111813;             // Hardcoded - won't adapt to dark mode
+  border: 1px solid rgba(0, 0, 0, 0.1);  // Hardcoded
+}
+```
+
+### Theme Toggle
+
+Users can switch between light and dark modes using the theme toggle button in the app header (moon/sun icon). The preference is automatically saved to localStorage.
+
+**For Developers:**
+```typescript
+import { ThemeService } from './services/theme.service';
+
+// Inject the service
+private readonly themeService = inject(ThemeService);
+
+// Toggle theme
+this.themeService.toggleTheme();
+
+// Set specific theme
+this.themeService.setTheme('dark');
+
+// Read current theme
+const currentTheme = this.themeService.currentTheme();
 ```
 
 ### Global Styles (`src/styles.scss`)
@@ -55,44 +145,145 @@ this.dialog.open(ComponentName, {
 - **Text Gray**: `#64748b` - Secondary text, labels
 - **Light Gray Background**: `#f1f5f9` - Chips, tags
 
+---
+
+## ⚠️ CRITICAL: Theme Variable Usage Rules
+
+**ALL new SCSS files MUST use CSS custom properties from `src/styles.scss`.**
+
+### Mandatory Rules
+
+1. **NEVER use hardcoded colors** for backgrounds, text, borders, or shadows
+2. **ALWAYS use theme variables** to ensure dark mode compatibility
+3. **Only exception**: Intentional action colors (red delete, blue update buttons)
+
+### Required Theme Variables
+
+**Use these variables in ALL component SCSS files:**
+
+```scss
+/* Backgrounds - REQUIRED */
+background-color: var(--fitness-bg-card);    // NOT #FFFFFF
+background-color: var(--fitness-bg-page);    // NOT #F5F8F6
+background-color: var(--fitness-bg-chip);    // NOT #f1f5f9
+
+/* Text - REQUIRED */
+color: var(--fitness-text-primary);          // NOT #111813
+color: var(--fitness-text-secondary);        // NOT #64748b
+color: var(--fitness-text-tertiary);         // NOT #94a3b8
+
+/* Borders - REQUIRED */
+border: 1px solid var(--fitness-border);     // NOT rgba(17, 24, 19, 0.1)
+border-color: var(--fitness-border-strong);  // NOT rgba(17, 24, 19, 0.2)
+
+/* Shadows - REQUIRED */
+box-shadow: 0 2px 8px var(--fitness-shadow); // NOT rgba(0, 0, 0, 0.05)
+
+/* Brand Colors - REQUIRED */
+background-color: var(--fitness-primary);       // Primary green
+background-color: var(--fitness-primary-hover); // Primary green hover
+color: var(--fitness-dark);                     // Adapts to theme
+```
+
+### Allowed Hardcoded Colors (Exceptions Only)
+
+These are the ONLY hardcoded colors allowed:
+
+```scss
+/* Delete buttons - Consistent red across themes */
+background-color: #FF6B6B;  // Delete button
+background-color: #FF5252;  // Delete button hover
+
+/* Update/Add buttons - Specific blue for secondary actions */
+background-color: #74C4FC;  // Update button
+background-color: #5AB8FA;  // Update button hover
+```
+
+### ❌ Common Mistakes to Avoid
+
+```scss
+/* ❌ WRONG - Hardcoded colors */
+.my-component {
+  background-color: #FFFFFF;
+  color: #111813;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ CORRECT - Theme variables */
+.my-component {
+  background-color: var(--fitness-bg-card);
+  color: var(--fitness-text-primary);
+  border: 1px solid var(--fitness-border);
+}
+```
+
+### Verification Checklist
+
+Before committing any new SCSS file, verify:
+
+- [ ] No hardcoded `#` color values (except approved action buttons)
+- [ ] All backgrounds use `var(--fitness-bg-*)`
+- [ ] All text uses `var(--fitness-text-*)`
+- [ ] All borders use `var(--fitness-border*)`
+- [ ] All shadows use `var(--fitness-shadow*)`
+- [ ] Tested in both light AND dark modes
+
+---
+
 ## 📦 Cards
 
 ### Base Card Styling
-```css
-background-color: #FFF;
-border-radius: 12px;
-border: 1px solid rgba(17, 24, 19, 0.1);
-box-shadow: none;
-transition: transform 0.2s ease;
-cursor: pointer; /* For clickable cards */
+
+**CRITICAL: Always use CSS variables for theming support!**
+
+```scss
+.card {
+  background-color: var(--fitness-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fitness-border);
+  box-shadow: none;
+  transition: transform 0.2s ease;
+  cursor: pointer; /* For clickable cards */
+}
 ```
 
 ### Card Hover Effect
-```css
-transform: translateY(-2px);
+```scss
+.card:hover {
+  transform: translateY(-2px);
+}
 ```
 
-**Important:** Cards should NOT change border color on hover. Only apply the lift effect (translateY).
+**Important:** 
+- Cards should NOT change border color on hover. Only apply the lift effect (translateY).
+- **NEVER use hardcoded colors** like `#FFF` or `rgba(17, 24, 19, 0.1)` - always use theme variables.
 
 ## 🔘 Buttons
 
 ### Primary Button (Green)
-```css
-background-color: var(--fitness-primary);
-color: var(--fitness-dark);
-border-radius: 8px;
-padding: 0.5rem 1.5rem;
-font-weight: 500;
-text-transform: none;
-box-shadow: none;
-transition: all 0.2s ease;
+
+**Use theme variables for all colors:**
+
+```scss
+.primary-btn {
+  background-color: var(--fitness-primary);
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
 ```
 
 **Hover State:**
-```css
-background-color: #0BE84D;
-transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
+```scss
+.primary-btn:hover {
+  background-color: var(--fitness-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
+}
 ```
 
 **Usage:**
@@ -101,13 +292,17 @@ box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
 - Edit button example: `<mat-icon>edit</mat-icon> Edit`
 
 ### Update Button (Light Blue)
-```css
-background-color: #74C4FC;
-color: var(--fitness-dark);
-border-radius: 8px;
-padding: 0.5rem 1.5rem;
-font-weight: 500;
-text-transform: none;
+
+**Intentional color - consistent across themes:**
+
+```scss
+.update-btn {
+  background-color: #74C4FC;  /* Intentional - specific action color */
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
 box-shadow: none;
 transition: all 0.2s ease;
 ```

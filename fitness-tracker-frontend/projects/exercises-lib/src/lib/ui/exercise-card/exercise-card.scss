@@ -3,9 +3,9 @@
 }
 
 .exercise-card {
-  background-color: #FFF !important;
+  background-color: var(--fitness-bg-card) !important;
   border-radius: 12px !important;
-  border: 1px solid rgba(17, 24, 19, 0.1) !important;
+  border: 1px solid var(--fitness-border) !important;
   box-shadow: none !important;
   transition: transform 0.2s ease;
   cursor: pointer;
@@ -30,7 +30,7 @@
   display: flex;
   justify-content: flex-end;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(17, 24, 19, 0.05);
+  border-top: 1px solid var(--fitness-border);
 }
 
 .info-section {
@@ -62,7 +62,7 @@
 .detail-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--fitness-text-secondary);
 }
 
 .detail-value {
@@ -79,7 +79,7 @@
 .muscle-chip {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background-color: #f1f5f9;
+  background-color: var(--fitness-bg-chip);
   border-radius: 16px;
   font-size: 0.875rem;
   color: var(--fitness-dark);
@@ -95,7 +95,7 @@
 
 .delete-btn {
   background-color: #FF6B6B !important;
-  color: white !important;
+  color: var(--fitness-dark) !important;
   border-radius: 8px !important;
   padding: 0.5rem 1.5rem !important;
   font-weight: 500 !important;
@@ -115,7 +115,7 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--fitness-text-secondary);
   opacity: 0.7;
   transition: all 0.2s ease;
 }

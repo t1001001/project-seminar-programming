@@ -2,17 +2,17 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--fitness-light-gray);
+  background-color: var(--fitness-bg-page);
 }
 
 .app-toolbar {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: var(--fitness-light-gray) !important;
-  color: var(--fitness-dark) !important;
+  background-color: var(--fitness-bg-page) !important;
+  color: var(--fitness-text-primary) !important;
   box-shadow: none !important;
-  border-bottom: 1px solid rgba(17, 24, 19, 0.1);
+  border-bottom: 1px solid var(--fitness-border);
   min-height: 80px !important;
   height: 80px !important;
   padding: 0 !important;
@@ -45,8 +45,8 @@
 
 .hamburger-btn {
   display: none;
-  color: var(--fitness-dark) !important;
-  
+  color: var(--fitness-text-primary) !important;
+
   mat-icon {
     font-size: 28px;
     width: 28px;
@@ -64,14 +64,14 @@
 }
 
 .app-nav a {
-  color: var(--fitness-dark);
+  color: var(--fitness-text-primary);
   font-weight: 500;
   font-size: 1rem;
   transition: all 0.2s ease;
   border-radius: 6px !important;
   padding: 0.75rem 1.5rem !important;
   background-color: transparent;
-  
+
   &:hover {
     color: var(--fitness-primary);
     background-color: transparent;
@@ -80,11 +80,11 @@
 
 .app-nav a.active-link {
   background-color: var(--fitness-primary);
-  color: var(--fitness-dark);
-  
+  color: var(--fitness-text-primary);
+
   &:hover {
     background-color: var(--fitness-primary);
-    color: var(--fitness-dark);
+    color: var(--fitness-text-primary);
   }
 }
 
@@ -142,8 +142,8 @@
     opacity: 0;
     visibility: hidden;
     flex-direction: column;
-    background-color: var(--fitness-light-gray);
-    border-bottom: 1px solid rgba(17, 24, 19, 0.1);
+    background-color: var(--fitness-bg-page);
+    border-bottom: 1px solid var(--fitness-border);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     padding: 1rem;
     gap: 0.5rem;

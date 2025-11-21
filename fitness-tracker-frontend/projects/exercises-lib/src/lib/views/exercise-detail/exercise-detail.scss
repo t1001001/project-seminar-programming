@@ -30,13 +30,13 @@
   margin: 0 0 1rem 0;
   padding: 0.5rem 0;
   font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--fitness-text-secondary);
 }
 
 .detail-card {
-  background-color: #FFF !important;
+  background-color: var(--fitness-bg-card) !important;
   border-radius: 12px !important;
-  border: 1px solid rgba(17, 24, 19, 0.1) !important;
+  border: 1px solid var(--fitness-border) !important;
   box-shadow: none !important;
   width: 100%;
 }
@@ -71,7 +71,7 @@ h1 {
 }
 
 .edit-btn:hover {
-  background-color: #0BE84D !important;
+  background-color: var(--fitness-primary-hover) !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3) !important;
 }
@@ -87,7 +87,7 @@ h1 {
   flex-direction: column;
   gap: 0.75rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(17, 24, 19, 0.08);
+  border-bottom: 1px solid var(--fitness-border);
 }
 
 .detail-item:last-child {
@@ -98,7 +98,7 @@ h1 {
 .detail-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--fitness-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -118,7 +118,7 @@ h1 {
 .muscle-chip {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background-color: #f1f5f9;
+  background-color: var(--fitness-bg-chip);
   border-radius: 16px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -128,7 +128,7 @@ h1 {
 .description-text {
   margin: 0;
   font-size: 1rem;
-  color: rgba(17, 24, 19, 0.8);
+  color: var(--fitness-text-primary);
   line-height: 1.8;
   white-space: pre-wrap;
 }
@@ -145,7 +145,7 @@ mat-form-field {
 
 mat-card-actions {
   padding: 1.5rem 2rem !important;
-  border-top: 1px solid rgba(17, 24, 19, 0.1);
+  border-top: 1px solid var(--fitness-border);
 }
 
 .update-btn {

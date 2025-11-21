@@ -38,7 +38,7 @@
 
   .subtitle {
     margin: 0;
-    color: #64748b;
+    color: var(--fitness-text-secondary);
     font-size: 1.125rem;
     font-weight: 500;
   }
@@ -54,22 +54,22 @@
 .search-bar {
   display: flex;
   align-items: center;
-  background: #fff;
+  background: var(--fitness-bg-card);
   padding: 0.5rem 1rem;
   border-radius: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px var(--fitness-shadow);
+  border: 1px solid var(--fitness-border);
   width: 240px;
   transition: all 0.2s ease;
 
   &:focus-within {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--fitness-shadow-strong);
+    border-color: var(--fitness-border-strong);
     transform: translateY(-1px);
   }
 
   .material-icons {
-    color: #94a3b8;
+    color: var(--fitness-text-tertiary);
     font-size: 1.25rem;
     margin-right: 0.5rem;
   }
@@ -84,7 +84,7 @@
     width: 100%;
 
     &::placeholder {
-      color: #94a3b8;
+      color: var(--fitness-text-tertiary);
     }
   }
 }
@@ -93,10 +93,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fff;
+  background: var(--fitness-bg-card);
   padding: 0.5rem 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px var(--fitness-shadow);
   min-width: 80px;
 
   .stat-value {
@@ -109,7 +109,7 @@
   .stat-label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--fitness-text-secondary);
     text-transform: uppercase;
     margin-top: 0.25rem;
   }
@@ -138,7 +138,7 @@
 }
 
 .empty-state {
-  color: #64748b;
+  color: var(--fitness-text-secondary);
   font-size: 1.125rem;
   text-align: center;
   padding: 3rem;
@@ -161,7 +161,7 @@
 }
 
 .create-fab:hover {
-  background-color: #0BE84D !important;
+  background-color: var(--fitness-primary-hover) !important;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(13, 242, 89, 0.4) !important;
 }
