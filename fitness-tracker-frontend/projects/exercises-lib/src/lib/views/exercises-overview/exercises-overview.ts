@@ -6,15 +6,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
 import { Exercise } from '../../provider-services/exercise-provider.service';
-import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card.component';
-import { ExerciseDeleteDialogComponent, DeleteDialogData } from '../../ui/exercise-delete-dialog/exercise-delete-dialog.component';
-import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exercise-form-dialog.component';
+import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card';
+import { ExerciseDeleteDialogComponent, DeleteDialogData } from '../../ui/exercise-delete-dialog/exercise-delete-dialog';
+import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exercise-form-dialog';
 
 @Component({
   selector: 'ex-exercises-overview',
   imports: [AsyncPipe, ExerciseCardComponent, MatButtonModule],
-  templateUrl: './exercises-overview.component.html',
-  styleUrl: './exercises-overview.component.scss',
+  templateUrl: './exercises-overview.html',
+  styleUrl: './exercises-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisesOverviewComponent implements OnInit {

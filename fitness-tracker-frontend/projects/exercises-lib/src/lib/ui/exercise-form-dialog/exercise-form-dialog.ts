@@ -15,8 +15,8 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
     MatInputModule,
     ReactiveFormsModule,
   ],
-  templateUrl: './exercise-form-dialog.component.html',
-  styleUrl: './exercise-form-dialog.component.scss',
+  templateUrl: './exercise-form-dialog.html',
+  styleUrl: './exercise-form-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseFormDialogComponent {

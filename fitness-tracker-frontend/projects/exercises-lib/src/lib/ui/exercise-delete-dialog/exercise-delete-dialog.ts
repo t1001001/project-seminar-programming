@@ -10,8 +10,8 @@ export interface DeleteDialogData {
 @Component({
   selector: 'ex-exercise-delete-dialog',
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
-  templateUrl: './exercise-delete-dialog.component.html',
-  styleUrl: './exercise-delete-dialog.component.scss',
+  templateUrl: './exercise-delete-dialog.html',
+  styleUrl: './exercise-delete-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseDeleteDialogComponent {

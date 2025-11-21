@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ExerciseFormDialogComponent } from './exercise-form-dialog.component';
+import { ExerciseFormDialogComponent } from './exercise-form-dialog';
 
 describe('ExerciseFormDialogComponent', () => {
   let component: ExerciseFormDialogComponent;

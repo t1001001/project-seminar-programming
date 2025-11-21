@@ -8,8 +8,8 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
 @Component({
   selector: 'ex-exercise-card',
   imports: [MatCardModule, MatButtonModule, MatIconModule],
-  templateUrl: './exercise-card.component.html',
-  styleUrl: './exercise-card.component.scss',
+  templateUrl: './exercise-card.html',
+  styleUrl: './exercise-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseCardComponent {

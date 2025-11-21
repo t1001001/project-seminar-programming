@@ -22,8 +22,8 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
     MatSnackBarModule,
     ReactiveFormsModule,
   ],
-  templateUrl: './exercise-detail.component.html',
-  styleUrl: './exercise-detail.component.scss',
+  templateUrl: './exercise-detail.html',
+  styleUrl: './exercise-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseDetailComponent implements OnInit {
