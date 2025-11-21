@@ -1,12 +1,15 @@
 <mat-card class="plan-card" (click)="onCardClick()">
     <div class="card-content-wrapper">
         <div class="info-section">
-            <h3>{{ plan().name }}</h3>
-            @if (plan().description) {
-            <p class="description"><strong>Description:</strong> {{ plan().description }}</p>
-            }
-
+            <h3 class="plan-name">{{ plan().name }}</h3>
             <div class="details-row">
+                @if (plan().description) {
+                <div class="detail-item">
+                    <span class="detail-label">Description:</span>
+                    <span class="detail-value">{{ plan().description }}</span>
+                </div>
+                }
+
                 <div class="stat-chip">
                     <span class="label">Sessions</span>
                     <span class="value">{{ plan().sessionsCount || 0 }}</span>

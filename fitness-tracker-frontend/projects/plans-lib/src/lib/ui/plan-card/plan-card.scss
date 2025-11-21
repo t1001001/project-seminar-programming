@@ -37,32 +37,37 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+}
 
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--fitness-dark);
-  }
-
-  .description {
-    margin: 0;
-    color: var(--fitness-dark);
-    font-size: 0.875rem;
-    line-height: 1.5;
-
-    strong {
-      color: #64748b;
-      font-weight: 600;
-    }
-  }
+.plan-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--fitness-dark);
+  margin: 0;
 }
 
 .details-row {
-  margin-top: 1rem;
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: var(--fitness-dark);
 }
 
 .stat-chip {
@@ -139,6 +144,11 @@
   }
 
   .delete-btn {
-    width: 100%;
+    width: 100% !important;
+  }
+
+  .details-row {
+    flex-direction: column;
+    gap: 0.75rem;
   }
 }
