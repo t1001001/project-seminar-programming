@@ -4,7 +4,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
-import { BehaviorSubject, Observable, switchMap } from 'rxjs';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { BehaviorSubject, combineLatest, Observable, shareReplay, startWith, switchMap, map, debounceTime } from 'rxjs';
 
 import { PlanLogicService } from '../../logic-services/plan-logic.service';
 import { TrainingPlan, TrainingPlanCreate } from '../../provider-services/plan-provider.service';
@@ -18,6 +19,7 @@ import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-dele
     imports: [
         MatButtonModule,
         MatIconModule,
+        ReactiveFormsModule,
         AsyncPipe,
         PlanCardComponent
     ],
@@ -30,10 +32,29 @@ export class PlansOverviewComponent implements OnInit {
     private readonly dialog = inject(MatDialog);
     private readonly snackBar = inject(MatSnackBar);
 
+    readonly searchControl = new FormControl('');
+
     private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
-    readonly plans$: Observable<TrainingPlan[]> = this.refreshTrigger$.pipe(
-        switchMap(() => this.planService.getAllPlans())
+    private readonly plansSource$: Observable<TrainingPlan[]> = this.refreshTrigger$.pipe(
+        switchMap(() => this.planService.getAllPlans()),
+        shareReplay(1)
     );
+
+    readonly filteredPlans$: Observable<TrainingPlan[]> = combineLatest([
+        this.plansSource$,
+        this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300))
+    ]).pipe(
+        map(([plans, searchTerm]) => {
+            const term = (searchTerm || '').toLowerCase();
+            return plans.filter(plan =>
+                plan.name.toLowerCase().includes(term) ||
+                (plan.description && plan.description.toLowerCase().includes(term))
+            );
+        })
+    );
+
+    // Expose total count for the badge
+    readonly totalPlansCount$ = this.plansSource$.pipe(map(plans => plans.length));
 
     ngOnInit(): void {
         // plans$ will automatically fetch on initialization via refreshTrigger$

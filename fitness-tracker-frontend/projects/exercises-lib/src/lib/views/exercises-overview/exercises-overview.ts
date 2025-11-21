@@ -1,9 +1,10 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, shareReplay, startWith, switchMap, map, debounceTime } from 'rxjs';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
 import { Exercise } from '../../provider-services/exercise-provider.service';
 import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card';
@@ -12,7 +13,7 @@ import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exerc
 
 @Component({
   selector: 'ex-exercises-overview',
-  imports: [AsyncPipe, ExerciseCardComponent, MatButtonModule],
+  imports: [AsyncPipe, ExerciseCardComponent, MatButtonModule, ReactiveFormsModule],
   templateUrl: './exercises-overview.html',
   styleUrl: './exercises-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,10 +23,29 @@ export class ExercisesOverviewComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
+  readonly searchControl = new FormControl('');
+
   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
-  readonly exercises$: Observable<Exercise[]> = this.refreshTrigger$.pipe(
-    switchMap(() => this.exerciseService.getAllExercises())
+  private readonly exercisesSource$: Observable<Exercise[]> = this.refreshTrigger$.pipe(
+    switchMap(() => this.exerciseService.getAllExercises()),
+    shareReplay(1)
   );
+
+  readonly filteredExercises$: Observable<Exercise[]> = combineLatest([
+    this.exercisesSource$,
+    this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300))
+  ]).pipe(
+    map(([exercises, searchTerm]) => {
+      const term = (searchTerm || '').toLowerCase();
+      return exercises.filter(exercise =>
+        exercise.name.toLowerCase().includes(term) ||
+        exercise.category.toLowerCase().includes(term) ||
+        exercise.muscleGroups.some(muscle => muscle.toLowerCase().includes(term))
+      );
+    })
+  );
+
+  readonly totalExercisesCount$ = this.exercisesSource$.pipe(map(exercises => exercises.length));
 
   ngOnInit(): void {
     // exercises$ will automatically fetch on initialization

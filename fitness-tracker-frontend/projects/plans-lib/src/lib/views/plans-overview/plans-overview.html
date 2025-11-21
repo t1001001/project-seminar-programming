@@ -1,12 +1,33 @@
 <section class="plans-overview">
     <header class="overview-header">
-        <h1>Training Plans</h1>
+        <div class="header-content">
+            <h1>Training Plans</h1>
+            <p class="subtitle">Organize your training plans</p>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-bar">
+                <span class="material-icons">search</span>
+                <input type="text" [formControl]="searchControl" placeholder="Search plans...">
+            </div>
+
+            @if (totalPlansCount$ | async; as count) {
+            <div class="header-stat">
+                <span class="stat-value">{{ count }}</span>
+                <span class="stat-label">Plans</span>
+            </div>
+            }
+        </div>
+
+        <div class="header-decoration">
+            <span class="material-icons">calendar_today</span>
+        </div>
     </header>
 
-    @if (plans$ | async; as plans) {
+    @if (filteredPlans$ | async; as plans) {
     @if (!plans.length) {
     <p class="empty-state">
-        No training plans found. Create one to get started!
+        No training plans found.
     </p>
     }
     @if (plans.length) {

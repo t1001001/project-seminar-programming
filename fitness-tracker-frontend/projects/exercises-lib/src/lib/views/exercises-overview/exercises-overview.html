@@ -1,34 +1,47 @@
 <section class="exercises-overview">
   <header class="overview-header">
-    <h1>Exercises Overview</h1>
+    <div class="header-content">
+      <h1>Exercises</h1>
+      <p class="subtitle">Manage your exercises</p>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-bar">
+        <span class="material-icons">search</span>
+        <input type="text" [formControl]="searchControl" placeholder="Search exercises...">
+      </div>
+
+      @if (totalExercisesCount$ | async; as count) {
+      <div class="header-stat">
+        <span class="stat-value">{{ count }}</span>
+        <span class="stat-label">Exercises</span>
+      </div>
+      }
+    </div>
+
+    <div class="header-decoration">
+      <span class="material-icons">fitness_center</span>
+    </div>
   </header>
 
-  @if (exercises$ | async; as exercises) {
-    @if (!exercises.length) {
-      <p class="empty-state">
-        No exercises available. Create one to get started.
-      </p>
+  @if (filteredExercises$ | async; as exercises) {
+  @if (!exercises.length) {
+  <p class="empty-state">
+    No exercises found.
+  </p>
+  }
+  @if (exercises.length) {
+  <div class="exercises-list">
+    @for (exercise of exercises; track exercise.id) {
+    <ex-exercise-card [exercise]="exercise" (delete)="onDelete($event, exercise.name)" />
     }
-    @if (exercises.length) {
-      <div class="exercises-list">
-        @for (exercise of exercises; track exercise.id) {
-          <ex-exercise-card 
-            [exercise]="exercise" 
-            (delete)="onDelete($event, exercise.name)"
-          />
-        }
-      </div>
-    }
+  </div>
+  }
   } @else {
-    <p>Loading exercises…</p>
+  <p>Loading exercises…</p>
   }
 
-  <button 
-    mat-fab 
-    extended 
-    class="create-fab" 
-    (click)="openCreateDialog()"
-  >
+  <button mat-fab extended class="create-fab" (click)="openCreateDialog()">
     <span class="material-icons">add</span>
     Create
   </button>

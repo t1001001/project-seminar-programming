@@ -7,14 +7,128 @@
 }
 
 .overview-header {
-  margin-bottom: 0.5rem;
+  background-color: transparent;
+  padding: 1rem 0 1rem 1.5rem;
+  border-radius: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border: none;
+  border-left: 5px solid var(--fitness-primary);
+  box-shadow: none;
+  overflow: visible;
+  position: relative;
 }
 
-h1 {
-  margin: 0;
-  font-size: 2.5rem;
-  font-weight: 700;
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  z-index: 1;
+
+  h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--fitness-dark);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    margin: 0;
+    color: #64748b;
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 2;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  width: 240px;
+  transition: all 0.2s ease;
+
+  &:focus-within {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .material-icons {
+    color: #94a3b8;
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+  }
+
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--fitness-dark);
+    width: 100%;
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+}
+
+.header-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  padding: 0.5rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-width: 80px;
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--fitness-primary);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+  }
+}
+
+.header-decoration {
+  position: absolute;
+  right: 0;
+  bottom: -1rem;
   color: var(--fitness-dark);
+  opacity: 0.03;
+  transform: rotate(-15deg);
+  pointer-events: none;
+
+  .material-icons {
+    font-size: 10rem;
+    width: 10rem;
+    height: 10rem;
+  }
 }
 
 .exercises-list {
@@ -58,8 +172,31 @@ h1 {
 }
 
 @media (max-width: 768px) {
-  h1 {
-    font-size: 2rem;
+  .overview-header {
+    padding: 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-bar {
+    flex: 1;
+    width: auto;
+  }
+
+  .header-content h1 {
+    font-size: 1.75rem;
+  }
+
+  .header-decoration {
+    opacity: 0.05;
+    right: -2rem;
+    bottom: -3rem;
   }
 
   .create-fab {
