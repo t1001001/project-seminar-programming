@@ -6,6 +6,7 @@ import hs.aalen.fitness_tracker_backend.exercises.dto.ExercisesUpdateDto;
 import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 import hs.aalen.fitness_tracker_backend.exercises.repository.ExercisesRepository;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
+import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -53,10 +54,11 @@ public class ExercisesService {
             throw new EntityNotFoundException("Exercise not found");
         }
 
-        // Check if exercise is referenced in any sessions
-        long sessionCount = sessionsRepository.countByExerciseExecutions_Id(id);
-        if (sessionCount > 0) {
-            throw new IllegalStateException("Cannot delete exercise: it is referenced in sessions");
+        // Check if exercise is referenced in any sessions and remove it
+        List<Sessions> sessions = sessionsRepository.findByExerciseExecutions_Id(id);
+        for (Sessions session : sessions) {
+            session.getExerciseExecutions().removeIf(e -> e.getId().equals(id));
+            sessionsRepository.save(session);
         }
         repository.deleteById(id);
     }

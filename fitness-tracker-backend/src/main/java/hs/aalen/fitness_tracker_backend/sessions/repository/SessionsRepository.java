@@ -20,4 +20,6 @@ public interface SessionsRepository extends JpaRepository<Sessions, UUID> {
             UUID planId);
 
     long countByExerciseExecutions_Id(UUID exerciseId);
+
+    java.util.List<Sessions> findByExerciseExecutions_Id(UUID exerciseId);
 }
