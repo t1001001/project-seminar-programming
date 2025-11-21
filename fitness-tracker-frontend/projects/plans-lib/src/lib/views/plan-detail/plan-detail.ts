@@ -11,7 +11,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { BehaviorSubject, Observable, catchError, of, switchMap, tap } from 'rxjs';
 
 import { PlanLogicService } from '../../logic-services/plan-logic.service';
-import { TrainingPlan, TrainingPlanUpdate } from '../../provider-services/plan-provider.service';
+import { TrainingPlan, TrainingPlanUpdate, Session } from '../../provider-services/plan-provider.service';
 
 @Component({
     selector: 'lib-plan-detail',
@@ -93,6 +93,11 @@ export class PlanDetailComponent implements OnInit {
 
     cancelEdit(): void {
         this.isEditMode = false;
+        if (this.currentPlan) {
+            this.updateForm(this.currentPlan);
+        }
+        this.form.markAsPristine();
+        this.form.markAsUntouched();
         this.refreshTrigger$.next(); // Re-fetch to reset form
     }
 
@@ -107,8 +112,12 @@ export class PlanDetailComponent implements OnInit {
         };
 
         this.planService.updatePlan(currentPlanId, updateData).subscribe({
-            next: () => {
+            next: (updatedPlan) => {
                 this.isEditMode = false;
+                this.currentPlan = updatedPlan;
+                this.updateForm(updatedPlan);
+                this.form.markAsPristine();
+                this.form.markAsUntouched();
                 this.refreshTrigger$.next(); // Reload data
                 this.snackBar.open('Training plan updated successfully!', 'Close', {
                     duration: 3000,
@@ -124,7 +133,7 @@ export class PlanDetailComponent implements OnInit {
         });
     }
 
-    getSessionStatus(session: any): string {
+    getSessionStatus(session: Session): string {
         return session.status || 'Scheduled';
     }
 }

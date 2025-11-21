@@ -36,6 +36,16 @@ All components use CSS custom properties for theming. **Always use these variabl
 --fitness-shadow: rgba(0, 0, 0, 0.05);          /* Subtle shadows */
 --fitness-shadow-strong: rgba(0, 0, 0, 0.1);    /* Emphasized shadows */
 
+/* Shadow Glows (using primary/action colors) */
+--fitness-shadow-glow-sm: 0 2px 8px rgba(13, 242, 89, 0.3);     /* Small glow */
+--fitness-shadow-glow: 0 4px 12px rgba(13, 242, 89, 0.3);       /* Standard glow */
+--fitness-shadow-glow-lg: 0 6px 16px rgba(13, 242, 89, 0.4);    /* Large glow */
+--fitness-shadow-glow-update: 0 4px 12px rgba(116, 196, 252, 0.3); /* Update glow */
+
+/* Specific Shadows */
+--fitness-shadow-logo: 0 2px 4px var(--fitness-shadow);
+--fitness-shadow-dropdown: 0 10px 40px -10px var(--fitness-shadow-strong);
+
 /* Legacy Variables (for backward compatibility) */
 --fitness-light-gray: #F5F8F6;
 --fitness-white: #FFFFFF;
@@ -177,7 +187,10 @@ border: 1px solid var(--fitness-border);     // NOT rgba(17, 24, 19, 0.1)
 border-color: var(--fitness-border-strong);  // NOT rgba(17, 24, 19, 0.2)
 
 /* Shadows - REQUIRED */
-box-shadow: 0 2px 8px var(--fitness-shadow); // NOT rgba(0, 0, 0, 0.05)
+box-shadow: var(--fitness-shadow);             // Standard shadow
+box-shadow: var(--fitness-shadow-glow);        // Glow effect for primary actions
+box-shadow: var(--fitness-shadow-glow-update); // Glow effect for update actions
+box-shadow: var(--fitness-shadow-dropdown);    // Dropdown/Menu shadow
 
 /* Brand Colors - REQUIRED */
 background-color: var(--fitness-primary);       // Primary green
@@ -282,7 +295,7 @@ Before committing any new SCSS file, verify:
 .primary-btn:hover {
   background-color: var(--fitness-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
+  box-shadow: var(--fitness-shadow-glow);
 }
 ```
 
@@ -311,7 +324,7 @@ transition: all 0.2s ease;
 ```css
 background-color: #5AB8FA;
 transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(116, 196, 252, 0.3);
+box-shadow: var(--fitness-shadow-glow-update);
 ```
 
 **Usage:**
@@ -372,7 +385,7 @@ padding: 0 1.5rem;
 height: 56px;
 font-weight: 600;
 text-transform: none;
-box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
+box-shadow: var(--fitness-shadow-glow);
 z-index: 100;
 transition: all 0.2s ease;
 ```
@@ -381,7 +394,7 @@ transition: all 0.2s ease;
 ```css
 background-color: #0BE84D;
 transform: translateY(-2px);
-box-shadow: 0 6px 16px rgba(13, 242, 89, 0.4);
+box-shadow: var(--fitness-shadow-glow-lg);
 ```
 
 **Icon:**
@@ -585,7 +598,7 @@ transform: translateY(-2px);
 ```
 
 ### Shadow Transitions
-- **Green**: `box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);`
+- **Green**: `box-shadow: var(--fitness-shadow-glow);`
 - **Red**: `box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);`
 
 ## 📐 Spacing
@@ -724,7 +737,7 @@ Standard header pattern for main view pages (e.g., Plans Overview, Exercises Ove
   transition: all 0.2s ease;
 
   &:focus-within {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--fitness-shadow-strong);
     border-color: rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
   }
@@ -855,7 +868,7 @@ Used for displaying sequential events like training sessions.
   border-radius: 50%;
   background-color: var(--fitness-primary);
   border: 3px solid #fff;
-  box-shadow: 0 0 0 2px rgba(13, 242, 89, 0.3);
+  box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
   z-index: 1;
 }
 

@@ -73,7 +73,7 @@ h1 {
 .edit-btn:hover {
   background-color: var(--fitness-primary-hover) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
+  box-shadow: var(--fitness-shadow-glow) !important;
 }
 
 .detail-view {

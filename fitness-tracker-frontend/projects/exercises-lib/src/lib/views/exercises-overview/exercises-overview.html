@@ -11,7 +11,7 @@
         <input type="text" [formControl]="searchControl" placeholder="Search exercises...">
       </div>
 
-      @if (totalExercisesCount$ | async; as count) {
+      @if (totalExercisesCount(); as count) {
       <div class="header-stat">
         <span class="stat-value">{{ count }}</span>
         <span class="stat-label">Exercises</span>
@@ -24,7 +24,7 @@
     </div>
   </header>
 
-  @if (filteredExercises$ | async; as exercises) {
+  @if (filteredExercises(); as exercises) {
   @if (!exercises.length) {
   <p class="empty-state">
     No exercises found.

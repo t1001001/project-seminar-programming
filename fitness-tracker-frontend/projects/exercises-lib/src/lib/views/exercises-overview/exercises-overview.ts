@@ -1,10 +1,10 @@
-import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, combineLatest, Observable, shareReplay, startWith, switchMap, map, debounceTime } from 'rxjs';
+import { BehaviorSubject, debounceTime, shareReplay, startWith, switchMap } from 'rxjs';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
 import { Exercise } from '../../provider-services/exercise-provider.service';
 import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card';
@@ -13,7 +13,7 @@ import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exerc
 
 @Component({
   selector: 'ex-exercises-overview',
-  imports: [AsyncPipe, ExerciseCardComponent, MatButtonModule, ReactiveFormsModule],
+  imports: [ExerciseCardComponent, MatButtonModule, ReactiveFormsModule],
   templateUrl: './exercises-overview.html',
   styleUrl: './exercises-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,29 +26,35 @@ export class ExercisesOverviewComponent implements OnInit {
   readonly searchControl = new FormControl('');
 
   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
-  private readonly exercisesSource$: Observable<Exercise[]> = this.refreshTrigger$.pipe(
-    switchMap(() => this.exerciseService.getAllExercises()),
-    shareReplay(1)
+  
+  private readonly exercises = toSignal(
+    this.refreshTrigger$.pipe(
+      switchMap(() => this.exerciseService.getAllExercises()),
+      shareReplay(1)
+    )
   );
 
-  readonly filteredExercises$: Observable<Exercise[]> = combineLatest([
-    this.exercisesSource$,
-    this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300))
-  ]).pipe(
-    map(([exercises, searchTerm]) => {
-      const term = (searchTerm || '').toLowerCase();
-      return exercises.filter(exercise =>
-        exercise.name.toLowerCase().includes(term) ||
-        exercise.category.toLowerCase().includes(term) ||
-        exercise.muscleGroups.some(muscle => muscle.toLowerCase().includes(term))
-      );
-    })
+  private readonly searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300)),
+    { initialValue: '' }
   );
 
-  readonly totalExercisesCount$ = this.exercisesSource$.pipe(map(exercises => exercises.length));
+  readonly filteredExercises = computed(() => {
+    const exercises = this.exercises();
+    if (!exercises) return undefined;
+    
+    const term = (this.searchTerm() || '').toLowerCase();
+    return exercises.filter(exercise =>
+      exercise.name.toLowerCase().includes(term) ||
+      exercise.category.toLowerCase().includes(term) ||
+      exercise.muscleGroups.some(muscle => muscle.toLowerCase().includes(term))
+    );
+  });
+
+  readonly totalExercisesCount = computed(() => this.exercises()?.length);
 
   ngOnInit(): void {
-    // exercises$ will automatically fetch on initialization
+    // exercises signal will automatically derive state
   }
 
   private refreshExercises(): void {

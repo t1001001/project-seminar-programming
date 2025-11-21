@@ -115,6 +115,15 @@ body {
   --fitness-shadow: rgba(0, 0, 0, 0.05);
   --fitness-shadow-strong: rgba(0, 0, 0, 0.1);
 
+  // Shadow glows (using primary/action colors)
+  --fitness-shadow-glow-sm: 0 2px 8px rgba(var(--fitness-primary-rgb), 0.3);
+  --fitness-shadow-glow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3);
+  --fitness-shadow-glow-lg: 0 6px 16px rgba(var(--fitness-primary-rgb), 0.4);
+  --fitness-shadow-glow-update: 0 4px 12px rgba(var(--fitness-action-update-rgb), 0.3);
+
+  --fitness-shadow-logo: 0 2px 4px var(--fitness-shadow);
+  --fitness-shadow-dropdown: 0 10px 40px -10px var(--fitness-shadow-strong);
+
   // Legacy variables (for backward compatibility)
   --fitness-light-gray: #F5F8F6;
   --fitness-white: #FFFFFF;

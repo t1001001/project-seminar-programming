@@ -155,7 +155,7 @@
     height: 56px !important;
     font-weight: 600 !important;
     text-transform: none !important;
-    box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
+    box-shadow: var(--fitness-shadow-glow) !important;
     z-index: 100;
     transition: all 0.2s ease;
 }
@@ -163,7 +163,7 @@
 .create-fab:hover {
     background-color: var(--fitness-primary-hover) !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(var(--fitness-primary-rgb), 0.4) !important;
+    box-shadow: var(--fitness-shadow-glow-lg) !important;
 }
 
 .create-fab .material-icons {
