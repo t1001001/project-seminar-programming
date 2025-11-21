@@ -44,7 +44,7 @@
   width: auto;
   max-width: 100%;
   transition: transform 0.2s ease;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+  filter: drop-shadow(0 2px 4px var(--fitness-shadow));
 
   &:hover {
     transform: scale(1.02);
@@ -134,7 +134,7 @@
     transform-origin: right;
     transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
     border-radius: 3px;
-    box-shadow: 0 2px 8px rgba(13, 242, 89, 0.3); // Glow effect
+    box-shadow: 0 2px 8px rgba(var(--fitness-primary-rgb), 0.3); // Glow effect
   }
 
   &:hover {
@@ -217,11 +217,10 @@
     gap: 0.5rem;
     background-color: var(--fitness-bg-card); // Card background
     border-bottom: 1px solid var(--fitness-border);
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1); // Dropdown shadow
+    box-shadow: 0 10px 40px -10px var(--fitness-shadow-strong); // Dropdown shadow
     transform: translateY(-10px); // Start slightly up
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s ease;
     z-index: 999;
     border-radius: 0 0 16px 16px; // Rounded corners at bottom
 
@@ -229,6 +228,7 @@
       transform: translateY(0);
       opacity: 1;
       visibility: visible;
+      transition: transform 0.2s ease, opacity 0.2s ease;
     }
   }
 

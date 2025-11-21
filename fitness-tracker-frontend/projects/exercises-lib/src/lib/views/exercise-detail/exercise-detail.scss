@@ -73,7 +73,7 @@ h1 {
 .edit-btn:hover {
   background-color: var(--fitness-primary-hover) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
 }
 
 .detail-view {
@@ -149,7 +149,7 @@ mat-card-actions {
 }
 
 .update-btn {
-  background-color: #74C4FC !important;
+  background-color: var(--fitness-action-update) !important;
   color: var(--fitness-dark) !important;
   border-radius: 8px !important;
   padding: 0.5rem 1.5rem !important;
@@ -160,9 +160,9 @@ mat-card-actions {
 }
 
 .update-btn:hover:not(:disabled) {
-  background-color: #5AB8FA !important;
+  background-color: var(--fitness-action-update-hover) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(116, 196, 252, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(var(--fitness-action-update-rgb), 0.3) !important;
 }
 
 .cancel-btn {

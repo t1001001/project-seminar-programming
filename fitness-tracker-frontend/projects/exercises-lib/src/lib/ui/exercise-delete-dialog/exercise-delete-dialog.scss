@@ -35,7 +35,7 @@ mat-dialog-actions button[mat-button]:hover {
 }
 
 .delete-btn {
-  background-color: #FF6B6B !important;
+  background-color: var(--fitness-action-delete) !important;
   color: white !important;
   box-shadow: none !important;
   border-radius: 8px !important;
@@ -43,7 +43,7 @@ mat-dialog-actions button[mat-button]:hover {
 }
 
 .delete-btn:hover {
-  background-color: #FF5252 !important;
+  background-color: var(--fitness-action-delete-hover) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3) !important;
 }

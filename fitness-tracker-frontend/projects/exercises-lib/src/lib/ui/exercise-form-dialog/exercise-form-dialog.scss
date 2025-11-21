@@ -53,7 +53,7 @@ mat-dialog-actions button[mat-button]:hover {
 .create-btn:hover:not(:disabled) {
   background-color: var(--fitness-primary-hover) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
 }
 
 .create-btn:disabled {

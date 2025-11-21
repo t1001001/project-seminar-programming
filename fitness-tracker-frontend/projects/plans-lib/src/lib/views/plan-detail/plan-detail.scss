@@ -73,7 +73,7 @@ h1 {
 .edit-btn:hover {
     background-color: var(--fitness-primary-hover) !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
 }
 
 .detail-view {
@@ -133,7 +133,7 @@ mat-card-actions {
 }
 
 .update-btn {
-    background-color: #74C4FC !important;
+    background-color: var(--fitness-action-update) !important;
     color: var(--fitness-dark) !important;
     border-radius: 8px !important;
     padding: 0.5rem 1.5rem !important;
@@ -144,9 +144,9 @@ mat-card-actions {
 }
 
 .update-btn:hover:not(:disabled) {
-    background-color: #5AB8FA !important;
+    background-color: var(--fitness-action-update-hover) !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(116, 196, 252, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(var(--fitness-action-update-rgb), 0.3) !important;
 }
 
 .cancel-btn {
@@ -174,7 +174,7 @@ mat-card-actions {
     position: relative;
     padding: 1rem 0 1rem 2rem;
     margin-left: 1rem;
-    border-left: 2px solid rgba(13, 242, 89, 0.3); // Primary color with opacity
+    border-left: 2px solid rgba(var(--fitness-primary-rgb), 0.3); // Primary color with opacity
 }
 
 .timeline-item {
@@ -187,7 +187,7 @@ mat-card-actions {
 
     &:has(.timeline-content:hover) .timeline-marker {
         transform: scale(1.3);
-        box-shadow: 0 0 0 3px rgba(13, 242, 89, 0.4);
+        box-shadow: 0 0 0 3px rgba(var(--fitness-primary-rgb), 0.4);
     }
 }
 
@@ -200,7 +200,7 @@ mat-card-actions {
     border-radius: 50%;
     background-color: var(--fitness-primary);
     border: 3px solid var(--fitness-bg-page);
-    box-shadow: 0 0 0 2px rgba(13, 242, 89, 0.3);
+    box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
     z-index: 1;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -232,7 +232,7 @@ mat-card-actions {
 }
 
 .session-avatar {
-    background-color: rgba(13, 242, 89, 0.1);
+    background-color: rgba(var(--fitness-primary-rgb), 0.1);
     color: var(--fitness-primary);
     display: flex;
     align-items: center;
@@ -359,9 +359,9 @@ mat-card-subtitle {
     z-index: 10;
 
     &.completed {
-        background-color: rgba(13, 242, 89, 0.1);
+        background-color: rgba(var(--fitness-primary-rgb), 0.1);
         color: var(--fitness-primary);
-        border: 1px solid rgba(13, 242, 89, 0.2);
+        border: 1px solid rgba(var(--fitness-primary-rgb), 0.2);
     }
 
     &.planned {

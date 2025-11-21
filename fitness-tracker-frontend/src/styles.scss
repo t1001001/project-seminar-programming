@@ -87,7 +87,17 @@ body {
 :root {
   // Brand color (consistent across themes)
   --fitness-primary: #0DF259;
+  --fitness-primary-rgb: 13, 242, 89;
   --fitness-primary-hover: #0BE84D;
+
+  // Action colors
+  --fitness-action-update: #74C4FC;
+  --fitness-action-update-rgb: 116, 196, 252;
+  --fitness-action-update-hover: #5AB8FA;
+
+  --fitness-action-delete: #FF6B6B;
+  --fitness-action-delete-rgb: 255, 107, 107;
+  --fitness-action-delete-hover: #FF5252;
 
   // Light theme colors
   --fitness-bg-page: #F5F8F6;
