@@ -77,10 +77,10 @@ Every component **MUST** have four separate files:
 
 ```
 component-name/
-├── component-name.component.ts       # Component logic
-├── component-name.component.html     # Template
-├── component-name.component.scss     # Styles
-└── component-name.component.spec.ts  # Tests
+├── component-name.ts       # Component logic
+├── component-name.html     # Template
+├── component-name.scss     # Styles
+└── component-name.spec.ts  # Tests
 ```
 
 ### Component Template (.ts)
@@ -92,8 +92,8 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-component-name',
   imports: [CommonModule],
-  templateUrl: './component-name.component.html',
-  styleUrl: './component-name.component.scss',
+  templateUrl: './component-name.html',
+  styleUrl: './component-name.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComponentNameComponent {
@@ -645,16 +645,16 @@ projects/
 │   │   │   │   └── provider-name.service.spec.ts
 │   │   │   ├── ui/                  # Reusable UI components
 │   │   │   │   └── component-name/
-│   │   │   │       ├── component-name.component.ts
-│   │   │   │       ├── component-name.component.html
-│   │   │   │       ├── component-name.component.scss
-│   │   │   │       └── component-name.component.spec.ts
+│   │   │   │       ├── component-name.ts
+│   │   │   │       ├── component-name.html
+│   │   │   │       ├── component-name.scss
+│   │   │   │       └── component-name.spec.ts
 │   │   │   ├── views/               # Page-level components
 │   │   │   │   └── view-name/
-│   │   │   │       ├── view-name.component.ts
-│   │   │   │       ├── view-name.component.html
-│   │   │   │       ├── view-name.component.scss
-│   │   │   │       └── view-name.component.spec.ts
+│   │   │   │       ├── view-name.ts
+│   │   │   │       ├── view-name.html
+│   │   │   │       ├── view-name.scss
+│   │   │   │       └── view-name.spec.ts
 │   │   │   └── library-name.ts      # Barrel export file
 │   │   └── public-api.ts            # Public API (exports from library-name.ts)
 ```
@@ -678,10 +678,10 @@ export * from './logic-services/exercise-logic.service';
 export * from './provider-services/exercise-provider.service';
 
 // UI Components
-export * from './ui/component-name/component-name.component';
+export * from './ui/component-name/component-name';
 
 // View Components
-export * from './views/view-name/view-name.component';
+export * from './views/view-name/view-name';
 ```
 
 ```typescript

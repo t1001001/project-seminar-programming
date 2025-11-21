@@ -214,10 +214,10 @@ export class ExerciseLogicService {
 ```
 ui/
 ├── [component-name]/
-│   ├── [component-name].component.ts
-│   ├── [component-name].component.html
-│   ├── [component-name].component.scss
-│   └── [component-name].component.spec.ts
+│   ├── [component-name].ts
+│   ├── [component-name].html
+│   ├── [component-name].scss
+│   └── [component-name].spec.ts
 ```
 
 #### **Example: Card Component**
@@ -229,8 +229,8 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
 @Component({
   selector: 'ex-exercise-card',
   imports: [/* Material modules */],
-  templateUrl: './exercise-card.component.html',
-  styleUrl: './exercise-card.component.scss',
+  templateUrl: './exercise-card.html',
+  styleUrl: './exercise-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseCardComponent {
@@ -262,7 +262,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'ex-exercise-form-dialog',
   imports: [/* Form & Material modules */],
-  templateUrl: './exercise-form-dialog.component.html',
+  templateUrl: './exercise-form-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseFormDialogComponent {
@@ -316,10 +316,10 @@ export class ExerciseFormDialogComponent {
 ```
 views/
 ├── [view-name]/
-│   ├── [view-name].component.ts
-│   ├── [view-name].component.html
-│   ├── [view-name].component.scss
-│   └── [view-name].component.spec.ts
+│   ├── [view-name].ts
+│   ├── [view-name].html
+│   ├── [view-name].scss
+│   └── [view-name].spec.ts
 ```
 
 #### **Example: Overview Component**
@@ -334,7 +334,7 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
 @Component({
   selector: 'ex-exercises-overview',
   imports: [/* UI components */],
-  templateUrl: './exercises-overview.component.html',
+  templateUrl: './exercises-overview.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisesOverviewComponent implements OnInit {
@@ -414,7 +414,7 @@ import { ExerciseLogicService } from '../../logic-services/exercise-logic.servic
 @Component({
   selector: 'ex-exercise-detail',
   imports: [/* UI components */],
-  templateUrl: './exercise-detail.component.html',
+  templateUrl: './exercise-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseDetailComponent implements OnInit {

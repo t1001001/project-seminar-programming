@@ -458,6 +458,13 @@ For cards that need to display multiple pieces of information efficiently:
   gap: 2rem;
 }
 
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(17, 24, 19, 0.05);
+}
+
 .info-section {
   flex: 1;
   display: flex;
@@ -627,8 +634,8 @@ projects/[feature]-lib/src/lib/
     ReactiveFormsModule,  // Then Angular modules
     AsyncPipe,           // Then pipes
   ],
-  templateUrl: './component-name.component.html',
-  styleUrl: './component-name.component.scss',
+  templateUrl: './component-name.html',
+  styleUrl: './component-name.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 ```
