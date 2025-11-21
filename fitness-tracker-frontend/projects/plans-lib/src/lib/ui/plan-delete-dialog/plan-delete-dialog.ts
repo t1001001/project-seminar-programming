@@ -10,8 +10,8 @@ export interface DeleteDialogData {
 @Component({
     selector: 'lib-plan-delete-dialog',
     imports: [MatDialogModule, MatButtonModule, MatIconModule],
-    templateUrl: './plan-delete-dialog.component.html',
-    styleUrl: './plan-delete-dialog.component.scss',
+    templateUrl: './plan-delete-dialog.html',
+    styleUrl: './plan-delete-dialog.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanDeleteDialogComponent {

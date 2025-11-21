@@ -9,8 +9,8 @@ import { TrainingPlan } from '../../provider-services/plan-provider.service';
     selector: 'lib-plan-card',
 
     imports: [MatCardModule, MatButtonModule, MatIconModule],
-    templateUrl: './plan-card.component.html',
-    styleUrl: './plan-card.component.scss',
+    templateUrl: './plan-card.html',
+    styleUrl: './plan-card.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanCardComponent {

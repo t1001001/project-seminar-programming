@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlanDeleteDialogComponent } from './plan-delete-dialog.component';
+import { PlanDeleteDialogComponent } from './plan-delete-dialog';
 
 describe('PlanDeleteDialogComponent', () => {
   let component: PlanDeleteDialogComponent;

@@ -26,8 +26,8 @@ import { TrainingPlan, TrainingPlanUpdate } from '../../provider-services/plan-p
         DatePipe,
         AsyncPipe
     ],
-    templateUrl: './plan-detail.component.html',
-    styleUrl: './plan-detail.component.scss',
+    templateUrl: './plan-detail.html',
+    styleUrl: './plan-detail.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanDetailComponent implements OnInit {

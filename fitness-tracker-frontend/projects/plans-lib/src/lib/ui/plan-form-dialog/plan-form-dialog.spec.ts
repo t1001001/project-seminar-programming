@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlansOverviewComponent } from './plans-overview.component';
+import { PlanFormDialogComponent } from './plan-form-dialog';
 
-describe('PlansOverviewComponent', () => {
-  let component: PlansOverviewComponent;
-  let fixture: ComponentFixture<PlansOverviewComponent>;
+describe('PlanFormDialogComponent', () => {
+  let component: PlanFormDialogComponent;
+  let fixture: ComponentFixture<PlanFormDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PlansOverviewComponent]
+      imports: [PlanFormDialogComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PlansOverviewComponent);
+    fixture = TestBed.createComponent(PlanFormDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

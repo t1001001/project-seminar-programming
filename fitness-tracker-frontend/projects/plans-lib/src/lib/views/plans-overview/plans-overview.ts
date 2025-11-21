@@ -8,9 +8,9 @@ import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 
 import { PlanLogicService } from '../../logic-services/plan-logic.service';
 import { TrainingPlan, TrainingPlanCreate } from '../../provider-services/plan-provider.service';
-import { PlanCardComponent } from '../../ui/plan-card/plan-card.component';
-import { PlanFormDialogComponent } from '../../ui/plan-form-dialog/plan-form-dialog.component';
-import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-delete-dialog.component';
+import { PlanCardComponent } from '../../ui/plan-card/plan-card';
+import { PlanFormDialogComponent } from '../../ui/plan-form-dialog/plan-form-dialog';
+import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-delete-dialog';
 
 @Component({
     selector: 'lib-plans-overview',
@@ -21,8 +21,8 @@ import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-dele
         AsyncPipe,
         PlanCardComponent
     ],
-    templateUrl: './plans-overview.component.html',
-    styleUrl: './plans-overview.component.scss',
+    templateUrl: './plans-overview.html',
+    styleUrl: './plans-overview.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlansOverviewComponent implements OnInit {

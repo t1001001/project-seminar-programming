@@ -15,8 +15,8 @@ import { TrainingPlanCreate } from '../../provider-services/plan-provider.servic
         MatInputModule,
         ReactiveFormsModule,
     ],
-    templateUrl: './plan-form-dialog.component.html',
-    styleUrl: './plan-form-dialog.component.scss',
+    templateUrl: './plan-form-dialog.html',
+    styleUrl: './plan-form-dialog.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanFormDialogComponent {
