@@ -91,16 +91,15 @@ export class PlansOverviewComponent implements OnInit {
         });
     }
 
-    onDelete(id: string): void {
-        // Note: Card emits only ID. Using generic name in dialog for simplicity.
+    onDelete(plan: TrainingPlan): void {
         const dialogRef = this.dialog.open(PlanDeleteDialogComponent, {
-            data: { planName: 'this training plan' },
+            data: { planName: plan.name },
             panelClass: 'custom-dialog-container',
         });
 
         dialogRef.afterClosed().subscribe((confirmed) => {
             if (confirmed) {
-                this.planService.deletePlan(id).subscribe({
+                this.planService.deletePlan(plan.id).subscribe({
                     next: () => {
                         this.refreshPlans();
                         this.snackBar.open('Training plan deleted successfully!', 'Close', {

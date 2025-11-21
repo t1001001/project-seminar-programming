@@ -17,7 +17,7 @@ export class PlanCardComponent {
     private readonly router = inject(Router);
 
     plan = input.required<TrainingPlan>();
-    delete = output<string>();
+    delete = output<TrainingPlan>();
 
     onCardClick(): void {
         this.router.navigate(['/plans', this.plan().id]);
@@ -25,6 +25,6 @@ export class PlanCardComponent {
 
     onDelete(event: Event): void {
         event.stopPropagation();
-        this.delete.emit(this.plan().id);
+        this.delete.emit(this.plan());
     }
 }
