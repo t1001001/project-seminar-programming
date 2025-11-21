@@ -9,88 +9,158 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: var(--fitness-bg-page) !important;
+  background-color: color-mix(in srgb, var(--fitness-bg-page), transparent 10%) !important; // Dynamic semi-transparent
+  backdrop-filter: blur(16px); // Stronger blur
+  -webkit-backdrop-filter: blur(16px);
   color: var(--fitness-text-primary) !important;
-  box-shadow: none !important;
+  box-shadow: 0 4px 20px var(--fitness-shadow) !important; // More prominent shadow
   border-bottom: 1px solid var(--fitness-border);
-  min-height: 80px !important;
-  height: 80px !important;
+  min-height: 100px !important; // Bigger height
+  height: 100px !important;
   padding: 0 !important;
+  transition: all 0.3s ease;
 }
 
 .toolbar-content {
   width: 100%;
   height: 100%;
-  padding: 0 2rem;
+  padding: 0 3rem; // More horizontal padding
   display: flex;
   align-items: center;
   justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .app-brand {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  z-index: 2;
 }
 
 .app-logo-full {
-  height: 45px;
+  height: 52px; // Significantly bigger logo
   width: auto;
   max-width: 100%;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  .logo-icon {
+    fill: var(--fitness-primary);
+  }
+
+  .logo-text {
+    fill: var(--fitness-text-primary);
+  }
 }
 
 .spacer {
-  flex: 1 1 auto;
+  display: none;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center; // Ensure horizontal centering if needed
+  gap: 0.5rem; // Reduce gap slightly
+  z-index: 1001;
+  height: 100%; // Match parent height
+}
+
+.theme-toggle-btn {
+  color: var(--fitness-text-primary);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  mat-icon {
+    transition: transform 0.3s ease;
+  }
 }
 
 .hamburger-btn {
   display: none;
+  align-items: center;
+  justify-content: center;
   color: var(--fitness-text-primary) !important;
+  height: 48px; // Explicit height
+  width: 48px; // Explicit width
 
   mat-icon {
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
+    font-size: 32px; // Bigger icon
+    width: 32px;
+    height: 32px;
+    line-height: 32px; // Ensure line-height matches
   }
 }
 
 .app-nav {
   display: flex;
-  gap: 0.5rem;
+  gap: 3rem; // More space between links
+  align-items: center;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  margin-left: 2rem;
 }
 
 .app-nav a {
-  color: var(--fitness-text-primary);
-  font-weight: 500;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  border-radius: 6px !important;
-  padding: 0.75rem 1.5rem !important;
+  color: var(--fitness-text-secondary);
+  font-weight: 600; // Bolder text
+  font-size: 1.1rem; // Bigger text
+  text-decoration: none;
+  position: relative;
+  padding: 0.75rem 0;
   background-color: transparent;
+  transition: color 0.2s ease;
+  letter-spacing: 0.02em;
+
+  // Underline animation
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px; // Thicker underline
+    background-color: var(--fitness-primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(13, 242, 89, 0.3); // Glow effect
+  }
 
   &:hover {
-    color: var(--fitness-primary);
+    color: var(--fitness-text-primary);
     background-color: transparent;
+
+    &::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
   }
 }
 
 .app-nav a.active-link {
-  background-color: var(--fitness-primary);
   color: var(--fitness-text-primary);
+  background-color: transparent;
 
-  &:hover {
-    background-color: var(--fitness-primary);
-    color: var(--fitness-text-primary);
+  &::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
 }
 
 .app-content {
   flex: 1;
-  padding: 2rem;
+  padding: 2.5rem;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -102,87 +172,98 @@
   .app-nav {
     position: static;
     transform: none;
-    margin-left: 2rem;
+    margin-left: auto;
+    margin-right: 2rem;
+    gap: 2rem;
   }
 }
 
 @media (max-width: 900px) {
   .app-logo-full {
-    height: 38px;
+    height: 44px;
   }
 }
 
 @media (max-width: 768px) {
   .app-toolbar {
-    height: 64px !important;
-    min-height: 64px !important;
+    height: 72px !important;
+    min-height: 72px !important;
   }
 
   .toolbar-content {
-    flex-direction: row;
-    padding: 1rem;
-    gap: 0;
+    padding: 0 1.5rem;
   }
 
   .app-logo-full {
-    height: 32px;
+    height: 36px;
   }
 
   .hamburger-btn {
     display: flex;
-    margin-left: auto;
+    // margin-left: auto; // Removed, handled by header-actions
   }
 
   .app-nav {
-    position: fixed;
-    top: 64px;
+    position: absolute;
+    top: 100%; // Position directly below the header
     left: 0;
     right: 0;
-    transform: translateY(-100%);
+    height: auto; // Auto height based on content
+    margin: 0;
+    padding: 1rem;
+    flex-direction: column;
+    align-items: stretch; // Full width items
+    justify-content: flex-start;
+    gap: 0.5rem;
+    background-color: var(--fitness-bg-card); // Card background
+    border-bottom: 1px solid var(--fitness-border);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1); // Dropdown shadow
+    transform: translateY(-10px); // Start slightly up
     opacity: 0;
     visibility: hidden;
-    flex-direction: column;
-    background-color: var(--fitness-bg-page);
-    border-bottom: 1px solid var(--fitness-border);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    padding: 1rem;
-    gap: 0.5rem;
-    margin-left: 0;
-    transition: none;
+    transition: all 0.2s ease;
     z-index: 999;
+    border-radius: 0 0 16px 16px; // Rounded corners at bottom
 
     &.open {
       transform: translateY(0);
       opacity: 1;
       visibility: visible;
-      transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
     }
   }
 
   .app-nav a {
-    width: 100%;
+    font-size: 1rem; // Standard size
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+    width: auto;
     text-align: left;
-    font-size: 1rem;
-    padding: 0.75rem 1rem !important;
-    justify-content: flex-start;
+    border-bottom: none; // Remove dividers
+    border-radius: 8px !important; // Rounded hover state
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &::after {
+      display: none;
+    }
+
+    &.active-link {
+      color: var(--fitness-primary);
+      background-color: var(--fitness-bg-chip); // Highlight active
+    }
+
+    &:hover {
+      background-color: var(--fitness-bg-chip);
+    }
   }
 
-  .spacer {
-    display: none;
-  }
-
-  .app-content {
-    padding: 1rem;
-  }
+  // app-theme-toggle styles removed as they are now handled by header-actions
 }
 
 @media (max-width: 480px) {
   .app-logo-full {
-    height: 28px;
-  }
-
-  .app-nav a {
-    font-size: 0.95rem;
-    padding: 0.7rem 1rem !important;
+    height: 32px;
   }
 }
