@@ -40,4 +40,12 @@ public class Sessions {
     @JoinTable(name = "session_exercises", joinColumns = @JoinColumn(name = "session_id"), inverseJoinColumns = @JoinColumn(name = "exercise_id"))
     private List<Exercises> exerciseExecutions;
 
+    @Enumerated(EnumType.STRING)
+    private SessionStatus status = SessionStatus.PLANNED;
+
+    public enum SessionStatus {
+        PLANNED,
+        COMPLETED
+    }
+
 }
