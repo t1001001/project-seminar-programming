@@ -597,18 +597,20 @@ src/
 - **Flat structure**: Pages import components from libraries (e.g., `exercises-lib`)
 - **Thin pages**: Page components are simple wrappers that compose library components
 - **No business logic in app**: All logic lives in libraries
+- **Consistent configuration**: All components, including wrappers, MUST use `ChangeDetectionStrategy.OnPush` and external templates (`.html`)
 
 **Example Page Component:**
 ```typescript
 // pages/exercises/exercises-overview/exercises-overview.ts
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ExercisesOverviewComponent } from 'exercises-lib';
 
 @Component({
   selector: 'app-exercises-overview',
   imports: [ExercisesOverviewComponent],
-  template: `<ex-exercises-overview />`,
+  templateUrl: './exercises-overview.html',
   styleUrl: './exercises-overview.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisesOverview {}
 ```

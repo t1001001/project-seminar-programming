@@ -38,7 +38,6 @@ export class PlanLogicService {
           plans.forEach(plan => {
             plan.sessionsCount = plan.sessions ? plan.sessions.length : 0;
           });
-          console.log(plans);
         }),
         catchError((err) => {
           let errorMessage = 'Failed to load training plans';

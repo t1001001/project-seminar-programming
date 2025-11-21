@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { PlansOverviewComponent } from 'plans-lib';
 
 @Component({
@@ -6,5 +6,6 @@ import { PlansOverviewComponent } from 'plans-lib';
     imports: [PlansOverviewComponent],
     template: `<lib-plans-overview />`,
     styleUrl: './plans-overview.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlansOverview { }
