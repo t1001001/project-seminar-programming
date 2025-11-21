@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
 import { ExerciseDetailComponent } from './exercise-detail.component';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
 
 describe('ExerciseDetailComponent', () => {
   let component: ExerciseDetailComponent;
@@ -9,20 +8,9 @@ describe('ExerciseDetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ExerciseDetailComponent],
-      providers: [
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              paramMap: {
-                get: () => '1',
-              },
-            },
-          },
-        },
-      ],
-    }).compileComponents();
+      imports: [ExerciseDetailComponent]
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(ExerciseDetailComponent);
     component = fixture.componentInstance;
