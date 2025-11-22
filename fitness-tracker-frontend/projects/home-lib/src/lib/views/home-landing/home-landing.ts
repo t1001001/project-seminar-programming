@@ -5,7 +5,7 @@ import { HomeHero } from '../../ui/home-hero/home-hero';
   selector: 'home-home-landing',
   imports: [HomeHero],
   templateUrl: './home-landing.html',
-  styleUrl: './home-landing.css',
+  styleUrl: './home-landing.scss',
 })
 export class HomeLanding {
 
