@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { HomeHeroSection } from '../../ui/home-hero-section/home-hero-section';
+import { HomeHero } from '../../ui/home-hero/home-hero';
 
 @Component({
   selector: 'home-home-landing',
-  imports: [HomeHeroSection],
+  imports: [HomeHero],
   templateUrl: './home-landing.html',
   styleUrl: './home-landing.css',
 })
