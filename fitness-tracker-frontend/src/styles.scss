@@ -128,6 +128,14 @@ body {
   --fitness-light-gray: #F5F8F6;
   --fitness-white: #FFFFFF;
   --fitness-dark: #111813;
+
+  // Semantic statuses
+  --fitness-status-success: #10c96c;
+  --fitness-status-success-rgb: 16, 201, 108;
+  --fitness-status-info: #5ab8fa;
+  --fitness-status-info-rgb: 90, 184, 250;
+  --fitness-status-warning: #ffc857;
+  --fitness-status-warning-rgb: 255, 200, 87;
 }
 
 // Dark theme
@@ -151,6 +159,14 @@ body {
   --fitness-light-gray: #0f1511;
   --fitness-white: #1a1f1c;
   --fitness-dark: #e8eae9;
+
+  // Semantic statuses (dark-adjusted)
+  --fitness-status-success: #22f08a;
+  --fitness-status-success-rgb: 34, 240, 138;
+  --fitness-status-info: #74c4fc;
+  --fitness-status-info-rgb: 116, 196, 252;
+  --fitness-status-warning: #ffdd7a;
+  --fitness-status-warning-rgb: 255, 221, 122;
 }
 
 // Custom dialog styling
@@ -185,4 +201,13 @@ body {
   .mat-mdc-snack-bar-action {
     color: #FFFFFF !important;
   }
+}
+
+/* Global Page Container */
+.page-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem;
+  box-sizing: border-box;
 }

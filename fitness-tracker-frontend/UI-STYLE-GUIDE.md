@@ -155,6 +155,17 @@ this.dialog.open(ComponentName, {
 - **Text Gray**: `#64748b` - Secondary text, labels
 - **Light Gray Background**: `#f1f5f9` - Chips, tags
 
+### Semantic Status Colors
+Use the shared status variables for any widgets, alerts, stats, or pills that need success/info/warning states. These live in `src/styles.scss` and adapt to theme changes automatically. **Never hardcode these colors; always reference the CSS variables.**
+
+| Status  | Purpose                                  | Light Mode Token                        | Dark Mode Token                         |
+|---------|-------------------------------------------|-----------------------------------------|-----------------------------------------|
+| Success | Positive metrics, completed goals, gains | `var(--fitness-status-success)`          | `var(--fitness-status-success)` (dark)  |
+| Info    | Neutral insights, analytics, hints       | `var(--fitness-status-info)`             | `var(--fitness-status-info)` (dark)     |
+| Warning | Upcoming deadlines, cautions, reminders  | `var(--fitness-status-warning)`          | `var(--fitness-status-warning)` (dark)  |
+
+Each token also has an `*-rgb` counterpart (e.g., `--fitness-status-success-rgb`) for transparent overlays or glows. Pair text colors with the standard theme text variables to maintain contrast.
+
 ---
 
 ## ⚠️ CRITICAL: Theme Variable Usage Rules
@@ -544,7 +555,63 @@ this.snackBar.open(message, action, {
 - **Message**: Keep concise and clear
 - **Panel Classes**: Use custom classes for variants (error, warning, info)
 
-## 📱 Responsive Breakpoints
+## � Layout Patterns
+
+### Page Container
+
+For pages that require a constrained, centered layout (e.g., Exercises, Plans, Details pages), use the `.page-container` class:
+
+```scss
+.page-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem;
+  box-sizing: border-box;
+}
+```
+
+**Usage:**
+```html
+<section class="exercises-overview page-container">
+  <!-- Page content -->
+</section>
+```
+
+**When to Use:**
+- ✅ Overview pages (Exercises, Plans)
+- ✅ Detail pages (Exercise Detail, Plan Detail)
+- ✅ Any page that should have a maximum width and centered layout
+
+**When NOT to Use:**
+- ❌ Full-width pages (e.g., Home Hero with animations)
+- ❌ Components that should span the entire viewport width
+
+### Full-Width Pages
+
+For pages that need to span the entire viewport width (e.g., Home Hero), do NOT apply `.page-container`:
+
+```html
+<section class="home-hero">
+  <!-- Full-width content -->
+</section>
+```
+
+### App Content Container
+
+The global `.app-content` container provides the base layout for all pages:
+
+```scss
+.app-content {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+```
+
+This container does NOT impose any max-width or padding constraints, allowing child pages to control their own layout using `.page-container` or remaining full-width.
+
+## �📱 Responsive Breakpoints
 
 ```css
 /* Tablet */

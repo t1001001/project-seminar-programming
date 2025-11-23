@@ -1,0 +1,451 @@
+@property --border-progress {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+.animation-wrapper {
+    width: 100%;
+    height: calc(100vh - 80px);
+    background-color: var(--fitness-bg-page);
+    /* Theme-compliant background */
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.hero-slogan {
+    grid-area: 1 / 1;
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(2rem, 8vw, 5rem);
+    /* Fluid font size */
+    font-weight: 800;
+    color: var(--fitness-text-primary);
+    text-align: center;
+    width: 100%;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    z-index: 10;
+    margin: 0;
+    letter-spacing: -0.02em;
+    pointer-events: none;
+}
+
+.dial-container {
+    grid-area: 1 / 1;
+    /* Use vmin to scale with the smaller viewport dimension (width or height) */
+    width: 80vmin;
+    height: 80vmin;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Initial state: Hidden for slogan animation */
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.dial-logo {
+    /* Logo takes up 40% of the container (approx 32vmin) */
+    width: 40%;
+    height: 40%;
+    position: relative;
+    z-index: 1;
+}
+
+.buzzword {
+    position: absolute;
+    /* Center initially for radial positioning */
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    pointer-events: none;
+
+    /* Transition for the entire wrapper */
+    transition: all 0.3s ease-out;
+    opacity: 0.2;
+
+    &.active {
+        opacity: 1;
+
+        .buzzword-card {
+            border-color: transparent;
+            /* Revert to 1px border color change, let accents do the work */
+            box-shadow: 0 4px 20px rgba(var(--fitness-primary-rgb), 0.15);
+            background: color-mix(in srgb, var(--fitness-primary), transparent 95%);
+            box-shadow: 0 0 10px rgba(var(--fitness-primary-rgb), 0.1);
+            /* Softer glow */
+            /* Softer glow */
+            background: color-mix(in srgb, var(--fitness-primary), transparent 95%);
+            /* Very subtle tint */
+        }
+
+        .buzzword-card::after {
+            opacity: 1;
+            --border-progress: 360deg;
+            transition:
+                --border-progress 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease;
+        }
+
+        .buzzword-title {
+            color: var(--fitness-primary);
+        }
+
+        .buzzword-icon {
+            color: var(--fitness-primary);
+        }
+
+        .buzzword-desc {
+            color: var(--fitness-text-primary);
+            /* Brighter than muted */
+        }
+    }
+}
+
+.buzzword-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    width: 260px;
+    height: 160px;
+    justify-content: space-between;
+
+    /* Glassmorphism - Theme Adaptive */
+    background: color-mix(in srgb, var(--fitness-bg-elevated), transparent 90%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid var(--fitness-border);
+    border-radius: 16px;
+
+    transition: all 0.3s ease-out;
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.buzzword-card::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 4px;
+    background: conic-gradient(var(--fitness-primary) var(--border-progress), transparent 0deg);
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    --border-progress: 0deg;
+    transition:
+        --border-progress 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.25s ease 0.35s;
+    z-index: 1;
+}
+
+.widget-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.widget-body {
+    width: 100%;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--fitness-border);
+}
+
+/* --- Widget Specific Styles --- */
+
+/* Pills */
+.pill-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pill {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    background: color-mix(in srgb, var(--fitness-primary), transparent 90%);
+    color: var(--fitness-primary);
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* Chart */
+.chart-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chart-label {
+    font-size: 0.75rem;
+    color: var(--fitness-text-secondary);
+
+    strong {
+        color: var(--fitness-primary);
+    }
+}
+
+.mini-chart {
+    width: 100%;
+    height: 30px;
+    overflow: visible;
+
+    path {
+        filter: drop-shadow(0 2px 4px rgba(var(--fitness-primary-rgb), 0.3));
+    }
+}
+
+/* Progress Bar */
+.progress-widget {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--fitness-text-secondary);
+
+    strong {
+        color: var(--fitness-text-primary);
+    }
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--fitness-border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--fitness-primary);
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(var(--fitness-primary-rgb), 0.4);
+}
+
+/* Calendar */
+.calendar-widget {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.calendar-icon {
+    font-size: 24px;
+    color: var(--fitness-text-tertiary);
+}
+
+.calendar-text {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.75rem;
+    color: var(--fitness-text-secondary);
+
+    strong {
+        font-size: 0.875rem;
+        color: var(--fitness-text-primary);
+    }
+}
+
+.buzzword-icon {
+    font-size: 32px;
+    color: var(--fitness-text-primary);
+    transition: color 0.3s ease;
+}
+
+.buzzword-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.buzzword-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    /* Base size, scaled by parent transform */
+    font-weight: 700;
+    color: var(--fitness-text-primary);
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    transition: color 0.3s ease;
+}
+
+.buzzword-desc {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--fitness-text-secondary);
+    letter-spacing: 0.02em;
+    transition: color 0.3s ease;
+}
+
+/* Positioning words radially using vmin */
+/* Radius = 42vmin (slightly outside the 40vmin container radius) */
+$word-radius: 42vmin;
+
+.word-top {
+    /* TRACK: 135 degrees (Bottom-Right) */
+    transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$word-radius}) rotate(-135deg) scale(0.8);
+
+    &.active {
+        transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$word-radius}) rotate(-135deg) scale(1.2);
+    }
+}
+
+.word-right {
+    /* ANALYZE: 225 degrees (Bottom-Left) */
+    transform: translate(-50%, -50%) rotate(225deg) translate(0, -#{$word-radius}) rotate(-225deg) scale(0.8);
+
+    &.active {
+        transform: translate(-50%, -50%) rotate(225deg) translate(0, -#{$word-radius}) rotate(-225deg) scale(1.2);
+    }
+}
+
+.word-bottom {
+    /* IMPROVE: 315 degrees (Top-Left) */
+    transform: translate(-50%, -50%) rotate(315deg) translate(0, -#{$word-radius}) rotate(-315deg) scale(0.8);
+
+    &.active {
+        transform: translate(-50%, -50%) rotate(315deg) translate(0, -#{$word-radius}) rotate(-315deg) scale(1.2);
+    }
+}
+
+.word-left {
+    /* ACHIEVE: 45 degrees (Top-Right) */
+    transform: translate(-50%, -50%) rotate(45deg) translate(0, -#{$word-radius}) rotate(-45deg) scale(0.8);
+
+    &.active {
+        transform: translate(-50%, -50%) rotate(45deg) translate(0, -#{$word-radius}) rotate(-45deg) scale(1.2);
+    }
+}
+
+/* Responsive Adjustments for Mobile */
+@media (max-width: 768px) {
+    /* Reduce radius on mobile to pull words closer to center */
+    $mobile-radius: 40vmin;
+
+    .word-top {
+        transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$mobile-radius}) rotate(-135deg) scale(0.6);
+
+        &.active {
+            /* Reduced scale to prevent overflow */
+            transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$mobile-radius}) rotate(-135deg) scale(0.9);
+        }
+    }
+
+    .word-right {
+        transform: translate(-50%, -50%) rotate(225deg) translate(0, -#{$mobile-radius}) rotate(-225deg) scale(0.6);
+
+        &.active {
+            transform: translate(-50%, -50%) rotate(225deg) translate(0, -#{$mobile-radius}) rotate(-225deg) scale(0.9);
+        }
+    }
+
+    .word-bottom {
+        transform: translate(-50%, -50%) rotate(315deg) translate(0, -#{$mobile-radius}) rotate(-315deg) scale(0.6);
+
+        &.active {
+            transform: translate(-50%, -50%) rotate(315deg) translate(0, -#{$mobile-radius}) rotate(-315deg) scale(0.9);
+        }
+    }
+
+    .word-left {
+        transform: translate(-50%, -50%) rotate(45deg) translate(0, -#{$mobile-radius}) rotate(-45deg) scale(0.6);
+
+        &.active {
+            transform: translate(-50%, -50%) rotate(45deg) translate(0, -#{$mobile-radius}) rotate(-45deg) scale(0.9);
+        }
+    }
+
+    /* Adjust card sizing for mobile */
+    .buzzword-card {
+        padding: 1rem;
+        gap: 0.5rem;
+        width: 200px;
+        height: 140px;
+    }
+
+    .buzzword-title {
+        font-size: 1.25rem;
+    }
+
+    .buzzword-icon {
+        font-size: 24px;
+    }
+}
+
+/* Responsive Adjustments for Short Viewports */
+@media (max-height: 700px) {
+    .dial-container {
+        width: 60vmin;
+        height: 60vmin;
+    }
+
+    $short-radius: 36vmin;
+
+    .word-top {
+        transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$short-radius}) rotate(-135deg) scale(0.65);
+
+        &.active {
+            transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$short-radius}) rotate(-135deg) scale(0.85);
+        }
+    }
+
+    .word-right {
+        transform: translate(-50%, -50%) rotate(225deg) translate(0, -#{$short-radius}) rotate(-225deg) scale(0.65);
+
+        &.active {
+            transform: translate(-50%, -50%) rotate(225deg) translate(0, -#{$short-radius}) rotate(-225deg) scale(0.85);
+        }
+    }
+
+    .word-bottom {
+        transform: translate(-50%, -50%) rotate(315deg) translate(0, -#{$short-radius}) rotate(-315deg) scale(0.65);
+
+        &.active {
+            transform: translate(-50%, -50%) rotate(315deg) translate(0, -#{$short-radius}) rotate(-315deg) scale(0.85);
+        }
+    }
+
+    .word-left {
+        transform: translate(-50%, -50%) rotate(45deg) translate(0, -#{$short-radius}) rotate(-45deg) scale(0.65);
+
+        &.active {
+            transform: translate(-50%, -50%) rotate(45deg) translate(0, -#{$short-radius}) rotate(-45deg) scale(0.85);
+        }
+    }
+
+    .buzzword-card {
+        width: 220px;
+        height: 130px;
+        padding: 1rem 1.25rem;
+    }
+
+    .buzzword-title {
+        font-size: 1.25rem;
+    }
+
+    .buzzword-icon {
+        font-size: 28px;
+    }
+}
