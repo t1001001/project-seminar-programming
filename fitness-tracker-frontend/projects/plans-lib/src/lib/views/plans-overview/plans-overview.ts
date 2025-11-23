@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -26,7 +26,7 @@ import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-dele
     styleUrl: './plans-overview.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlansOverviewComponent implements OnInit {
+export class PlansOverviewComponent {
     private readonly planService = inject(PlanLogicService);
     private readonly dialog = inject(MatDialog);
     private readonly snackBar = inject(MatSnackBar);
@@ -34,7 +34,7 @@ export class PlansOverviewComponent implements OnInit {
     readonly searchControl = new FormControl('');
 
     private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
-    
+
     private readonly plans = toSignal(
         this.refreshTrigger$.pipe(
             switchMap(() => this.planService.getAllPlans()),
@@ -61,9 +61,7 @@ export class PlansOverviewComponent implements OnInit {
     // Expose total count for the badge
     readonly totalPlansCount = computed(() => this.plans()?.length);
 
-    ngOnInit(): void {
-        // plans signal will automatically derive state
-    }
+
 
     private refreshPlans(): void {
         this.refreshTrigger$.next();

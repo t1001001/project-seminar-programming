@@ -1,22 +1,17 @@
 <section class="animation-wrapper" #wrapper>
     <h1 class="hero-slogan" #slogan>YOUR FITNESS EVOLUTION</h1>
     <div class="dial-container" #dialContainer>
-        <!-- Animated Logo from assets/logo.svg with Pie Chart Effect (0-75%) -->
         <svg class="dial-logo" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" #dialLogo>
             <defs>
-                <!-- Circular clip path for pie chart effect -->
                 <clipPath id="pieClip">
                     <path #clipPath fill="transparent" />
                 </clipPath>
             </defs>
-
-            <!-- Actual logo from assets/logo.svg -->
             <path #logoFill
                 d="M30 0C13.4315 0 0 13.4315 0 30C0 46.5685 13.4315 60 30 60V30H60C60 13.4315 46.5685 0 30 0Z"
                 fill="var(--fitness-primary)" clip-path="url(#pieClip)" />
         </svg>
 
-        <!-- Buzzwords with descriptions -->
         <div class="buzzword word-top" #wordTop>
             <div class="buzzword-card widget-card">
                 <div class="widget-header">
@@ -48,8 +43,8 @@
                     <div class="chart-preview">
                         <span class="chart-label">Weekly Trend: <strong>Up</strong></span>
                         <svg viewBox="0 0 100 30" class="mini-chart">
-                            <path d="M0,25 C20,25 20,10 40,10 C60,10 60,20 80,5 L100,0" fill="none" stroke="var(--fitness-primary)"
-                                stroke-width="3" />
+                            <path d="M0,25 C20,25 20,10 40,10 C60,10 60,20 80,5 L100,0" fill="none"
+                                stroke="var(--fitness-primary)" stroke-width="3" />
                         </svg>
                     </div>
                 </div>

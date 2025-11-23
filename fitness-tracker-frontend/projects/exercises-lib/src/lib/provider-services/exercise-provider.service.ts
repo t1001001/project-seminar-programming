@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Exercise {
-  id: string; // UUID from backend
+  id: string;
   name: string;
   category: string;
   muscleGroups: string[];

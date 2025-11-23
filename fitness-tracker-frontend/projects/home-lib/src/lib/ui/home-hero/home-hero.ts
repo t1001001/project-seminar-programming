@@ -19,6 +19,24 @@ import DrawSVGPlugin from 'gsap/DrawSVGPlugin';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeHero implements AfterViewInit, OnDestroy {
+  // Animation Constants
+  private readonly SCROLL_START = 'top 80px';
+  private readonly SCROLL_END = '+=5000';
+  private readonly ANIMATION_DURATION_SLOGAN = 2;
+  private readonly ANIMATION_DURATION_DIAL = 2;
+  private readonly ANIMATION_DURATION_PIE = 2.5;
+  private readonly ANIMATION_DURATION_WORDS = 1;
+  private readonly ANIMATION_DURATION_ROTATION = 10;
+
+  private readonly EIGHTH_TURN = 0.125;
+  private readonly QUARTER_TURN = 0.25;
+
+  // Geometry Constants
+  private readonly PIE_CENTER_X = 30;
+  private readonly PIE_CENTER_Y = 30;
+  private readonly PIE_RADIUS = 50;
+  private readonly PIE_TARGET_ANGLE = 270;
+
   // Use viewChild signal for safer element access
   private readonly wrapper = viewChild.required<ElementRef<HTMLElement>>('wrapper');
   private readonly dialLogo = viewChild.required<ElementRef<SVGElement>>('dialLogo');
@@ -40,150 +58,152 @@ export class HomeHero implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    const wrapperEl = this.wrapper().nativeElement;
-    const logoEl = this.dialLogo().nativeElement;
-    const sloganEl = this.slogan().nativeElement;
-    const dialContainerEl = this.dialContainer().nativeElement;
+    const elements = this.getElements();
+    this.initializeState(elements.words);
 
-    // SVG path elements
-    const logoFillEl = this.logoFill().nativeElement;
-    const clipPathEl = this.clipPath().nativeElement;
+    const tl = this.createTimeline(elements.wrapper);
 
-    const words = [
-      this.wordTop().nativeElement,
-      this.wordRight().nativeElement,
-      this.wordBottom().nativeElement,
-      this.wordLeft().nativeElement,
-    ];
+    this.animateSlogan(tl, elements.slogan);
+    this.animateDialContainer(tl, elements.dialContainer);
+    this.animatePieChart(tl, elements.clipPath);
+    this.animateBuzzwords(tl, elements.words);
+    this.animateLogoRotation(tl, elements.logo, elements.words);
+  }
 
-    // Hide buzzwords initially
+  ngOnDestroy(): void {
+    ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+  }
+
+  private getElements() {
+    return {
+      wrapper: this.wrapper().nativeElement,
+      logo: this.dialLogo().nativeElement,
+      slogan: this.slogan().nativeElement,
+      dialContainer: this.dialContainer().nativeElement,
+      clipPath: this.clipPath().nativeElement,
+      words: [
+        this.wordTop().nativeElement,
+        this.wordRight().nativeElement,
+        this.wordBottom().nativeElement,
+        this.wordLeft().nativeElement,
+      ]
+    };
+  }
+
+  private initializeState(words: HTMLElement[]): void {
     gsap.set(words, { opacity: 0 });
-
-    // Initial state: Top word active (but hidden)
     words[0].classList.add('active');
+  }
 
-    const tl = gsap.timeline({
+  private createTimeline(trigger: HTMLElement): gsap.core.Timeline {
+    return gsap.timeline({
       scrollTrigger: {
-        trigger: wrapperEl,
-        start: 'top 80px',
-        end: '+=5000', // Increased scroll distance for sequence
-        scrub: 0, // Instant response to scroll
+        trigger: trigger,
+        start: this.SCROLL_START,
+        end: this.SCROLL_END,
+        scrub: 0,
         pin: true,
         anticipatePin: 1,
       },
     });
+  }
 
-    // Step 1: Animate Slogan Out
-    tl.to(sloganEl, {
+  private animateSlogan(tl: gsap.core.Timeline, slogan: HTMLElement): void {
+    tl.to(slogan, {
       y: -100,
-      autoAlpha: 0, // Combines opacity and visibility
+      autoAlpha: 0,
       scale: 1.5,
-      duration: 2,
-      ease: 'none', // Linear easing for instant start
+      duration: this.ANIMATION_DURATION_SLOGAN,
+      ease: 'none',
       immediateRender: false
     });
+  }
 
-    // Step 2: Animate Dial Container In
-    tl.to(dialContainerEl, {
+  private animateDialContainer(tl: gsap.core.Timeline, container: HTMLElement): void {
+    tl.to(container, {
       opacity: 1,
       scale: 1,
-      duration: 2,
+      duration: this.ANIMATION_DURATION_DIAL,
       ease: 'power2.out',
       immediateRender: false
-    }, '-=1'); // Overlap slightly with slogan fade out
+    }, '-=1');
+  }
 
-    // Step 3: Pie chart sweep from 0% to 75% using clip path
-    tl.to({}, {
-      duration: 2.5,
+  private animatePieChart(tl: gsap.core.Timeline, clipPath: SVGPathElement): void {
+    const proxy = { progress: 0 };
+    tl.to(proxy, {
+      progress: 1,
+      duration: this.ANIMATION_DURATION_PIE,
       ease: 'power2.inOut',
-      onUpdate: function (this: gsap.core.Tween) {
-        const progress = this.progress();
-        const targetAngle = 270; // 75% of 360°
-        const currentAngle = progress * targetAngle;
-
-        const centerX = 30;
-        const centerY = 30;
-        const radius = 50; // Large enough to cover entire logo
-
-        // Start from right (0°) and sweep COUNTER-CLOCKWISE to create 3/4 circle
-        // 0° = right, -90° = up, -180° = left, -270° = down
-        const startAngleDeg = 0;
-        const endAngleDeg = -currentAngle; // Negative for counter-clockwise
-
-        // Convert to radians
-        const startAngleRad = (startAngleDeg * Math.PI) / 180;
-        const endAngleRad = (endAngleDeg * Math.PI) / 180;
-
-        // Calculate start and end points on the circle
-        const startX = centerX + radius * Math.cos(startAngleRad);
-        const startY = centerY + radius * Math.sin(startAngleRad);
-        const endX = centerX + radius * Math.cos(endAngleRad);
-        const endY = centerY + radius * Math.sin(endAngleRad);
-
-        // Large arc flag: 1 if arc should be > 180°, 0 otherwise
-        const largeArcFlag = currentAngle > 180 ? 1 : 0;
-
-        // Sweep flag: 0 for counter-clockwise direction
-        const sweepFlag = 0;
-
-        // Create pie wedge path
-        const pathData = `M ${centerX},${centerY} L ${startX},${startY} A ${radius},${radius} 0 ${largeArcFlag},${sweepFlag} ${endX},${endY} Z`;
-
-        clipPathEl.setAttribute('d', pathData);
+      onUpdate: () => {
+        const pathData = this.calculatePiePath(proxy.progress);
+        clipPath.setAttribute('d', pathData);
       }
     }, '-=1');
+  }
 
-    // Step 5: Fade in buzzwords after logo is drawn
+  private calculatePiePath(progress: number): string {
+    const currentAngle = progress * this.PIE_TARGET_ANGLE;
+    const startAngleDeg = 0;
+    const endAngleDeg = -currentAngle;
+
+    const startAngleRad = (startAngleDeg * Math.PI) / 180;
+    const endAngleRad = (endAngleDeg * Math.PI) / 180;
+
+    const startX = this.PIE_CENTER_X + this.PIE_RADIUS * Math.cos(startAngleRad);
+    const startY = this.PIE_CENTER_Y + this.PIE_RADIUS * Math.sin(startAngleRad);
+    const endX = this.PIE_CENTER_X + this.PIE_RADIUS * Math.cos(endAngleRad);
+    const endY = this.PIE_CENTER_Y + this.PIE_RADIUS * Math.sin(endAngleRad);
+
+    const largeArcFlag = currentAngle > 180 ? 1 : 0;
+    const sweepFlag = 0;
+
+    return `M ${this.PIE_CENTER_X},${this.PIE_CENTER_Y} L ${startX},${startY} A ${this.PIE_RADIUS},${this.PIE_RADIUS} 0 ${largeArcFlag},${sweepFlag} ${endX},${endY} Z`;
+  }
+
+  private animateBuzzwords(tl: gsap.core.Timeline, words: HTMLElement[]): void {
     tl.to(words, {
       opacity: 1,
-      duration: 1,
+      duration: this.ANIMATION_DURATION_WORDS,
       stagger: 0.1,
       ease: 'power2.out'
     }, '-=0.5');
+  }
 
-    // Step 6: Rotate the logo 360 degrees COUNTER-CLOCKWISE (to match drawing direction)
-    tl.to(logoEl, {
-      rotation: '-=360',
-      transformOrigin: 'center center',
+  private animateLogoRotation(tl: gsap.core.Timeline, logo: SVGElement, words: HTMLElement[]): void {
+    const proxy = { progress: 0 };
+
+    tl.to(proxy, {
+      progress: 1,
+      duration: this.ANIMATION_DURATION_ROTATION,
       ease: 'none',
-      duration: 10, // Longer duration relative to entrance
-      onUpdate: function (this: gsap.core.Tween) {
-        // Access the tween's progress directly (0 to 1)
-        const rotationProgress = this.progress();
+      onUpdate: () => {
+        const rotation = proxy.progress * -360;
+        gsap.set(logo, { rotation: rotation, transformOrigin: 'center center' });
 
-        // Determine which word should be active based on COUNTER-CLOCKWISE rotation progress
-        // Counter-clockwise sequence: Top (0) → Left (3) → Bottom (2) → Right (1) → Top (0)
-        // 0-0.125: Top/TRACK (0) - bottom-right position
-        // 0.125-0.375: Left/ACHIEVE (3) - top-right position  
-        // 0.375-0.625: Bottom/IMPROVE (2) - top-left position
-        // 0.625-0.875: Right/ANALYZE (1) - bottom-left position
-        // 0.875-1.0: Top/TRACK (0) - back to start
-
-        let activeIndex = 0;
-        if (rotationProgress > 0.125 && rotationProgress <= 0.375) {
-          activeIndex = 3; // Left/ACHIEVE
-        } else if (rotationProgress > 0.375 && rotationProgress <= 0.625) {
-          activeIndex = 2; // Bottom/IMPROVE
-        } else if (rotationProgress > 0.625 && rotationProgress <= 0.875) {
-          activeIndex = 1; // Right/ANALYZE
-        } else if (rotationProgress > 0.875) {
-          activeIndex = 0; // Top/TRACK
-        }
-
-        // Update classes
-        words.forEach((word, index) => {
-          if (index === activeIndex) {
-            word.classList.add('active');
-          } else {
-            word.classList.remove('active');
-          }
-        });
+        this.updateActiveWord(proxy.progress, words);
       }
     });
   }
 
-  ngOnDestroy(): void {
-    // Kill all ScrollTriggers created by this component to prevent memory leaks
-    ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+  private updateActiveWord(progress: number, words: HTMLElement[]): void {
+    let activeIndex = 0;
+    if (progress > this.EIGHTH_TURN && progress <= (this.EIGHTH_TURN + this.QUARTER_TURN)) {
+      activeIndex = 3;
+    } else if (progress > (this.EIGHTH_TURN + this.QUARTER_TURN) && progress <= (this.EIGHTH_TURN + 2 * this.QUARTER_TURN)) {
+      activeIndex = 2;
+    } else if (progress > (this.EIGHTH_TURN + 2 * this.QUARTER_TURN) && progress <= (this.EIGHTH_TURN + 3 * this.QUARTER_TURN)) {
+      activeIndex = 1;
+    } else if (progress > (this.EIGHTH_TURN + 3 * this.QUARTER_TURN)) {
+      activeIndex = 0;
+    }
+
+    words.forEach((word, index) => {
+      if (index === activeIndex) {
+        word.classList.add('active');
+      } else {
+        word.classList.remove('active');
+      }
+    });
   }
 }

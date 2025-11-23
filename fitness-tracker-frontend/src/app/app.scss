@@ -9,13 +9,13 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: color-mix(in srgb, var(--fitness-bg-page), transparent 10%) !important; // Dynamic semi-transparent
-  backdrop-filter: blur(16px); // Stronger blur
+  background-color: color-mix(in srgb, var(--fitness-bg-page), transparent 10%) !important;
+  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   color: var(--fitness-text-primary) !important;
-  box-shadow: 0 4px 20px var(--fitness-shadow) !important; // More prominent shadow
+  box-shadow: 0 4px 20px var(--fitness-shadow) !important;
   border-bottom: 1px solid var(--fitness-border);
-  min-height: 100px !important; // Bigger height
+  min-height: 100px !important;
   height: 100px !important;
   padding: 0 !important;
   transition: all 0.3s ease;
@@ -24,7 +24,7 @@
 .toolbar-content {
   width: 100%;
   height: 100%;
-  padding: 0 3rem; // More horizontal padding
+  padding: 0 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -40,7 +40,7 @@
 }
 
 .app-logo-full {
-  height: 52px; // Significantly bigger logo
+  height: 52px;
   width: auto;
   max-width: 100%;
   transition: transform 0.2s ease;
@@ -66,10 +66,10 @@
 .header-actions {
   display: flex;
   align-items: center;
-  justify-content: center; // Ensure horizontal centering if needed
-  gap: 0.5rem; // Reduce gap slightly
+  justify-content: center;
+  gap: 0.5rem;
   z-index: 1001;
-  height: 100%; // Match parent height
+  height: 100%;
 }
 
 .theme-toggle-btn {
@@ -90,20 +90,20 @@
   align-items: center;
   justify-content: center;
   color: var(--fitness-text-primary) !important;
-  height: 48px; // Explicit height
-  width: 48px; // Explicit width
+  height: 48px;
+  width: 48px;
 
   mat-icon {
-    font-size: 32px; // Bigger icon
+    font-size: 32px;
     width: 32px;
     height: 32px;
-    line-height: 32px; // Ensure line-height matches
+    line-height: 32px;
   }
 }
 
 .app-nav {
   display: flex;
-  gap: 3rem; // More space between links
+  gap: 3rem;
   align-items: center;
   position: absolute;
   left: 50%;
@@ -112,8 +112,8 @@
 
 .app-nav a {
   color: var(--fitness-text-secondary);
-  font-weight: 600; // Bolder text
-  font-size: 1.1rem; // Bigger text
+  font-weight: 600;
+  font-size: 1.1rem;
   text-decoration: none;
   position: relative;
   padding: 0.75rem 0;
@@ -121,20 +121,20 @@
   transition: color 0.2s ease;
   letter-spacing: 0.02em;
 
-  // Underline animation
+
   &::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 3px; // Thicker underline
+    height: 3px;
     background-color: var(--fitness-primary);
     transform: scaleX(0);
     transform-origin: right;
     transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
     border-radius: 3px;
-    box-shadow: var(--fitness-shadow-glow-sm); // Glow effect
+    box-shadow: var(--fitness-shadow-glow-sm);
   }
 
   &:hover {
@@ -164,7 +164,7 @@
   box-sizing: border-box;
 }
 
-// Responsive styles
+
 @media (max-width: 1024px) {
   .app-nav {
     position: static;
@@ -197,29 +197,28 @@
 
   .hamburger-btn {
     display: flex;
-    // margin-left: auto; // Removed, handled by header-actions
   }
 
   .app-nav {
     position: absolute;
-    top: 100%; // Position directly below the header
+    top: 100%;
     left: 0;
     right: 0;
-    height: auto; // Auto height based on content
+    height: auto;
     margin: 0;
     padding: 1rem;
     flex-direction: column;
-    align-items: stretch; // Full width items
+    align-items: stretch;
     justify-content: flex-start;
     gap: 0.5rem;
-    background-color: var(--fitness-bg-card); // Card background
+    background-color: var(--fitness-bg-card);
     border-bottom: 1px solid var(--fitness-border);
-    box-shadow: var(--fitness-shadow-dropdown); // Dropdown shadow
-    transform: translateY(-10px); // Start slightly up
+    box-shadow: var(--fitness-shadow-dropdown);
+    transform: translateY(-10px);
     opacity: 0;
     visibility: hidden;
     z-index: 999;
-    border-radius: 0 0 16px 16px; // Rounded corners at bottom
+    border-radius: 0 0 16px 16px;
 
     &.open {
       transform: translateY(0);
@@ -230,13 +229,13 @@
   }
 
   .app-nav a {
-    font-size: 1rem; // Standard size
+    font-size: 1rem;
     font-weight: 500;
     padding: 1rem 1.5rem;
     width: auto;
     text-align: left;
-    border-bottom: none; // Remove dividers
-    border-radius: 8px !important; // Rounded hover state
+    border-bottom: none;
+    border-radius: 8px !important;
 
     &:last-child {
       border-bottom: none;
@@ -248,7 +247,7 @@
 
     &.active-link {
       color: var(--fitness-primary);
-      background-color: var(--fitness-bg-chip); // Highlight active
+      background-color: var(--fitness-bg-chip);
     }
 
     &:hover {
@@ -256,7 +255,7 @@
     }
   }
 
-  // app-theme-toggle styles removed as they are now handled by header-actions
+
 }
 
 @media (max-width: 480px) {

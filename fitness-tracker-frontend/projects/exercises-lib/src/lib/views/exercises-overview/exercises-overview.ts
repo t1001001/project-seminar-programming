@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +18,7 @@ import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exerc
   styleUrl: './exercises-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExercisesOverviewComponent implements OnInit {
+export class ExercisesOverviewComponent {
   private readonly exerciseService = inject(ExerciseLogicService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -26,7 +26,7 @@ export class ExercisesOverviewComponent implements OnInit {
   readonly searchControl = new FormControl('');
 
   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
-  
+
   private readonly exercises = toSignal(
     this.refreshTrigger$.pipe(
       switchMap(() => this.exerciseService.getAllExercises()),
@@ -42,7 +42,7 @@ export class ExercisesOverviewComponent implements OnInit {
   readonly filteredExercises = computed(() => {
     const exercises = this.exercises();
     if (!exercises) return undefined;
-    
+
     const term = (this.searchTerm() || '').toLowerCase();
     return exercises.filter(exercise =>
       exercise.name.toLowerCase().includes(term) ||
@@ -53,9 +53,7 @@ export class ExercisesOverviewComponent implements OnInit {
 
   readonly totalExercisesCount = computed(() => this.exercises()?.length);
 
-  ngOnInit(): void {
-    // exercises signal will automatically derive state
-  }
+
 
   private refreshExercises(): void {
     this.refreshTrigger$.next();

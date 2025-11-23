@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
 
-// Custom color palette for Fitness Tracker
+
 $fitness-primary: (
   50: #e1fef0,
   100: #b3fcd9,
@@ -8,7 +8,6 @@ $fitness-primary: (
   300: #4df8a7,
   400: #26f794,
   500: #0DF259,
-  // Main bright green
   600: #0bdb51,
   700: #09c247,
   800: #07aa3d,
@@ -33,7 +32,7 @@ $fitness-accent: (
   300: #57615d,
   400: #333f3a,
   500: #111813,
-  // Dark
+
   600: #0f1511,
   700: #0c110e,
   800: #0a0e0b,
@@ -59,7 +58,6 @@ html {
       density: 0,
     ));
 
-  // Override Material's background color
   background-color: var(--fitness-bg-page) !important;
 }
 
@@ -83,14 +81,13 @@ body {
   background-color: var(--fitness-bg-page) !important;
 }
 
-// Custom CSS variables for theming
 :root {
-  // Brand color (consistent across themes)
+
   --fitness-primary: #0DF259;
   --fitness-primary-rgb: 13, 242, 89;
   --fitness-primary-hover: #0BE84D;
 
-  // Action colors
+
   --fitness-action-update: #74C4FC;
   --fitness-action-update-rgb: 116, 196, 252;
   --fitness-action-update-hover: #5AB8FA;
@@ -99,7 +96,7 @@ body {
   --fitness-action-delete-rgb: 255, 107, 107;
   --fitness-action-delete-hover: #FF5252;
 
-  // Light theme colors
+
   --fitness-bg-page: #F5F8F6;
   --fitness-bg-card: #FFFFFF;
   --fitness-bg-elevated: #FFFFFF;
@@ -115,7 +112,7 @@ body {
   --fitness-shadow: rgba(0, 0, 0, 0.05);
   --fitness-shadow-strong: rgba(0, 0, 0, 0.1);
 
-  // Shadow glows (using primary/action colors)
+
   --fitness-shadow-glow-sm: 0 2px 8px rgba(var(--fitness-primary-rgb), 0.3);
   --fitness-shadow-glow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3);
   --fitness-shadow-glow-lg: 0 6px 16px rgba(var(--fitness-primary-rgb), 0.4);
@@ -124,12 +121,11 @@ body {
   --fitness-shadow-logo: 0 2px 4px var(--fitness-shadow);
   --fitness-shadow-dropdown: 0 10px 40px -10px var(--fitness-shadow-strong);
 
-  // Legacy variables (for backward compatibility)
+
   --fitness-light-gray: #F5F8F6;
   --fitness-white: #FFFFFF;
   --fitness-dark: #111813;
 
-  // Semantic statuses
   --fitness-status-success: #10c96c;
   --fitness-status-success-rgb: 16, 201, 108;
   --fitness-status-info: #5ab8fa;
@@ -138,7 +134,6 @@ body {
   --fitness-status-warning-rgb: 255, 200, 87;
 }
 
-// Dark theme
 [data-theme="dark"] {
   --fitness-bg-page: #0f1511;
   --fitness-bg-card: #1a1f1c;
@@ -155,12 +150,12 @@ body {
   --fitness-shadow: rgba(0, 0, 0, 0.4);
   --fitness-shadow-strong: rgba(0, 0, 0, 0.6);
 
-  // Legacy variables (dark mode values)
+
   --fitness-light-gray: #0f1511;
   --fitness-white: #1a1f1c;
   --fitness-dark: #e8eae9;
 
-  // Semantic statuses (dark-adjusted)
+
   --fitness-status-success: #22f08a;
   --fitness-status-success-rgb: 34, 240, 138;
   --fitness-status-info: #74c4fc;
@@ -169,14 +164,12 @@ body {
   --fitness-status-warning-rgb: 255, 221, 122;
 }
 
-// Custom dialog styling
 .custom-dialog-container .mat-mdc-dialog-container {
   background-color: var(--fitness-bg-card) !important;
   border-radius: 12px !important;
   border: 1px solid var(--fitness-border);
 }
 
-// Custom snackbar styling
 .success-snackbar {
   .mdc-snackbar__surface {
     background-color: var(--fitness-primary) !important;
@@ -203,7 +196,6 @@ body {
   }
 }
 
-/* Global Page Container */
 .page-container {
   max-width: 1200px;
   width: 100%;

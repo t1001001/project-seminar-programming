@@ -8,7 +8,6 @@
     width: 100%;
     height: calc(100vh - 80px);
     background-color: var(--fitness-bg-page);
-    /* Theme-compliant background */
     display: grid;
     place-items: center;
     overflow: hidden;
@@ -20,7 +19,6 @@
     position: relative;
     font-family: 'Poppins', sans-serif;
     font-size: clamp(2rem, 8vw, 5rem);
-    /* Fluid font size */
     font-weight: 800;
     color: var(--fitness-text-primary);
     text-align: center;
@@ -35,20 +33,16 @@
 
 .dial-container {
     grid-area: 1 / 1;
-    /* Use vmin to scale with the smaller viewport dimension (width or height) */
     width: 80vmin;
     height: 80vmin;
     display: flex;
     justify-content: center;
     align-items: center;
-
-    /* Initial state: Hidden for slogan animation */
     opacity: 0;
     transform: scale(0.5);
 }
 
 .dial-logo {
-    /* Logo takes up 40% of the container (approx 32vmin) */
     width: 40%;
     height: 40%;
     position: relative;
@@ -57,13 +51,10 @@
 
 .buzzword {
     position: absolute;
-    /* Center initially for radial positioning */
     top: 50%;
     left: 50%;
     z-index: 2;
     pointer-events: none;
-
-    /* Transition for the entire wrapper */
     transition: all 0.3s ease-out;
     opacity: 0.2;
 
@@ -72,14 +63,10 @@
 
         .buzzword-card {
             border-color: transparent;
-            /* Revert to 1px border color change, let accents do the work */
             box-shadow: 0 4px 20px rgba(var(--fitness-primary-rgb), 0.15);
             background: color-mix(in srgb, var(--fitness-primary), transparent 95%);
             box-shadow: 0 0 10px rgba(var(--fitness-primary-rgb), 0.1);
-            /* Softer glow */
-            /* Softer glow */
-            background: color-mix(in srgb, var(--fitness-primary), transparent 95%);
-            /* Very subtle tint */
+            box-shadow: 0 0 10px rgba(var(--fitness-primary-rgb), 0.1);
         }
 
         .buzzword-card::after {
@@ -100,7 +87,6 @@
 
         .buzzword-desc {
             color: var(--fitness-text-primary);
-            /* Brighter than muted */
         }
     }
 }
@@ -114,8 +100,6 @@
     width: 260px;
     height: 160px;
     justify-content: space-between;
-
-    /* Glassmorphism - Theme Adaptive */
     background: color-mix(in srgb, var(--fitness-bg-elevated), transparent 90%);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -165,9 +149,8 @@
     border-top: 1px solid var(--fitness-border);
 }
 
-/* --- Widget Specific Styles --- */
 
-/* Pills */
+
 .pill-tags {
     display: flex;
     gap: 0.5rem;
@@ -183,7 +166,6 @@
     font-weight: 500;
 }
 
-/* Chart */
 .chart-preview {
     display: flex;
     flex-direction: column;
@@ -209,7 +191,6 @@
     }
 }
 
-/* Progress Bar */
 .progress-widget {
     display: flex;
     flex-direction: column;
@@ -242,7 +223,6 @@
     box-shadow: 0 0 8px rgba(var(--fitness-primary-rgb), 0.4);
 }
 
-/* Calendar */
 .calendar-widget {
     display: flex;
     align-items: center;
@@ -282,7 +262,6 @@
 .buzzword-title {
     font-family: 'Poppins', sans-serif;
     font-size: 1.5rem;
-    /* Base size, scaled by parent transform */
     font-weight: 700;
     color: var(--fitness-text-primary);
     letter-spacing: 0.05em;
@@ -299,12 +278,9 @@
     transition: color 0.3s ease;
 }
 
-/* Positioning words radially using vmin */
-/* Radius = 42vmin (slightly outside the 40vmin container radius) */
 $word-radius: 42vmin;
 
 .word-top {
-    /* TRACK: 135 degrees (Bottom-Right) */
     transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$word-radius}) rotate(-135deg) scale(0.8);
 
     &.active {
@@ -313,7 +289,6 @@ $word-radius: 42vmin;
 }
 
 .word-right {
-    /* ANALYZE: 225 degrees (Bottom-Left) */
     transform: translate(-50%, -50%) rotate(225deg) translate(0, -#{$word-radius}) rotate(-225deg) scale(0.8);
 
     &.active {
@@ -322,7 +297,6 @@ $word-radius: 42vmin;
 }
 
 .word-bottom {
-    /* IMPROVE: 315 degrees (Top-Left) */
     transform: translate(-50%, -50%) rotate(315deg) translate(0, -#{$word-radius}) rotate(-315deg) scale(0.8);
 
     &.active {
@@ -331,7 +305,6 @@ $word-radius: 42vmin;
 }
 
 .word-left {
-    /* ACHIEVE: 45 degrees (Top-Right) */
     transform: translate(-50%, -50%) rotate(45deg) translate(0, -#{$word-radius}) rotate(-45deg) scale(0.8);
 
     &.active {
@@ -339,16 +312,13 @@ $word-radius: 42vmin;
     }
 }
 
-/* Responsive Adjustments for Mobile */
 @media (max-width: 768px) {
-    /* Reduce radius on mobile to pull words closer to center */
     $mobile-radius: 40vmin;
 
     .word-top {
         transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$mobile-radius}) rotate(-135deg) scale(0.6);
 
         &.active {
-            /* Reduced scale to prevent overflow */
             transform: translate(-50%, -50%) rotate(135deg) translate(0, -#{$mobile-radius}) rotate(-135deg) scale(0.9);
         }
     }
@@ -377,7 +347,6 @@ $word-radius: 42vmin;
         }
     }
 
-    /* Adjust card sizing for mobile */
     .buzzword-card {
         padding: 1rem;
         gap: 0.5rem;
@@ -394,7 +363,6 @@ $word-radius: 42vmin;
     }
 }
 
-/* Responsive Adjustments for Short Viewports */
 @media (max-height: 700px) {
     .dial-container {
         width: 60vmin;

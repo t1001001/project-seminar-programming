@@ -15,14 +15,14 @@ export class ThemeService {
         effect(() => {
             const theme = this.currentTheme();
 
-            // Update DOM
+            // Apply theme to DOM for CSS variable support
             if (theme === 'dark') {
                 this.document.documentElement.setAttribute('data-theme', 'dark');
             } else {
                 this.document.documentElement.removeAttribute('data-theme');
             }
 
-            // Save to storage
+            // Persist theme preference for page reloads
             localStorage.setItem('fitness-tracker-theme', theme);
         });
     }
