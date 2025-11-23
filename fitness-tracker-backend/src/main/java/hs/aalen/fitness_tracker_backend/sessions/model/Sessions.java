@@ -17,16 +17,16 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Table(uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"plan_id", "name", "scheduled_date"})
+        @UniqueConstraint(columnNames = { "plan_id", "name", "scheduled_date" })
 })
 public class Sessions {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "plan_id")
+    @JoinColumn(name = "plan_id", nullable = true)
     @JsonBackReference
     private Plans plan;
 
@@ -37,11 +37,15 @@ public class Sessions {
     private LocalDate scheduledDate;
 
     @ManyToMany
-    @JoinTable(
-        name = "session_exercises",
-        joinColumns = @JoinColumn(name = "session_id"),
-        inverseJoinColumns = @JoinColumn(name = "exercise_id")
-    )
+    @JoinTable(name = "session_exercises", joinColumns = @JoinColumn(name = "session_id"), inverseJoinColumns = @JoinColumn(name = "exercise_id"))
     private List<Exercises> exerciseExecutions;
+
+    @Enumerated(EnumType.STRING)
+    private SessionStatus status = SessionStatus.PLANNED;
+
+    public enum SessionStatus {
+        PLANNED,
+        COMPLETED
+    }
 
 }

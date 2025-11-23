@@ -5,6 +5,8 @@ import hs.aalen.fitness_tracker_backend.exercises.dto.ExerciseResponseDto;
 import hs.aalen.fitness_tracker_backend.exercises.dto.ExercisesUpdateDto;
 import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 import hs.aalen.fitness_tracker_backend.exercises.repository.ExercisesRepository;
+import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
+import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -16,10 +18,12 @@ import java.util.UUID;
 public class ExercisesService {
 
     private final ExercisesRepository repository;
+    private final SessionsRepository sessionsRepository;
     private final ModelMapper mapper = new ModelMapper();
 
-    public ExercisesService(ExercisesRepository repository) {
+    public ExercisesService(ExercisesRepository repository, SessionsRepository sessionsRepository) {
         this.repository = repository;
+        this.sessionsRepository = sessionsRepository;
     }
 
     public List<ExerciseResponseDto> getAll() {
@@ -47,17 +51,23 @@ public class ExercisesService {
 
     public void delete(UUID id) {
         if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Session not found");
+            throw new EntityNotFoundException("Exercise not found");
+        }
+
+        // Check if exercise is referenced in any sessions and remove it
+        List<Sessions> sessions = sessionsRepository.findByExerciseExecutions_Id(id);
+        for (Sessions session : sessions) {
+            session.getExerciseExecutions().removeIf(e -> e.getId().equals(id));
+            sessionsRepository.save(session);
         }
         repository.deleteById(id);
     }
 
     public ExerciseResponseDto update(UUID id, ExercisesUpdateDto dto) {
         Exercises existingExercises = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Exercise not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Exercise not found"));
         Optional<Exercises> duplicate = repository.findByNameIgnoreCase(
-                dto.getName()
-        );
+                dto.getName());
         if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
             throw new IllegalArgumentException("Exercise with this name already exists");
         }
@@ -67,5 +77,5 @@ public class ExercisesService {
         existingExercises.setDescription(dto.getDescription());
         Exercises saved = repository.save(existingExercises);
         return mapper.map(saved, ExerciseResponseDto.class);
-    }  
+    }
 }

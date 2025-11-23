@@ -13,5 +13,6 @@ public class SessionsResponseDto {
     private String name;
     private LocalDate scheduledDate;
     private List<Exercises> exerciseExecutions;
+    private hs.aalen.fitness_tracker_backend.sessions.model.Sessions.SessionStatus status;
 
 }

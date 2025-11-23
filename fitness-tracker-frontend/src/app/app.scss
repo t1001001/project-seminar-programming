@@ -2,156 +2,264 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--fitness-light-gray);
+  background-color: var(--fitness-bg-page);
 }
 
 .app-toolbar {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: var(--fitness-light-gray) !important;
-  color: var(--fitness-dark) !important;
-  box-shadow: none !important;
-  border-bottom: 1px solid rgba(17, 24, 19, 0.1);
-  min-height: 80px !important;
-  height: 80px !important;
+  background-color: color-mix(in srgb, var(--fitness-bg-page), transparent 10%) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--fitness-text-primary) !important;
+  box-shadow: 0 4px 20px var(--fitness-shadow) !important;
+  border-bottom: 1px solid var(--fitness-border);
+  min-height: 100px !important;
+  height: 100px !important;
   padding: 0 !important;
+  transition: all 0.3s ease;
 }
 
 .toolbar-content {
   width: 100%;
   height: 100%;
-  padding: 0 2rem;
+  padding: 0 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .app-brand {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  z-index: 2;
 }
 
 .app-logo-full {
-  height: 45px;
+  height: 52px;
   width: auto;
   max-width: 100%;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(var(--fitness-shadow-logo));
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  .logo-icon {
+    fill: var(--fitness-primary);
+  }
+
+  .logo-text {
+    fill: var(--fitness-text-primary);
+  }
 }
 
 .spacer {
-  flex: 1 1 auto;
+  display: none;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 1001;
+  height: 100%;
+}
+
+.theme-toggle-btn {
+  color: var(--fitness-text-primary);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  mat-icon {
+    transition: transform 0.3s ease;
+  }
+}
+
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--fitness-text-primary) !important;
+  height: 48px;
+  width: 48px;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+  }
 }
 
 .app-nav {
   display: flex;
-  gap: 0.5rem;
+  gap: 3rem;
+  align-items: center;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  margin-left: 2rem;
 }
 
 .app-nav a {
-  color: var(--fitness-dark);
-  font-weight: 500;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  border-radius: 6px !important;
-  padding: 0.75rem 1.5rem !important;
+  color: var(--fitness-text-secondary);
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  position: relative;
+  padding: 0.75rem 0;
   background-color: transparent;
-  
+  transition: color 0.2s ease;
+  letter-spacing: 0.02em;
+
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--fitness-primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+    border-radius: 3px;
+    box-shadow: var(--fitness-shadow-glow-sm);
+  }
+
   &:hover {
-    color: var(--fitness-primary);
+    color: var(--fitness-text-primary);
     background-color: transparent;
+
+    &::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
   }
 }
 
 .app-nav a.active-link {
-  background-color: var(--fitness-primary);
-  color: var(--fitness-dark);
-  
-  &:hover {
-    background-color: var(--fitness-primary);
-    color: var(--fitness-dark);
+  color: var(--fitness-text-primary);
+  background-color: transparent;
+
+  &::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
 }
 
 .app-content {
   flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
   width: 100%;
-  margin: 0 auto;
   box-sizing: border-box;
 }
 
-// Responsive styles
+
 @media (max-width: 1024px) {
   .app-nav {
     position: static;
     transform: none;
-    margin-left: 2rem;
+    margin-left: auto;
+    margin-right: 2rem;
+    gap: 2rem;
   }
 }
 
 @media (max-width: 900px) {
   .app-logo-full {
-    height: 38px;
+    height: 44px;
   }
 }
 
 @media (max-width: 768px) {
   .app-toolbar {
-    height: auto !important;
-    min-height: 64px !important;
+    height: 72px !important;
+    min-height: 72px !important;
   }
 
   .toolbar-content {
-    flex-direction: column;
-    padding: 1rem;
-    gap: 1rem;
+    padding: 0 1.5rem;
   }
 
   .app-logo-full {
-    height: 32px;
+    height: 36px;
+  }
+
+  .hamburger-btn {
+    display: flex;
   }
 
   .app-nav {
-    position: static;
-    transform: none;
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: auto;
+    margin: 0;
+    padding: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     gap: 0.5rem;
-    margin-left: 0;
+    background-color: var(--fitness-bg-card);
+    border-bottom: 1px solid var(--fitness-border);
+    box-shadow: var(--fitness-shadow-dropdown);
+    transform: translateY(-10px);
+    opacity: 0;
+    visibility: hidden;
+    z-index: 999;
+    border-radius: 0 0 16px 16px;
+
+    &.open {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
   }
 
   .app-nav a {
-    font-size: 0.9rem;
-    padding: 0.5rem 1rem !important;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+    width: auto;
+    text-align: left;
+    border-bottom: none;
+    border-radius: 8px !important;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &::after {
+      display: none;
+    }
+
+    &.active-link {
+      color: var(--fitness-primary);
+      background-color: var(--fitness-bg-chip);
+    }
+
+    &:hover {
+      background-color: var(--fitness-bg-chip);
+    }
   }
 
-  .spacer {
-    display: none;
-  }
 
-  .app-content {
-    padding: 1rem;
-  }
 }
 
 @media (max-width: 480px) {
   .app-logo-full {
-    height: 28px;
-  }
-
-  .app-nav {
-    gap: 0.25rem;
-  }
-
-  .app-nav a {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.75rem !important;
+    height: 32px;
   }
 }

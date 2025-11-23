@@ -77,10 +77,10 @@ Every component **MUST** have four separate files:
 
 ```
 component-name/
-├── component-name.component.ts       # Component logic
-├── component-name.component.html     # Template
-├── component-name.component.scss     # Styles
-└── component-name.component.spec.ts  # Tests
+├── component-name.ts       # Component logic
+├── component-name.html     # Template
+├── component-name.scss     # Styles
+└── component-name.spec.ts  # Tests
 ```
 
 ### Component Template (.ts)
@@ -92,8 +92,8 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-component-name',
   imports: [CommonModule],
-  templateUrl: './component-name.component.html',
-  styleUrl: './component-name.component.scss',
+  templateUrl: './component-name.html',
+  styleUrl: './component-name.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComponentNameComponent {
@@ -567,6 +567,13 @@ For the main Angular application, use a simple, flat structure:
 ```
 src/
 ├── app/
+│   ├── services/                # App-level services (e.g., theme, auth)
+│   │   └── service-name.service.ts
+│   ├── components/              # App-level components (e.g., theme-toggle)
+│   │   └── component-name/
+│   │       ├── component-name.ts
+│   │       ├── component-name.html
+│   │       └── component-name.scss
 │   ├── pages/                   # Page components (route targets)
 │   │   └── feature-name/
 │   │       ├── page-name/
@@ -584,22 +591,26 @@ src/
 ```
 
 **Key Principles:**
+- **services/**: App-level services used across the entire application (e.g., ThemeService, AuthService)
+- **components/**: App-level UI components used in the app shell (e.g., ThemeToggleComponent, HeaderComponent)
 - **pages/**: Contains page-level components that are route targets
 - **Flat structure**: Pages import components from libraries (e.g., `exercises-lib`)
 - **Thin pages**: Page components are simple wrappers that compose library components
 - **No business logic in app**: All logic lives in libraries
+- **Consistent configuration**: All components, including wrappers, MUST use `ChangeDetectionStrategy.OnPush` and external templates (`.html`)
 
 **Example Page Component:**
 ```typescript
 // pages/exercises/exercises-overview/exercises-overview.ts
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ExercisesOverviewComponent } from 'exercises-lib';
 
 @Component({
   selector: 'app-exercises-overview',
   imports: [ExercisesOverviewComponent],
-  template: `<ex-exercises-overview />`,
+  templateUrl: './exercises-overview.html',
   styleUrl: './exercises-overview.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisesOverview {}
 ```
@@ -645,16 +656,16 @@ projects/
 │   │   │   │   └── provider-name.service.spec.ts
 │   │   │   ├── ui/                  # Reusable UI components
 │   │   │   │   └── component-name/
-│   │   │   │       ├── component-name.component.ts
-│   │   │   │       ├── component-name.component.html
-│   │   │   │       ├── component-name.component.scss
-│   │   │   │       └── component-name.component.spec.ts
+│   │   │   │       ├── component-name.ts
+│   │   │   │       ├── component-name.html
+│   │   │   │       ├── component-name.scss
+│   │   │   │       └── component-name.spec.ts
 │   │   │   ├── views/               # Page-level components
 │   │   │   │   └── view-name/
-│   │   │   │       ├── view-name.component.ts
-│   │   │   │       ├── view-name.component.html
-│   │   │   │       ├── view-name.component.scss
-│   │   │   │       └── view-name.component.spec.ts
+│   │   │   │       ├── view-name.ts
+│   │   │   │       ├── view-name.html
+│   │   │   │       ├── view-name.scss
+│   │   │   │       └── view-name.spec.ts
 │   │   │   └── library-name.ts      # Barrel export file
 │   │   └── public-api.ts            # Public API (exports from library-name.ts)
 ```
@@ -678,10 +689,10 @@ export * from './logic-services/exercise-logic.service';
 export * from './provider-services/exercise-provider.service';
 
 // UI Components
-export * from './ui/component-name/component-name.component';
+export * from './ui/component-name/component-name';
 
 // View Components
-export * from './views/view-name/view-name.component';
+export * from './views/view-name/view-name';
 ```
 
 ```typescript
@@ -701,6 +712,93 @@ This approach:
 
 ---
 
+## Theme System & Styling
+
+### Using Theme Variables
+
+The application supports **light and dark modes**. All components must use CSS custom properties for theming.
+
+**✅ ALWAYS use theme variables:**
+```scss
+.my-component {
+  background-color: var(--fitness-bg-card);
+  color: var(--fitness-text-primary);
+  border: 1px solid var(--fitness-border);
+  box-shadow: 0 2px 8px var(--fitness-shadow);
+}
+```
+
+**❌ NEVER use hardcoded colors:**
+```scss
+.my-component {
+  background-color: #FFFFFF;  // Won't adapt to dark mode
+  color: #111813;             // Won't adapt to dark mode
+  border: 1px solid rgba(0, 0, 0, 0.1);  // Won't adapt to dark mode
+}
+```
+
+### Available Theme Variables
+
+**Backgrounds:**
+- `--fitness-bg-page` - Page background
+- `--fitness-bg-card` - Card backgrounds
+- `--fitness-bg-chip` - Chips, badges, tags
+- `--fitness-bg-input` - Input field backgrounds
+
+**Text:**
+- `--fitness-text-primary` - Main text
+- `--fitness-text-secondary` - Secondary text, labels
+- `--fitness-text-tertiary` - Muted text, placeholders
+
+**Borders & Shadows:**
+- `--fitness-border` - Standard borders
+- `--fitness-border-strong` - Emphasized borders
+- `--fitness-shadow` - Subtle shadows
+- `--fitness-shadow-strong` - Emphasized shadows
+
+**Brand:**
+- `--fitness-primary` - Primary green (consistent across themes)
+- `--fitness-primary-hover` - Hover state
+
+### Theme Service
+
+To programmatically control themes:
+
+```typescript
+import { ThemeService } from './services/theme.service';
+
+export class MyComponent {
+  private readonly themeService = inject(ThemeService);
+  
+  toggleTheme() {
+    this.themeService.toggleTheme();
+  }
+  
+  getCurrentTheme() {
+    return this.themeService.currentTheme(); // 'light' | 'dark'
+  }
+}
+```
+
+### Styling Best Practices
+
+1. **Component Styles:**
+   - Use separate `.scss` files (never inline styles)
+   - Use theme variables for all colors
+   - Avoid `!important` unless absolutely necessary
+   - Use BEM or similar naming convention
+
+2. **Responsive Design:**
+   - Use media queries for responsive behavior
+   - Standard breakpoint: `@media (max-width: 768px)`
+   - Test both light and dark modes at all breakpoints
+
+3. **Transitions:**
+   - Theme changes have 0.3s transitions on `background-color` and `color`
+   - Add transitions to interactive elements: `transition: all 0.2s ease`
+
+---
+
 ## Summary Checklist
 
 When creating a new component, ensure:
@@ -717,6 +815,8 @@ When creating a new component, ensure:
 - ✅ Using `class` and `style` bindings (not `ngClass`/`ngStyle`)
 - ✅ Keeping templates simple and logic-free
 - ✅ Following single responsibility principle
+- ✅ Using theme variables for all colors (no hardcoded colors)
+- ✅ Testing in both light and dark modes
 
 ---
 

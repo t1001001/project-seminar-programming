@@ -1,19 +1,18 @@
 @use '@angular/material' as mat;
 
-// Custom color palette for Fitness Tracker
+
 $fitness-primary: (
   50: #e1fef0,
   100: #b3fcd9,
   200: #80fac0,
   300: #4df8a7,
   400: #26f794,
-  500: #0DF259,  // Main bright green
+  500: #0DF259,
   600: #0bdb51,
   700: #09c247,
   800: #07aa3d,
   900: #03852d,
-  contrast: (
-    50: #111813,
+  contrast: (50: #111813,
     100: #111813,
     200: #111813,
     300: #111813,
@@ -32,13 +31,13 @@ $fitness-accent: (
   200: #878e8b,
   300: #57615d,
   400: #333f3a,
-  500: #111813,  // Dark
+  500: #111813,
+
   600: #0f1511,
   700: #0c110e,
   800: #0a0e0b,
   900: #050806,
-  contrast: (
-    50: #111813,
+  contrast: (50: #111813,
     100: #111813,
     200: #111813,
     300: #ffffff,
@@ -52,55 +51,155 @@ $fitness-accent: (
 );
 
 html {
-  @include mat.theme((
-    color: (
-      primary: $fitness-primary,
-      tertiary: $fitness-accent,
-    ),
-    typography: Poppins,
-    density: 0,
-  ));
-  
-  // Override Material's background color
-  background-color: #F5F8F6 !important;
+  @include mat.theme((color: (primary: $fitness-primary,
+        tertiary: $fitness-accent,
+      ),
+      typography: Poppins,
+      density: 0,
+    ));
+
+  background-color: var(--fitness-bg-page) !important;
 }
 
 body {
   color-scheme: light;
-  background-color: #F5F8F6 !important;  // Light gray background
-  color: #111813;  // Dark text
+  background-color: var(--fitness-bg-page) !important;
+  color: var(--fitness-text-primary);
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   margin: 0;
   height: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-html, body { 
+[data-theme="dark"] body {
+  color-scheme: dark;
+}
+
+html,
+body {
   height: 100%;
-  background-color: #F5F8F6 !important;
+  background-color: var(--fitness-bg-page) !important;
 }
 
-// Custom CSS variables for easy access
 :root {
+
   --fitness-primary: #0DF259;
+  --fitness-primary-rgb: 13, 242, 89;
+  --fitness-primary-hover: #0BE84D;
+
+
+  --fitness-action-update: #74C4FC;
+  --fitness-action-update-rgb: 116, 196, 252;
+  --fitness-action-update-hover: #5AB8FA;
+
+  --fitness-action-delete: #FF6B6B;
+  --fitness-action-delete-rgb: 255, 107, 107;
+  --fitness-action-delete-hover: #FF5252;
+
+
+  --fitness-bg-page: #F5F8F6;
+  --fitness-bg-card: #FFFFFF;
+  --fitness-bg-elevated: #FFFFFF;
+  --fitness-bg-chip: #f1f5f9;
+  --fitness-bg-input: #FFFFFF;
+
+  --fitness-text-primary: #111813;
+  --fitness-text-secondary: #64748b;
+  --fitness-text-tertiary: #94a3b8;
+
+  --fitness-border: rgba(17, 24, 19, 0.1);
+  --fitness-border-strong: rgba(17, 24, 19, 0.2);
+  --fitness-shadow: rgba(0, 0, 0, 0.05);
+  --fitness-shadow-strong: rgba(0, 0, 0, 0.1);
+
+
+  --fitness-shadow-glow-sm: 0 2px 8px rgba(var(--fitness-primary-rgb), 0.3);
+  --fitness-shadow-glow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3);
+  --fitness-shadow-glow-lg: 0 6px 16px rgba(var(--fitness-primary-rgb), 0.4);
+  --fitness-shadow-glow-update: 0 4px 12px rgba(var(--fitness-action-update-rgb), 0.3);
+
+  --fitness-shadow-logo: 0 2px 4px var(--fitness-shadow);
+  --fitness-shadow-dropdown: 0 10px 40px -10px var(--fitness-shadow-strong);
+
+
   --fitness-light-gray: #F5F8F6;
   --fitness-white: #FFFFFF;
   --fitness-dark: #111813;
+
+  --fitness-status-success: #10c96c;
+  --fitness-status-success-rgb: 16, 201, 108;
+  --fitness-status-info: #5ab8fa;
+  --fitness-status-info-rgb: 90, 184, 250;
+  --fitness-status-warning: #ffc857;
+  --fitness-status-warning-rgb: 255, 200, 87;
 }
 
-// Custom dialog styling
+[data-theme="dark"] {
+  --fitness-bg-page: #0f1511;
+  --fitness-bg-card: #1a1f1c;
+  --fitness-bg-elevated: #242a27;
+  --fitness-bg-chip: #242a27;
+  --fitness-bg-input: #1e2421;
+
+  --fitness-text-primary: #e8eae9;
+  --fitness-text-secondary: #9ca3a0;
+  --fitness-text-tertiary: #6b7270;
+
+  --fitness-border: rgba(255, 255, 255, 0.1);
+  --fitness-border-strong: rgba(255, 255, 255, 0.2);
+  --fitness-shadow: rgba(0, 0, 0, 0.4);
+  --fitness-shadow-strong: rgba(0, 0, 0, 0.6);
+
+
+  --fitness-light-gray: #0f1511;
+  --fitness-white: #1a1f1c;
+  --fitness-dark: #e8eae9;
+
+
+  --fitness-status-success: #22f08a;
+  --fitness-status-success-rgb: 34, 240, 138;
+  --fitness-status-info: #74c4fc;
+  --fitness-status-info-rgb: 116, 196, 252;
+  --fitness-status-warning: #ffdd7a;
+  --fitness-status-warning-rgb: 255, 221, 122;
+}
+
 .custom-dialog-container .mat-mdc-dialog-container {
-  background-color: #FFF !important;
+  background-color: var(--fitness-bg-card) !important;
   border-radius: 12px !important;
+  border: 1px solid var(--fitness-border);
 }
 
-// Custom snackbar styling
 .success-snackbar {
   .mdc-snackbar__surface {
     background-color: var(--fitness-primary) !important;
   }
-  
+
   .mat-mdc-snack-bar-label {
-    color: var(--fitness-dark) !important;
+    color: var(--fitness-text-primary) !important;
     font-weight: 500;
   }
+}
+
+.error-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #FF6B6B !important;
+  }
+
+  .mat-mdc-snack-bar-label {
+    color: #FFFFFF !important;
+    font-weight: 500;
+  }
+
+  .mat-mdc-snack-bar-action {
+    color: #FFFFFF !important;
+  }
+}
+
+.page-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem;
+  box-sizing: border-box;
 }

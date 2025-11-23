@@ -1,0 +1,393 @@
+.plan-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.back-btn {
+    align-self: flex-start;
+    color: var(--fitness-dark) !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    color: var(--fitness-primary) !important;
+}
+
+.back-btn .material-icons {
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.required-hint {
+    margin: 0 0 1rem 0;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    color: var(--fitness-text-secondary);
+}
+
+.detail-card {
+    background-color: var(--fitness-bg-card) !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--fitness-border) !important;
+    box-shadow: none !important;
+    width: 100%;
+}
+
+.detail-card mat-card-content {
+    padding: 2rem !important;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--fitness-dark);
+}
+
+.edit-btn {
+    background-color: var(--fitness-primary) !important;
+    color: var(--fitness-dark) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    background-color: var(--fitness-primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
+}
+
+.detail-view {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--fitness-border);
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--fitness-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.detail-value {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--fitness-dark);
+}
+
+.description-text {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--fitness-text-primary);
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.detail-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+mat-card-actions {
+    padding: 1.5rem 2rem !important;
+    border-top: 1px solid var(--fitness-border);
+}
+
+.update-btn {
+    background-color: var(--fitness-action-update) !important;
+    color: var(--fitness-dark) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+
+.update-btn:hover:not(:disabled) {
+    background-color: var(--fitness-action-update-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--fitness-action-update-rgb), 0.3) !important;
+}
+
+.cancel-btn {
+    color: var(--fitness-dark) !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+    background-color: transparent !important;
+    color: var(--fitness-primary) !important;
+}
+
+.update-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.timeline {
+    position: relative;
+    padding: 1rem 0 1rem 2rem;
+    margin-left: 1rem;
+    border-left: 2px solid rgba(var(--fitness-primary-rgb), 0.3);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+
+    &.last-item {
+        margin-bottom: 0;
+    }
+
+    &:has(.timeline-content:hover) .timeline-marker {
+        transform: scale(1.3);
+        box-shadow: 0 0 0 3px rgba(var(--fitness-primary-rgb), 0.4);
+    }
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2.6rem;
+    top: 1.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: var(--fitness-primary);
+    border: 3px solid var(--fitness-bg-page);
+    box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
+    z-index: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-content {
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.session-card {
+    position: relative;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    border: 1px solid var(--fitness-border) !important;
+    background-color: var(--fitness-bg-card) !important;
+    overflow: hidden;
+    cursor: default;
+
+    mat-card-header {
+        padding: 1rem 1rem 0.5rem 1rem !important;
+    }
+
+    mat-card-content {
+        padding: 0.5rem 1rem 1rem 1rem !important;
+    }
+}
+
+.session-avatar {
+    background-color: rgba(var(--fitness-primary-rgb), 0.1);
+    color: var(--fitness-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+mat-card-title {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+mat-card-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.85rem !important;
+    color: var(--fitness-text-secondary) !important;
+}
+
+.small-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.exercises-list {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--fitness-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.exercises-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--fitness-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.exercise-chip {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--fitness-bg-chip);
+    border-radius: 16px;
+    font-size: 0.85rem;
+    color: var(--fitness-dark);
+    font-weight: 500;
+    border: 1px solid var(--fitness-border);
+}
+
+.no-exercises {
+    font-size: 0.875rem;
+    color: var(--fitness-text-tertiary);
+    font-style: italic;
+}
+
+.empty-sessions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--fitness-text-tertiary);
+    background-color: var(--fitness-bg-chip);
+    border-radius: 12px;
+    border: 2px dashed var(--fitness-border);
+
+    .empty-icon {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    p {
+        margin: 0;
+        font-weight: 500;
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .detail-card mat-card-content {
+        padding: 1.5rem !important;
+    }
+
+    mat-card-actions {
+        padding: 1rem 1.5rem !important;
+    }
+
+    .session-status-chip {
+        position: static !important;
+        margin: 1rem 1rem 0 1rem;
+        display: inline-block;
+        width: fit-content;
+    }
+}
+
+.session-status-chip {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 10;
+
+    &.completed {
+        background-color: rgba(var(--fitness-primary-rgb), 0.1);
+        color: var(--fitness-primary);
+        border: 1px solid rgba(var(--fitness-primary-rgb), 0.2);
+    }
+
+    &.planned {
+        background-color: var(--fitness-bg-chip);
+        color: var(--fitness-text-secondary);
+        border: 1px solid var(--fitness-border);
+    }
+}
+
+.exercises-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.count-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.25rem;
+    min-width: 1.25rem;
+    padding: 0 0.4rem;
+    background-color: var(--fitness-bg-chip);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--fitness-text-secondary);
+    border: 1px solid var(--fitness-border);
+}

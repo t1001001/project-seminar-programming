@@ -1,12 +1,19 @@
 import { Routes } from '@angular/router';
 import { ExercisesOverview } from './pages/exercises/exercises-overview/exercises-overview';
 import { ExercisesDetails } from './pages/exercises/exercises-details/exercises-details';
+import { PlansOverview } from './pages/plans/plans-overview/plans-overview';
+import { PlansDetails } from './pages/plans/plans-details/plans-details';
+import { HomeLanding } from './pages/home/home-landing/home-landing';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/exercises',
+    redirectTo: '/home',
     pathMatch: 'full',
+  },
+  {
+    path: 'home',
+    component: HomeLanding,
   },
   {
     path: 'exercises',
@@ -17,7 +24,15 @@ export const routes: Routes = [
     component: ExercisesDetails,
   },
   {
+    path: 'plans',
+    component: PlansOverview,
+  },
+  {
+    path: 'plans/:id',
+    component: PlansDetails,
+  },
+  {
     path: '**',
-    redirectTo: '/exercises',
+    redirectTo: '/home',
   },
 ];

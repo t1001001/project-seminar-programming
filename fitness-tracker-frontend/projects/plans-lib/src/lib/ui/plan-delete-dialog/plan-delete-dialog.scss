@@ -1,0 +1,49 @@
+mat-dialog-content {
+    padding: 1rem 0;
+}
+
+p {
+    margin: 0.5rem 0;
+    color: var(--fitness-dark);
+}
+
+.warning {
+    font-size: 0.875rem;
+    color: var(--fitness-text-secondary);
+}
+
+strong {
+    color: var(--fitness-primary);
+}
+
+mat-dialog-actions button {
+    font-weight: 500 !important;
+    text-transform: none !important;
+    transition: all 0.2s ease;
+}
+
+mat-dialog-actions button[mat-button] {
+    color: var(--fitness-dark) !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    padding: 0.5rem 1rem !important;
+}
+
+mat-dialog-actions button[mat-button]:hover {
+    background-color: transparent !important;
+    color: var(--fitness-primary) !important;
+}
+
+.delete-btn {
+    background-color: var(--fitness-action-delete) !important;
+    color: white !important;
+    box-shadow: none !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1.5rem !important;
+}
+
+.delete-btn:hover {
+    background-color: var(--fitness-action-delete-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3) !important;
+}

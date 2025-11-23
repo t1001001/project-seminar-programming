@@ -4,12 +4,147 @@ This document defines the consistent styling rules for all components in the Fit
 
 ## 🎨 Color Palette
 
-### CSS Variables
+### Theme System
+
+The application supports **light and dark modes** with automatic theme switching and persistence.
+
+#### CSS Theme Variables
+
+All components use CSS custom properties for theming. **Always use these variables instead of hardcoded colors.**
+
+**Core Variables (Light Mode Default):**
 ```css
---fitness-primary: #0DF259    /* Bright Green - Primary actions, accents */
---fitness-light-gray: #F5F8F6 /* Light Gray - Page background */
---fitness-white: #FFFFFF      /* White - Card backgrounds */
---fitness-dark: #111813       /* Dark - Text, borders */
+/* Brand Colors (consistent across themes) */
+--fitness-primary: #0DF259;           /* Bright Green - Primary actions, accents */
+--fitness-primary-hover: #0BE84D;     /* Hover state for primary buttons */
+
+/* Background Colors */
+--fitness-bg-page: #F5F8F6;           /* Page background */
+--fitness-bg-card: #FFFFFF;           /* Card backgrounds */
+--fitness-bg-elevated: #FFFFFF;       /* Elevated surfaces */
+--fitness-bg-chip: #f1f5f9;           /* Chips, badges, tags */
+--fitness-bg-input: #FFFFFF;          /* Input field backgrounds */
+
+/* Text Colors */
+--fitness-text-primary: #111813;      /* Main text */
+--fitness-text-secondary: #64748b;    /* Secondary text, labels */
+--fitness-text-tertiary: #94a3b8;     /* Muted text, placeholders */
+
+/* Borders & Shadows */
+--fitness-border: rgba(17, 24, 19, 0.1);        /* Standard borders */
+--fitness-border-strong: rgba(17, 24, 19, 0.2); /* Emphasized borders */
+--fitness-shadow: rgba(0, 0, 0, 0.05);          /* Subtle shadows */
+--fitness-shadow-strong: rgba(0, 0, 0, 0.1);    /* Emphasized shadows */
+
+/* Shadow Glows (using primary/action colors) */
+--fitness-shadow-glow-sm: 0 2px 8px rgba(13, 242, 89, 0.3);     /* Small glow */
+--fitness-shadow-glow: 0 4px 12px rgba(13, 242, 89, 0.3);       /* Standard glow */
+--fitness-shadow-glow-lg: 0 6px 16px rgba(13, 242, 89, 0.4);    /* Large glow */
+--fitness-shadow-glow-update: 0 4px 12px rgba(116, 196, 252, 0.3); /* Update glow */
+
+/* Specific Shadows */
+--fitness-shadow-logo: 0 2px 4px var(--fitness-shadow);
+--fitness-shadow-dropdown: 0 10px 40px -10px var(--fitness-shadow-strong);
+
+/* Legacy Variables (for backward compatibility) */
+--fitness-light-gray: #F5F8F6;
+--fitness-white: #FFFFFF;
+--fitness-dark: #111813;
+```
+
+**Dark Mode Overrides (`[data-theme="dark"]`):**
+```css
+--fitness-bg-page: #0f1511;           /* Very dark gray-green */
+--fitness-bg-card: #1a1f1c;           /* Dark card surface */
+--fitness-bg-elevated: #242a27;       /* Elevated surfaces */
+--fitness-bg-chip: #242a27;           /* Chips, badges */
+--fitness-bg-input: #1e2421;          /* Input backgrounds */
+
+--fitness-text-primary: #e8eae9;      /* Light text */
+--fitness-text-secondary: #9ca3a0;    /* Muted light text */
+--fitness-text-tertiary: #6b7270;     /* Very muted text */
+
+--fitness-border: rgba(255, 255, 255, 0.1);
+--fitness-border-strong: rgba(255, 255, 255, 0.2);
+--fitness-shadow: rgba(0, 0, 0, 0.4);
+--fitness-shadow-strong: rgba(0, 0, 0, 0.6);
+```
+
+#### Usage Guidelines
+
+**✅ DO:**
+```scss
+.my-component {
+  background-color: var(--fitness-bg-card);
+  color: var(--fitness-text-primary);
+  border: 1px solid var(--fitness-border);
+  box-shadow: 0 2px 8px var(--fitness-shadow);
+}
+```
+
+**❌ DON'T:**
+```scss
+.my-component {
+  background-color: #FFFFFF;  // Hardcoded - won't adapt to dark mode
+  color: #111813;             // Hardcoded - won't adapt to dark mode
+  border: 1px solid rgba(0, 0, 0, 0.1);  // Hardcoded
+}
+```
+
+### Theme Toggle
+
+Users can switch between light and dark modes using the theme toggle button in the app header (moon/sun icon). The preference is automatically saved to localStorage.
+
+**For Developers:**
+```typescript
+import { ThemeService } from './services/theme.service';
+
+// Inject the service
+private readonly themeService = inject(ThemeService);
+
+// Toggle theme
+this.themeService.toggleTheme();
+
+// Set specific theme
+this.themeService.setTheme('dark');
+
+// Read current theme
+const currentTheme = this.themeService.currentTheme();
+```
+
+### Global Styles (`src/styles.scss`)
+
+The application uses a global stylesheet at `src/styles.scss` that defines:
+
+1. **Material Theme Configuration**
+   - Custom color palettes for primary (green) and accent (dark) colors
+   - Typography using Poppins font
+   - Density settings
+
+2. **Page Background**
+   - `background-color: #F5F8F6` applied to `html` and `body`
+   - Light gray background for the entire application
+
+3. **Dialog Styling**
+   ```scss
+   .custom-dialog-container .mat-mdc-dialog-container {
+     background-color: #FFF !important;
+     border-radius: 12px !important;
+   }
+   ```
+   - **CRITICAL**: All dialogs must use `panelClass: 'custom-dialog-container'` to get white background
+   - This class is defined globally and applies to all Material dialogs
+
+4. **Snackbar Styling**
+   - `.success-snackbar` for success messages (green background)
+   - Default snackbar styling with dark background
+
+**Important**: When opening any Material dialog, always include:
+```typescript
+this.dialog.open(ComponentName, {
+  panelClass: 'custom-dialog-container',  // Required for white background
+  // ... other config
+});
 ```
 
 ### Semantic Colors
@@ -20,44 +155,159 @@ This document defines the consistent styling rules for all components in the Fit
 - **Text Gray**: `#64748b` - Secondary text, labels
 - **Light Gray Background**: `#f1f5f9` - Chips, tags
 
+### Semantic Status Colors
+Use the shared status variables for any widgets, alerts, stats, or pills that need success/info/warning states. These live in `src/styles.scss` and adapt to theme changes automatically. **Never hardcode these colors; always reference the CSS variables.**
+
+| Status  | Purpose                                  | Light Mode Token                        | Dark Mode Token                         |
+|---------|-------------------------------------------|-----------------------------------------|-----------------------------------------|
+| Success | Positive metrics, completed goals, gains | `var(--fitness-status-success)`          | `var(--fitness-status-success)` (dark)  |
+| Info    | Neutral insights, analytics, hints       | `var(--fitness-status-info)`             | `var(--fitness-status-info)` (dark)     |
+| Warning | Upcoming deadlines, cautions, reminders  | `var(--fitness-status-warning)`          | `var(--fitness-status-warning)` (dark)  |
+
+Each token also has an `*-rgb` counterpart (e.g., `--fitness-status-success-rgb`) for transparent overlays or glows. Pair text colors with the standard theme text variables to maintain contrast.
+
+---
+
+## ⚠️ CRITICAL: Theme Variable Usage Rules
+
+**ALL new SCSS files MUST use CSS custom properties from `src/styles.scss`.**
+
+### Mandatory Rules
+
+1. **NEVER use hardcoded colors** for backgrounds, text, borders, or shadows
+2. **ALWAYS use theme variables** to ensure dark mode compatibility
+3. **Only exception**: Intentional action colors (red delete, blue update buttons)
+
+### Required Theme Variables
+
+**Use these variables in ALL component SCSS files:**
+
+```scss
+/* Backgrounds - REQUIRED */
+background-color: var(--fitness-bg-card);    // NOT #FFFFFF
+background-color: var(--fitness-bg-page);    // NOT #F5F8F6
+background-color: var(--fitness-bg-chip);    // NOT #f1f5f9
+
+/* Text - REQUIRED */
+color: var(--fitness-text-primary);          // NOT #111813
+color: var(--fitness-text-secondary);        // NOT #64748b
+color: var(--fitness-text-tertiary);         // NOT #94a3b8
+
+/* Borders - REQUIRED */
+border: 1px solid var(--fitness-border);     // NOT rgba(17, 24, 19, 0.1)
+border-color: var(--fitness-border-strong);  // NOT rgba(17, 24, 19, 0.2)
+
+/* Shadows - REQUIRED */
+box-shadow: var(--fitness-shadow);             // Standard shadow
+box-shadow: var(--fitness-shadow-glow);        // Glow effect for primary actions
+box-shadow: var(--fitness-shadow-glow-update); // Glow effect for update actions
+box-shadow: var(--fitness-shadow-dropdown);    // Dropdown/Menu shadow
+
+/* Brand Colors - REQUIRED */
+background-color: var(--fitness-primary);       // Primary green
+background-color: var(--fitness-primary-hover); // Primary green hover
+color: var(--fitness-dark);                     // Adapts to theme
+```
+
+### Allowed Hardcoded Colors (Exceptions Only)
+
+These are the ONLY hardcoded colors allowed:
+
+```scss
+/* Delete buttons - Consistent red across themes */
+background-color: #FF6B6B;  // Delete button
+background-color: #FF5252;  // Delete button hover
+
+/* Update/Add buttons - Specific blue for secondary actions */
+background-color: #74C4FC;  // Update button
+background-color: #5AB8FA;  // Update button hover
+```
+
+### ❌ Common Mistakes to Avoid
+
+```scss
+/* ❌ WRONG - Hardcoded colors */
+.my-component {
+  background-color: #FFFFFF;
+  color: #111813;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ CORRECT - Theme variables */
+.my-component {
+  background-color: var(--fitness-bg-card);
+  color: var(--fitness-text-primary);
+  border: 1px solid var(--fitness-border);
+}
+```
+
+### Verification Checklist
+
+Before committing any new SCSS file, verify:
+
+- [ ] No hardcoded `#` color values (except approved action buttons)
+- [ ] All backgrounds use `var(--fitness-bg-*)`
+- [ ] All text uses `var(--fitness-text-*)`
+- [ ] All borders use `var(--fitness-border*)`
+- [ ] All shadows use `var(--fitness-shadow*)`
+- [ ] Tested in both light AND dark modes
+
+---
+
 ## 📦 Cards
 
 ### Base Card Styling
-```css
-background-color: #FFF;
-border-radius: 12px;
-border: 1px solid rgba(17, 24, 19, 0.1);
-box-shadow: none;
-transition: transform 0.2s ease;
-cursor: pointer; /* For clickable cards */
+
+**CRITICAL: Always use CSS variables for theming support!**
+
+```scss
+.card {
+  background-color: var(--fitness-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fitness-border);
+  box-shadow: none;
+  transition: transform 0.2s ease;
+  cursor: pointer; /* For clickable cards */
+}
 ```
 
 ### Card Hover Effect
-```css
-transform: translateY(-2px);
+```scss
+.card:hover {
+  transform: translateY(-2px);
+}
 ```
 
-**Important:** Cards should NOT change border color on hover. Only apply the lift effect (translateY).
+**Important:** 
+- Cards should NOT change border color on hover. Only apply the lift effect (translateY).
+- **NEVER use hardcoded colors** like `#FFF` or `rgba(17, 24, 19, 0.1)` - always use theme variables.
 
 ## 🔘 Buttons
 
 ### Primary Button (Green)
-```css
-background-color: var(--fitness-primary);
-color: var(--fitness-dark);
-border-radius: 8px;
-padding: 0.5rem 1.5rem;
-font-weight: 500;
-text-transform: none;
-box-shadow: none;
-transition: all 0.2s ease;
+
+**Use theme variables for all colors:**
+
+```scss
+.primary-btn {
+  background-color: var(--fitness-primary);
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
 ```
 
 **Hover State:**
-```css
-background-color: #0BE84D;
-transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
+```scss
+.primary-btn:hover {
+  background-color: var(--fitness-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--fitness-shadow-glow);
+}
 ```
 
 **Usage:**
@@ -66,13 +316,17 @@ box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
 - Edit button example: `<mat-icon>edit</mat-icon> Edit`
 
 ### Update Button (Light Blue)
-```css
-background-color: #74C4FC;
-color: var(--fitness-dark);
-border-radius: 8px;
-padding: 0.5rem 1.5rem;
-font-weight: 500;
-text-transform: none;
+
+**Intentional color - consistent across themes:**
+
+```scss
+.update-btn {
+  background-color: #74C4FC;  /* Intentional - specific action color */
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
 box-shadow: none;
 transition: all 0.2s ease;
 ```
@@ -81,7 +335,7 @@ transition: all 0.2s ease;
 ```css
 background-color: #5AB8FA;
 transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(116, 196, 252, 0.3);
+box-shadow: var(--fitness-shadow-glow-update);
 ```
 
 **Usage:**
@@ -142,7 +396,7 @@ padding: 0 1.5rem;
 height: 56px;
 font-weight: 600;
 text-transform: none;
-box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);
+box-shadow: var(--fitness-shadow-glow);
 z-index: 100;
 transition: all 0.2s ease;
 ```
@@ -151,7 +405,7 @@ transition: all 0.2s ease;
 ```css
 background-color: #0BE84D;
 transform: translateY(-2px);
-box-shadow: 0 6px 16px rgba(13, 242, 89, 0.4);
+box-shadow: var(--fitness-shadow-glow-lg);
 ```
 
 **Icon:**
@@ -301,7 +555,63 @@ this.snackBar.open(message, action, {
 - **Message**: Keep concise and clear
 - **Panel Classes**: Use custom classes for variants (error, warning, info)
 
-## 📱 Responsive Breakpoints
+## � Layout Patterns
+
+### Page Container
+
+For pages that require a constrained, centered layout (e.g., Exercises, Plans, Details pages), use the `.page-container` class:
+
+```scss
+.page-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem;
+  box-sizing: border-box;
+}
+```
+
+**Usage:**
+```html
+<section class="exercises-overview page-container">
+  <!-- Page content -->
+</section>
+```
+
+**When to Use:**
+- ✅ Overview pages (Exercises, Plans)
+- ✅ Detail pages (Exercise Detail, Plan Detail)
+- ✅ Any page that should have a maximum width and centered layout
+
+**When NOT to Use:**
+- ❌ Full-width pages (e.g., Home Hero with animations)
+- ❌ Components that should span the entire viewport width
+
+### Full-Width Pages
+
+For pages that need to span the entire viewport width (e.g., Home Hero), do NOT apply `.page-container`:
+
+```html
+<section class="home-hero">
+  <!-- Full-width content -->
+</section>
+```
+
+### App Content Container
+
+The global `.app-content` container provides the base layout for all pages:
+
+```scss
+.app-content {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+```
+
+This container does NOT impose any max-width or padding constraints, allowing child pages to control their own layout using `.page-container` or remaining full-width.
+
+## �📱 Responsive Breakpoints
 
 ```css
 /* Tablet */
@@ -355,7 +665,7 @@ transform: translateY(-2px);
 ```
 
 ### Shadow Transitions
-- **Green**: `box-shadow: 0 4px 12px rgba(13, 242, 89, 0.3);`
+- **Green**: `box-shadow: var(--fitness-shadow-glow);`
 - **Red**: `box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);`
 
 ## 📐 Spacing
@@ -410,6 +720,118 @@ For cards that need to display multiple pieces of information efficiently:
 - Dashboard widgets with controls
 - Any component where horizontal space utilization is important
 
+### View Header Layout
+
+Standard header pattern for main view pages (e.g., Plans Overview, Exercises Overview).
+
+**HTML Structure:**
+```html
+<header class="view-header">
+  <div class="header-content">
+    <h1>Page Title</h1>
+    <p class="subtitle">Descriptive subtitle for the page</p>
+  </div>
+
+  <div class="header-actions">
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <span class="material-icons">search</span>
+      <input type="text" placeholder="Search...">
+    </div>
+
+    <!-- Stat Chip (Optional) -->
+    <div class="header-stat">
+      <span class="stat-value">12</span>
+      <span class="stat-label">Items</span>
+    </div>
+  </div>
+
+  <!-- Decorative Background Icon -->
+  <div class="header-decoration">
+    <span class="material-icons">icon_name</span>
+  </div>
+</header>
+```
+
+**SCSS Pattern:**
+```scss
+.view-header {
+  background-color: transparent;
+  padding: 1rem 0 1rem 1.5rem;
+  border-left: 5px solid var(--fitness-primary); // Vertical accent
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: visible;
+}
+
+.header-content {
+  z-index: 1;
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--fitness-dark);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .subtitle {
+    color: #64748b;
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 2;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+
+  &:focus-within {
+    box-shadow: var(--fitness-shadow-strong);
+    border-color: rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+.header-decoration {
+  position: absolute;
+  right: 0;
+  bottom: -1rem;
+  opacity: 0.03;
+  transform: rotate(-15deg);
+  pointer-events: none;
+  
+  .material-icons {
+    font-size: 10rem;
+    color: var(--fitness-dark);
+  }
+}
+```
+
+**Responsive Behavior:**
+- On mobile (< 768px):
+  - `flex-direction: column`
+  - `align-items: flex-start`
+  - Search bar expands to full width
+  - Decoration opacity reduced to 0.05
+
 ## 🎨 Component Examples
 
 ### Exercise Card
@@ -421,6 +843,13 @@ For cards that need to display multiple pieces of information efficiently:
   justify-content: space-between;
   align-items: flex-start;
   gap: 2rem;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(17, 24, 19, 0.05);
 }
 
 .info-section {
@@ -460,6 +889,65 @@ For cards that need to display multiple pieces of information efficiently:
 - On mobile (< 768px): Stack vertically
 - Actions section becomes horizontal row at bottom
 
+### Timeline Component
+
+Used for displaying sequential events like training sessions.
+
+**HTML Structure:**
+```html
+<div class="timeline">
+  <!-- Loop for items -->
+  <div class="timeline-item" [class.last-item]="last">
+    <div class="timeline-marker"></div>
+    <div class="timeline-content">
+      <mat-card class="session-card">
+        <!-- Card Content -->
+      </mat-card>
+    </div>
+  </div>
+</div>
+```
+
+**SCSS Pattern:**
+```scss
+.timeline {
+  position: relative;
+  padding: 1rem 0 1rem 2rem;
+  margin-left: 1rem;
+  border-left: 2px solid rgba(13, 242, 89, 0.3); // Primary with opacity
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2rem;
+
+  &.last-item {
+    margin-bottom: 0;
+  }
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2.6rem;
+  top: 1.5rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: var(--fitness-primary);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
+  z-index: 1;
+}
+
+.timeline-content {
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px); // Vertical lift
+  }
+}
+```
+
 ### Dialog
 - White background
 - 12px border radius
@@ -495,7 +983,334 @@ For cards that need to display multiple pieces of information efficiently:
 - ✅ Add proper spacing between elements
 - ✅ Make all components responsive
 
+## 📚 Library Development Patterns
+
+This section documents the consistent patterns used across all feature libraries (e.g., `exercises-lib`, `plans-lib`) to ensure uniformity and ease of development.
+
+### Library Structure
+
+All feature libraries follow this directory structure:
+
+```
+projects/[feature]-lib/src/lib/
+├── provider-services/     # HTTP/API layer
+├── logic-services/        # Business logic layer
+├── ui/                    # Reusable UI components
+└── views/                 # Smart container components (pages)
+```
+
+**Key Principles:**
+- **Provider Services**: Handle all HTTP requests, define interfaces for data models
+- **Logic Services**: Wrap provider services, add error handling, emit events for cross-component communication
+- **UI Components**: Dumb/presentational components, receive data via `@Input()`, emit events via `@Output()`
+- **Views**: Smart components that inject services, handle routing, manage state
+
+### Component Configuration
+
+#### Angular Component Decorator
+
+**Standard Pattern:**
+```typescript
+@Component({
+  selector: 'lib-component-name',  // or 'ex-component-name' for exercises
+  imports: [
+    MatDialogModule,      // Order: Material modules first
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,  // Then Angular modules
+    AsyncPipe,           // Then pipes
+  ],
+  templateUrl: './component-name.html',
+  styleUrl: './component-name.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+```
+
+**Important:**
+- ❌ Do NOT use `standalone: true` - it's redundant in modern Angular
+- ✅ Always use `ChangeDetectionStrategy.OnPush` for performance
+- ✅ Order imports: Material modules → Angular modules → Pipes → Custom components
+- ✅ Use `styleUrl` (singular) not `styleUrls`
+
+### Dialog Configuration
+
+#### Opening Dialogs
+
+**Required Pattern:**
+```typescript
+const dialogRef = this.dialog.open(ComponentName, {
+  width: '500px',
+  panelClass: 'custom-dialog-container',  // CRITICAL: Required for white background
+});
+```
+
+**Critical Rules:**
+- ✅ **ALWAYS** include `panelClass: 'custom-dialog-container'` - this applies the white background from global styles
+- ✅ Standard width: `500px` for forms, `400px` for confirmations
+- ✅ For delete dialogs, pass data: `data: { itemName: name }`
+
+#### Form Dialog Component Structure
+
+**TypeScript Pattern:**
+```typescript
+export class ItemFormDialogComponent {
+  private readonly dialogRef = inject(MatDialogRef<ItemFormDialogComponent>);
+  private readonly fb = inject(FormBuilder);
+  readonly data = inject<ItemData | null>(MAT_DIALOG_DATA, { optional: true });
+
+  readonly form: FormGroup = this.fb.group({
+    name: [this.data?.name || '', [Validators.required, Validators.minLength(2)]],
+    description: [this.data?.description || ''],
+  });
+
+  get isEditMode(): boolean {
+    return !!this.data;
+  }
+
+  onSave(): void {
+    if (this.form.valid) {
+      this.dialogRef.close(this.form.value);
+    }
+  }
+
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+}
+```
+
+**HTML Pattern:**
+```html
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Item' : 'Create Item' }}</h2>
+
+<mat-dialog-content>
+  <p class="required-hint">* Required fields</p>
+  <form [formGroup]="form" class="item-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Name *</mat-label>
+      <input matInput formControlName="name" placeholder="Enter name" required />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <mat-error>Name is required (min 2 characters)</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3"
+        placeholder="Enter description"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button 
+    [class.update-btn]="isEditMode" 
+    [class.create-btn]="!isEditMode" 
+    (click)="onSave()"
+    [disabled]="form.invalid">
+    {{ isEditMode ? 'Update' : 'Create' }}
+  </button>
+</mat-dialog-actions>
+```
+
+**SCSS Pattern:**
+```scss
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 400px;
+  padding: 1rem 0;
+  overflow: visible !important;
+}
+
+.required-hint {
+  margin: 0 0 1rem 0;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+// Button styles - see Buttons section for complete styles
+```
+
+### Card Components
+
+#### Card Layout Pattern
+
+**Wrapper Structure:**
+```scss
+.card-content-wrapper {
+  background-color: #FFF;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 24, 19, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+```
+
+**Info Section:**
+```scss
+.info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--fitness-dark);
+  }
+
+  .description {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+```
+
+**Actions Section:**
+```scss
+.actions-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+```
+
+**Stat Chips:**
+```scss
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f1f5f9;
+  border-radius: 16px;
+  font-size: 0.875rem;
+
+  .label {
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .value {
+    color: var(--fitness-dark);
+    font-weight: 600;
+  }
+}
+```
+
+### Overview/List Pages
+
+#### Page Structure
+
+**Container:**
+```scss
+.page-container {
+  padding: 2rem;
+  position: relative;
+  min-height: 100%;
+}
+```
+
+**Header:**
+```scss
+.page-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--fitness-dark);
+    margin: 0;
+  }
+}
+```
+
+**Grid Layout (for cards):**
+```scss
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+```
+
+**List Layout (for rows):**
+```scss
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+```
+
+**Empty State:**
+```scss
+.empty-state {
+  grid-column: 1 / -1;  // For grid layouts
+  text-align: center;
+  padding: 4rem;
+  color: #64748b;
+  background-color: #FFF;
+  border-radius: 12px;
+  border: 1px dashed rgba(17, 24, 19, 0.2);
+}
+```
+
+### Critical Checklist for New Libraries
+
+When creating a new feature library, ensure:
+
+- [ ] Library structure follows `provider-services/`, `logic-services/`, `ui/`, `views/` pattern
+- [ ] All components use `ChangeDetectionStrategy.OnPush`
+- [ ] Components do NOT use `standalone: true`
+- [ ] Dialog opens include `panelClass: 'custom-dialog-container'`
+- [ ] Form dialogs support both create and edit modes via `MAT_DIALOG_DATA`
+- [ ] Form dialogs include "* Required fields" hint
+- [ ] Form validation uses `invalid && touched` pattern
+- [ ] Cards use white background, 12px border radius, 1.5rem padding
+- [ ] Cards have hover lift effect (`translateY(-2px)`)
+- [ ] FAB positioned at `bottom: 2rem; left: 2rem` with green background
+- [ ] Delete buttons use coral red (`#FF6B6B`) with delete icon
+- [ ] Update buttons use light blue (`#74C4FC`)
+- [ ] Create buttons use green (`#0DF259`)
+- [ ] Cancel buttons are text-only (transparent background)
+- [ ] All services use `inject()` instead of constructor injection
+- [ ] Logic services include error handling and event subjects
+- [ ] Detail pages use in-place editing pattern (not dialogs)
+- [ ] Overview pages use either grid or list layout
+- [ ] Responsive styles for mobile (`@media (max-width: 768px)`)
+
 ---
 
-**Last Updated**: November 15, 2025
-**Version**: 1.0
+**Last Updated**: November 20, 2025
+**Version**: 2.0

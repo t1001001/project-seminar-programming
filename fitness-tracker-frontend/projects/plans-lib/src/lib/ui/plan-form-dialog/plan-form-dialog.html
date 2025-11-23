@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>{{ isEditMode() ? 'Edit Training Plan' : 'Create Training Plan' }}</h2>
+
+<mat-dialog-content>
+    <p class="required-hint">* Required fields</p>
+    <form [formGroup]="form" class="plan-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g., Push/Pull/Legs" required>
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <mat-error>Name is required (min 2 characters)</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"
+                placeholder="Describe your training plan..."></textarea>
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button [class.update-btn]="isEditMode()" [class.create-btn]="!isEditMode()" (click)="onSave()"
+        [disabled]="form.invalid">
+        {{ isEditMode() ? 'Update' : 'Create' }}
+    </button>
+</mat-dialog-actions>

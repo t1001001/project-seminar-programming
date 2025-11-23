@@ -20,4 +20,6 @@ public class SessionsCreateDto {
     private LocalDate scheduledDate;
 
     private List<UUID> exerciseExecutions;
+
+    private hs.aalen.fitness_tracker_backend.sessions.model.Sessions.SessionStatus status;
 }

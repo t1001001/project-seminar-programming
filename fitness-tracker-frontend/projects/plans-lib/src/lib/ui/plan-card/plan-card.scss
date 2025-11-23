@@ -1,0 +1,155 @@
+:host {
+  display: block;
+}
+
+.plan-card {
+  background-color: var(--fitness-bg-card) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--fitness-border) !important;
+  box-shadow: none !important;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  padding: 1.5rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.plan-card:hover {
+  transform: translateY(-2px);
+}
+
+.card-content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--fitness-border);
+}
+
+.info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.plan-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--fitness-dark);
+  margin: 0;
+}
+
+.details-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--fitness-text-secondary);
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: var(--fitness-dark);
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background-color: var(--fitness-bg-chip);
+  border-radius: 16px;
+  font-size: 0.875rem;
+
+  .label {
+    color: var(--fitness-text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+  }
+
+  .value {
+    color: var(--fitness-dark);
+    font-weight: 600;
+  }
+}
+
+.actions-section {
+  flex-shrink: 0;
+}
+
+.delete-btn {
+  background-color: var(--fitness-action-delete) !important;
+  color: var(--fitness-dark) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.delete-btn:hover {
+  background-color: var(--fitness-action-delete-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3) !important;
+}
+
+.click-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--fitness-text-secondary);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.plan-card:hover .click-hint {
+  opacity: 1;
+  color: var(--fitness-primary);
+}
+
+.click-hint .material-icons {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .card-content-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .actions-section {
+    align-self: flex-start;
+    width: 100%;
+  }
+
+  .delete-btn {
+    width: 100% !important;
+  }
+
+  .details-row {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+}

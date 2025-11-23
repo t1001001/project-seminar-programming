@@ -214,10 +214,10 @@ export class ExerciseLogicService {
 ```
 ui/
 ├── [component-name]/
-│   ├── [component-name].component.ts
-│   ├── [component-name].component.html
-│   ├── [component-name].component.scss
-│   └── [component-name].component.spec.ts
+│   ├── [component-name].ts
+│   ├── [component-name].html
+│   ├── [component-name].scss
+│   └── [component-name].spec.ts
 ```
 
 #### **Example: Card Component**
@@ -229,8 +229,8 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
 @Component({
   selector: 'ex-exercise-card',
   imports: [/* Material modules */],
-  templateUrl: './exercise-card.component.html',
-  styleUrl: './exercise-card.component.scss',
+  templateUrl: './exercise-card.html',
+  styleUrl: './exercise-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseCardComponent {
@@ -262,7 +262,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'ex-exercise-form-dialog',
   imports: [/* Form & Material modules */],
-  templateUrl: './exercise-form-dialog.component.html',
+  templateUrl: './exercise-form-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseFormDialogComponent {
@@ -316,10 +316,10 @@ export class ExerciseFormDialogComponent {
 ```
 views/
 ├── [view-name]/
-│   ├── [view-name].component.ts
-│   ├── [view-name].component.html
-│   ├── [view-name].component.scss
-│   └── [view-name].component.spec.ts
+│   ├── [view-name].ts
+│   ├── [view-name].html
+│   ├── [view-name].scss
+│   └── [view-name].spec.ts
 ```
 
 #### **Example: Overview Component**
@@ -334,7 +334,7 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
 @Component({
   selector: 'ex-exercises-overview',
   imports: [/* UI components */],
-  templateUrl: './exercises-overview.component.html',
+  templateUrl: './exercises-overview.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisesOverviewComponent implements OnInit {
@@ -414,7 +414,7 @@ import { ExerciseLogicService } from '../../logic-services/exercise-logic.servic
 @Component({
   selector: 'ex-exercise-detail',
   imports: [/* UI components */],
-  templateUrl: './exercise-detail.component.html',
+  templateUrl: './exercise-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseDetailComponent implements OnInit {
@@ -569,6 +569,107 @@ When creating a new feature library, ensure:
   - [ ] Dialog/notification handling
   - [ ] Simple error display (`err.message`)
   - [ ] Refresh mechanisms where needed
+
+- [ ] **Styling** implemented with:
+  - [ ] Separate `.scss` files (no inline styles)
+  - [ ] Theme variables for all colors
+  - [ ] No hardcoded colors
+  - [ ] Tested in both light and dark modes
+
+---
+
+## 🎨 Styling & Theme System
+
+### Theme Variables
+
+All components **must** use CSS custom properties for theming to support light and dark modes.
+
+**Required Variables:**
+
+```scss
+// Backgrounds
+--fitness-bg-page      // Page background
+--fitness-bg-card      // Card backgrounds
+--fitness-bg-chip      // Chips, badges, tags
+
+// Text
+--fitness-text-primary    // Main text
+--fitness-text-secondary  // Secondary text, labels
+--fitness-text-tertiary   // Muted text, placeholders
+
+// Borders & Shadows
+--fitness-border          // Standard borders
+--fitness-shadow          // Subtle shadows
+
+// Brand
+--fitness-primary         // Primary green (consistent)
+```
+
+### Styling Rules for Library Components
+
+**✅ DO:**
+```scss
+.component {
+  background-color: var(--fitness-bg-card);
+  color: var(--fitness-text-primary);
+  border: 1px solid var(--fitness-border);
+}
+```
+
+**❌ DON'T:**
+```scss
+.component {
+  background-color: #FFFFFF;  // Hardcoded - breaks dark mode
+  color: #111813;             // Hardcoded - breaks dark mode
+}
+```
+
+### Component Styling Checklist
+
+When creating UI or View components:
+
+1. **Use separate `.scss` files** - Never inline styles
+2. **Use theme variables** - No hardcoded colors
+3. **Test both themes** - Verify appearance in light and dark modes
+4. **Add transitions** - `transition: all 0.2s ease` for interactive elements
+5. **Responsive design** - Use `@media (max-width: 768px)` for mobile
+
+### Example Component SCSS
+
+```scss
+:host {
+  display: block;
+}
+
+.my-card {
+  background-color: var(--fitness-bg-card);
+  border: 1px solid var(--fitness-border);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.card-title {
+  color: var(--fitness-text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  color: var(--fitness-text-secondary);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .my-card {
+    padding: 0.75rem;
+  }
+}
+```
 
 ---
 

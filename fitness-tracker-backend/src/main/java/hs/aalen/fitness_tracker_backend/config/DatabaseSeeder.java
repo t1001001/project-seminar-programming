@@ -35,39 +35,56 @@ public class DatabaseSeeder {
                 exercise1.setMuscleGroups(List.of("Chest", "Triceps", "Shoulders"));
                 exercise1.setDescription("Pressing the barbell from the chest");
                 exerciseRepository.save(exercise1);
-                
+
                 Exercises exercise2 = new Exercises();
                 exercise2.setName("Squats");
                 exercise2.setCategory("Free Weight");
                 exercise2.setMuscleGroups(List.of("Legs", "Glutes", "Core"));
                 exercise2.setDescription("Deep squats with barbell on shoulders");
                 exerciseRepository.save(exercise2);
-                
+
                 Exercises exercise3 = new Exercises();
                 exercise3.setName("Pull-ups");
                 exercise3.setCategory("Bodyweight");
                 exercise3.setMuscleGroups(List.of("Back", "Biceps", "Shoulders"));
                 exercise3.setDescription("Pulling the body up to the pull-up bar");
                 exerciseRepository.save(exercise3);
-            
+
                 // Create 2 plans
                 Plans plan1 = new Plans();
                 plan1.setName("Push Day");
                 plan1.setDescription("Training plan for chest, shoulders and triceps.");
                 plansRepository.save(plan1);
-                
+
                 Plans plan2 = new Plans();
                 plan2.setName("Full Body Workout");
                 plan2.setDescription("Full body training for all muscle groups.");
                 plansRepository.save(plan2);
-            
+
                 // Create 1 session with 2 exercises and associate with plan1
                 Sessions session1 = new Sessions();
                 session1.setName("Monday Training");
                 session1.setScheduledDate(LocalDate.now());
                 session1.setPlan(plan1);
+                session1.setStatus(Sessions.SessionStatus.COMPLETED);
                 session1.setExerciseExecutions(List.of(exercise1, exercise2));
                 sessionsRepository.save(session1);
+
+                // Create session 2
+                Sessions session2 = new Sessions();
+                session2.setName("Wednesday Training");
+                session2.setScheduledDate(LocalDate.now().plusDays(2));
+                session2.setPlan(plan1);
+                session2.setExerciseExecutions(List.of(exercise1, exercise2));
+                sessionsRepository.save(session2);
+
+                // Create session 3
+                Sessions session3 = new Sessions();
+                session3.setName("Friday Training");
+                session3.setScheduledDate(LocalDate.now().plusDays(4));
+                session3.setPlan(plan1);
+                session3.setExerciseExecutions(List.of(exercise1));
+                sessionsRepository.save(session3);
             }
         };
     }

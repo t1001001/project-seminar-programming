@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Exercise {
-  id: string; // UUID from backend
+  id: string;
   name: string;
   category: string;
   muscleGroups: string[];
@@ -11,6 +11,13 @@ export interface Exercise {
 }
 
 export interface ExerciseCreate {
+  name: string;
+  category: string;
+  muscleGroups: string[];
+  description?: string;
+}
+
+export interface ExerciseUpdate {
   name: string;
   category: string;
   muscleGroups: string[];
@@ -34,7 +41,7 @@ export class ExerciseProviderService {
     return this.http.get<Exercise>(`${this.apiUrl}/${id}`);
   }
 
-  updateExercise(id: string, exercise: ExerciseCreate): Observable<Exercise> {
+  updateExercise(id: string, exercise: ExerciseUpdate): Observable<Exercise> {
     return this.http.put<Exercise>(`${this.apiUrl}/${id}`, exercise);
   }
 
