@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './home-heatmap.html',
   styleUrl: './home-heatmap.css',
 })
-export class HomeHeatmap {
+export class HomeHeatmapComponent {
 
 }

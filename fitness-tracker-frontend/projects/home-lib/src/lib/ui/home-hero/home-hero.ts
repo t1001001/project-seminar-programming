@@ -18,7 +18,7 @@ import DrawSVGPlugin from 'gsap/DrawSVGPlugin';
   styleUrl: './home-hero.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeHero implements AfterViewInit, OnDestroy {
+export class HomeHeroComponent implements AfterViewInit, OnDestroy {
   // Animation Constants
   private readonly SCROLL_START = 'top 80px';
   private readonly SCROLL_END = '+=5000';
