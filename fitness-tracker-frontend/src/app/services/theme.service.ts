@@ -22,7 +22,7 @@ export class ThemeService {
                 this.document.documentElement.removeAttribute('data-theme');
             }
 
-            // Persist theme preference for page reloads
+            // Persist theme preference for page reloads    
             localStorage.setItem('fitness-tracker-theme', theme);
         });
     }
