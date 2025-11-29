@@ -35,21 +35,21 @@ public class DatabaseSeeder {
             // Chest Exercises
             Exercises benchPress = new Exercises();
             benchPress.setName("Bench Press");
-            benchPress.setCategory(Exercises.Category.FREE_WEIGHT);
+            benchPress.setCategory(Exercises.Category.FreeWeight);
             benchPress.setMuscleGroups(List.of("Chest", "Triceps", "Shoulders"));
             benchPress.setDescription("Barbell bench press for chest development");
             exercisesRepository.save(benchPress);
 
             Exercises inclinePress = new Exercises();
             inclinePress.setName("Incline Dumbbell Press");
-            inclinePress.setCategory(Exercises.Category.FREE_WEIGHT);
+            inclinePress.setCategory(Exercises.Category.FreeWeight);
             inclinePress.setMuscleGroups(List.of("Chest", "Shoulders", "Triceps"));
             inclinePress.setDescription("Incline dumbbell press targeting upper chest");
             exercisesRepository.save(inclinePress);
 
             Exercises pushUps = new Exercises();
             pushUps.setName("Push-ups");
-            pushUps.setCategory(Exercises.Category.BODY_WEIGHT);
+            pushUps.setCategory(Exercises.Category.BodyWeight);
             pushUps.setMuscleGroups(List.of("Chest", "Triceps", "Core"));
             pushUps.setDescription("Classic bodyweight push-ups");
             exercisesRepository.save(pushUps);
@@ -57,21 +57,21 @@ public class DatabaseSeeder {
             // Back Exercises
             Exercises deadlift = new Exercises();
             deadlift.setName("Deadlift");
-            deadlift.setCategory(Exercises.Category.FREE_WEIGHT);
+            deadlift.setCategory(Exercises.Category.FreeWeight);
             deadlift.setMuscleGroups(List.of("Back", "Hamstrings", "Glutes", "Core"));
             deadlift.setDescription("Conventional barbell deadlift");
             exercisesRepository.save(deadlift);
 
             Exercises pullUps = new Exercises();
             pullUps.setName("Pull-ups");
-            pullUps.setCategory(Exercises.Category.BODY_WEIGHT);
+            pullUps.setCategory(Exercises.Category.BodyWeight);
             pullUps.setMuscleGroups(List.of("Back", "Biceps", "Shoulders"));
             pullUps.setDescription("Bodyweight pull-ups for back development");
             exercisesRepository.save(pullUps);
 
             Exercises bentOverRow = new Exercises();
             bentOverRow.setName("Bent Over Row");
-            bentOverRow.setCategory(Exercises.Category.FREE_WEIGHT);
+            bentOverRow.setCategory(Exercises.Category.FreeWeight);
             bentOverRow.setMuscleGroups(List.of("Back", "Biceps", "Core"));
             bentOverRow.setDescription("Barbell bent over row");
             exercisesRepository.save(bentOverRow);
@@ -79,21 +79,21 @@ public class DatabaseSeeder {
             // Leg Exercises
             Exercises squats = new Exercises();
             squats.setName("Barbell Squats");
-            squats.setCategory(Exercises.Category.FREE_WEIGHT);
+            squats.setCategory(Exercises.Category.FreeWeight);
             squats.setMuscleGroups(List.of("Quadriceps", "Glutes", "Hamstrings", "Core"));
             squats.setDescription("Back squats with barbell");
             exercisesRepository.save(squats);
 
             Exercises legPress = new Exercises();
             legPress.setName("Leg Press");
-            legPress.setCategory(Exercises.Category.EQUIPMENT);
+            legPress.setCategory(Exercises.Category.Equipment);
             legPress.setMuscleGroups(List.of("Quadriceps", "Glutes", "Hamstrings"));
             legPress.setDescription("Machine leg press");
             exercisesRepository.save(legPress);
 
             Exercises lunges = new Exercises();
             lunges.setName("Walking Lunges");
-            lunges.setCategory(Exercises.Category.BODY_WEIGHT);
+            lunges.setCategory(Exercises.Category.BodyWeight);
             lunges.setMuscleGroups(List.of("Quadriceps", "Glutes", "Hamstrings"));
             lunges.setDescription("Bodyweight walking lunges");
             exercisesRepository.save(lunges);
@@ -101,14 +101,14 @@ public class DatabaseSeeder {
             // Shoulder Exercises
             Exercises overheadPress = new Exercises();
             overheadPress.setName("Overhead Press");
-            overheadPress.setCategory(Exercises.Category.FREE_WEIGHT);
+            overheadPress.setCategory(Exercises.Category.FreeWeight);
             overheadPress.setMuscleGroups(List.of("Shoulders", "Triceps", "Core"));
             overheadPress.setDescription("Standing barbell overhead press");
             exercisesRepository.save(overheadPress);
 
             Exercises lateralRaise = new Exercises();
             lateralRaise.setName("Lateral Raises");
-            lateralRaise.setCategory(Exercises.Category.FREE_WEIGHT);
+            lateralRaise.setCategory(Exercises.Category.FreeWeight);
             lateralRaise.setMuscleGroups(List.of("Shoulders"));
             lateralRaise.setDescription("Dumbbell lateral raises");
             exercisesRepository.save(lateralRaise);
@@ -116,14 +116,14 @@ public class DatabaseSeeder {
             // Arm Exercises
             Exercises bicepCurls = new Exercises();
             bicepCurls.setName("Bicep Curls");
-            bicepCurls.setCategory(Exercises.Category.FREE_WEIGHT);
+            bicepCurls.setCategory(Exercises.Category.FreeWeight);
             bicepCurls.setMuscleGroups(List.of("Biceps"));
             bicepCurls.setDescription("Dumbbell bicep curls");
             exercisesRepository.save(bicepCurls);
 
             Exercises tricepDips = new Exercises();
             tricepDips.setName("Tricep Dips");
-            tricepDips.setCategory(Exercises.Category.BODY_WEIGHT);
+            tricepDips.setCategory(Exercises.Category.BodyWeight);
             tricepDips.setMuscleGroups(List.of("Triceps", "Chest", "Shoulders"));
             tricepDips.setDescription("Bodyweight tricep dips");
             exercisesRepository.save(tricepDips);
@@ -131,7 +131,7 @@ public class DatabaseSeeder {
             // Core Exercises
             Exercises plank = new Exercises();
             plank.setName("Plank");
-            plank.setCategory(Exercises.Category.BODY_WEIGHT);
+            plank.setCategory(Exercises.Category.BodyWeight);
             plank.setMuscleGroups(List.of("Core", "Shoulders"));
             plank.setDescription("Isometric plank hold");
             exercisesRepository.save(plank);
