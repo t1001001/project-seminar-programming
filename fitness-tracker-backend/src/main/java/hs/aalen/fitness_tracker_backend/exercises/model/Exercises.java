@@ -17,7 +17,7 @@ public class Exercises {
 
     @Column(nullable = false, unique = true)
     private String name;
-    
+
     @ElementCollection
     @CollectionTable(name = "exercise_muscle_groups", joinColumns = @JoinColumn(name = "exercise_id"))
     private List<String> muscleGroups;
@@ -25,20 +25,21 @@ public class Exercises {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private Category category = Category.UNSPECIFIED;
+    private Category category = Category.Unspecified;
 
     public enum Category {
-        UNSPECIFIED,
-        BODY_WEIGHT,
-        FREE_WEIGHT,
-        EQUIPMENT;
+        Unspecified,
+        BodyWeight,
+        FreeWeight,
+        Equipment;
 
         public static Category fromString(String value) {
-            if (value == null) return UNSPECIFIED;
+            if (value == null)
+                return Unspecified;
             try {
                 return Category.valueOf(value.toUpperCase());
             } catch (IllegalArgumentException e) {
-                return UNSPECIFIED;
+                return Unspecified;
             }
         }
     }

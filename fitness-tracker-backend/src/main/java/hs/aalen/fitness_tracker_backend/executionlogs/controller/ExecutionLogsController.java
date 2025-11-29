@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/execution-logs")
+@RequestMapping("/api/v1/execution-logs")
 public class ExecutionLogsController {
     @Autowired
     private ExecutionLogsService executionLogsService;
