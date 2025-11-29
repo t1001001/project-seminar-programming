@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 
 @Entity
