@@ -3,6 +3,7 @@ package hs.aalen.fitness_tracker_backend.sessionlogs.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository;
@@ -14,6 +15,7 @@ import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
 import hs.aalen.fitness_tracker_backend.sessionlogs.repository.SessionLogsRepository;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -51,19 +53,16 @@ public class SessionLogsService {
 
         for (ExerciseExecutions execution : executions) {
             ExecutionLogs executionLog = new ExecutionLogs();
-
             // Denormalize ExerciseExecutions data
             executionLog.setExerciseExecutionId(execution.getOrderID());
             executionLog.setExerciseExecutionPlannedSets(execution.getPlannedSets());
             executionLog.setExerciseExecutionPlannedReps(execution.getPlannedReps());
             executionLog.setExerciseExecutionPlannedWeight(execution.getPlannedWeight());
-
             // Denormalize Exercise data
             executionLog.setExerciseName(execution.getExercise().getName());
             executionLog.setExerciseCategory(execution.getExercise().getCategory().name());
             executionLog.setExerciseMuscleGroup(execution.getExercise().getMuscleGroups());
             executionLog.setExerciseDescription(execution.getExercise().getDescription());
-
             // Initialize actual values to planned values
             executionLog.setActualSets(execution.getPlannedSets());
             executionLog.setActualReps(execution.getPlannedReps());
