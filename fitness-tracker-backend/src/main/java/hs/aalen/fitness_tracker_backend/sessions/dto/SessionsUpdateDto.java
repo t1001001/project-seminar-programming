@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -19,7 +18,7 @@ public class SessionsUpdateDto {
     @NotNull
     private LocalDate scheduledDate;
 
-    private List<UUID> exerciseExecutions;
+    private Integer orderID;
 
     private hs.aalen.fitness_tracker_backend.sessions.model.Sessions.SessionStatus status;
 }
