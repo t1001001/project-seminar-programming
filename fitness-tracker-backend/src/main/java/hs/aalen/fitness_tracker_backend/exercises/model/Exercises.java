@@ -17,13 +17,29 @@ public class Exercises {
 
     @Column(nullable = false, unique = true)
     private String name;
-
-    @Column(nullable = false)
-    private String category;
-
+    
     @ElementCollection
     @CollectionTable(name = "exercise_muscle_groups", joinColumns = @JoinColumn(name = "exercise_id"))
     private List<String> muscleGroups;
 
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    private Category category = Category.UNSPECIFIED;
+
+    public enum Category {
+        UNSPECIFIED,
+        BODY_WEIGHT,
+        FREE_WEIGHT,
+        EQUIPMENT;
+
+        public static Category fromString(String value) {
+            if (value == null) return UNSPECIFIED;
+            try {
+                return Category.valueOf(value.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return UNSPECIFIED;
+            }
+        }
+    }
 }
