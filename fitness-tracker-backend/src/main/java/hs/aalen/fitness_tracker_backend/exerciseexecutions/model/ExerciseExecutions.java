@@ -13,6 +13,9 @@ import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 @Entity
 @Getter
 @Setter
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "session_id", "exercise_id" })
+})
 public class ExerciseExecutions {
 
     @Id

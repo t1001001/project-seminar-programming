@@ -22,7 +22,33 @@ public class ExerciseExecutionsService {
     @Autowired
     private ExercisesRepository exercisesRepository;
 
+    private void validatePlannedValues(Integer sets, Integer reps, Integer weight) {
+        if (sets == null || sets <= 0) {
+            throw new IllegalArgumentException("Planned sets must be greater than 0");
+        }
+        if (reps == null || reps <= 0) {
+            throw new IllegalArgumentException("Planned reps must be greater than 0");
+        }
+        if (weight == null || weight < 0) {
+            throw new IllegalArgumentException("Planned weight must be greater than or equal to 0");
+        }
+    }
+
+    private void checkDuplicateExerciseInSession(UUID sessionId, UUID exerciseId, UUID excludeId) {
+        boolean exists = exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId).stream()
+                .filter(ee -> excludeId == null || !ee.getId().equals(excludeId))
+                .anyMatch(ee -> ee.getExercise().getId().equals(exerciseId));
+
+        if (exists) {
+            throw new IllegalArgumentException(
+                    "This exercise is already added to this session. Each exercise can only be added once per session.");
+        }
+    }
+
     public ExerciseExecutionsResponseDto createExerciseExecution(ExerciseExecutionsCreateDto dto) {
+        validatePlannedValues(dto.getPlannedSets(), dto.getPlannedReps(), dto.getPlannedWeight());
+        checkDuplicateExerciseInSession(dto.getSessionId(), dto.getExerciseId(), null);
+
         ExerciseExecutions execution = new ExerciseExecutions();
         execution.setPlannedSets(dto.getPlannedSets());
         execution.setPlannedReps(dto.getPlannedReps());
@@ -58,6 +84,13 @@ public class ExerciseExecutionsService {
     public ExerciseExecutionsResponseDto updateExerciseExecution(UUID id, ExerciseExecutionsUpdateDto dto) {
         ExerciseExecutions execution = exerciseExecutionsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ExerciseExecution not found"));
+
+        Integer newSets = dto.getPlannedSets() != null ? dto.getPlannedSets() : execution.getPlannedSets();
+        Integer newReps = dto.getPlannedReps() != null ? dto.getPlannedReps() : execution.getPlannedReps();
+        Integer newWeight = dto.getPlannedWeight() != null ? dto.getPlannedWeight() : execution.getPlannedWeight();
+
+        validatePlannedValues(newSets, newReps, newWeight);
+
         if (dto.getPlannedSets() != null) {
             execution.setPlannedSets(dto.getPlannedSets());
         }
@@ -71,6 +104,11 @@ public class ExerciseExecutionsService {
             execution.setOrderID(dto.getOrderID());
         }
         if (dto.getExerciseId() != null) {
+            checkDuplicateExerciseInSession(
+                    execution.getSession().getId(),
+                    dto.getExerciseId(),
+                    id);
+
             execution.setExercise(exercisesRepository.findById(dto.getExerciseId())
                     .orElseThrow(() -> new RuntimeException("Exercise not found")));
         }
