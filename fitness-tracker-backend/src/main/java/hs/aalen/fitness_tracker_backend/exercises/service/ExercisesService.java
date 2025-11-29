@@ -45,6 +45,7 @@ public class ExercisesService {
         }
 
         Exercises exercise = mapper.map(dto, Exercises.class);
+        exercise.setCategory(Exercises.Category.fromString(dto.getCategory()));
         Exercises saved = repository.save(exercise);
         return mapper.map(saved, ExerciseResponseDto.class);
     }
@@ -72,7 +73,7 @@ public class ExercisesService {
             throw new IllegalArgumentException("Exercise with this name already exists");
         }
         existingExercises.setName(dto.getName());
-        existingExercises.setCategory(dto.getCategory());
+        existingExercises.setCategory(Exercises.Category.fromString(dto.getCategory()));
         existingExercises.setMuscleGroups(dto.getMuscleGroups());
         existingExercises.setDescription(dto.getDescription());
         Exercises saved = repository.save(existingExercises);
