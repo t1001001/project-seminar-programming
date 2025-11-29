@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/session-logs")
+@RequestMapping("/api/v1/session-logs")
 public class SessionLogsController {
     @Autowired
     private SessionLogsService sessionLogsService;

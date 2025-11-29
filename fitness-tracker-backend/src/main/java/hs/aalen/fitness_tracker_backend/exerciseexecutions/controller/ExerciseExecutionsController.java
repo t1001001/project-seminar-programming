@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/exercise-executions")
+@RequestMapping("/api/v1/exercise-executions")
 public class ExerciseExecutionsController {
     @Autowired
     private ExerciseExecutionsService exerciseExecutionsService;
