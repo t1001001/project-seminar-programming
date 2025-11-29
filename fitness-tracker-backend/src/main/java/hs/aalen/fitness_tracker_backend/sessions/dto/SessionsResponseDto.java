@@ -1,10 +1,8 @@
 package hs.aalen.fitness_tracker_backend.sessions.dto;
 
 import lombok.Data;
-import java.util.List;
 import java.util.UUID;
 import java.time.LocalDate;
-import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 
 @Data
 public class SessionsResponseDto {
@@ -12,7 +10,8 @@ public class SessionsResponseDto {
     private UUID planId;
     private String name;
     private LocalDate scheduledDate;
-    private List<Exercises> exerciseExecutions;
+    private Integer orderID;
+    private Integer sessionLogCount;
+    private Integer exerciseCount;
     private hs.aalen.fitness_tracker_backend.sessions.model.Sessions.SessionStatus status;
-
 }
