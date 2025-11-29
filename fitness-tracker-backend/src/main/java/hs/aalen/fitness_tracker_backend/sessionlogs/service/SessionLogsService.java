@@ -34,6 +34,14 @@ public class SessionLogsService {
     public SessionLogsResponseDto startSession(UUID sessionId) {
         Sessions session = sessionsRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        // Check if session has at least one exercise
+        List<ExerciseExecutions> executions = exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId);
+        if (executions.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Cannot start training: Session must contain at least one exercise");
+        }
+
         // Increment session log count
         Integer currentCount = session.getSessionLogCount() != null ? session.getSessionLogCount() : 0;
         session.setSessionLogCount(currentCount + 1);
@@ -49,7 +57,6 @@ public class SessionLogsService {
         // Save session log first to get ID
         SessionLogs savedLog = sessionLogsRepository.save(sessionLog);
         // Get all exercise executions for this session and create execution logs
-        List<ExerciseExecutions> executions = exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId);
 
         for (ExerciseExecutions execution : executions) {
             ExecutionLogs executionLog = new ExecutionLogs();
@@ -88,6 +95,23 @@ public class SessionLogsService {
         return mapToResponseDto(updated);
     }
 
+    @Transactional
+    public SessionLogsResponseDto cancelSession(UUID sessionLogId) {
+        SessionLogs sessionLog = sessionLogsRepository.findById(sessionLogId)
+                .orElseThrow(() -> new RuntimeException("SessionLog not found"));
+
+        if (sessionLog.getStatus() != LogStatus.IN_PROGRESS) {
+            throw new IllegalArgumentException(
+                    "Can only cancel a training that is in progress. Current status: " + sessionLog.getStatus());
+        }
+
+        sessionLog.setStatus(LogStatus.CANCELLED);
+        sessionLog.setCompletedAt(LocalDateTime.now());
+
+        SessionLogs updated = sessionLogsRepository.save(sessionLog);
+        return mapToResponseDto(updated);
+    }
+
     public List<SessionLogsResponseDto> getAllSessionLogs() {
         return sessionLogsRepository.findAll().stream()
                 .map(this::mapToResponseDto)
@@ -109,6 +133,14 @@ public class SessionLogsService {
     public SessionLogsResponseDto updateSessionLog(UUID id, SessionLogsUpdateDto dto) {
         SessionLogs sessionLog = sessionLogsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SessionLog not found"));
+
+        if (sessionLog.getStatus() == LogStatus.COMPLETED) {
+            throw new IllegalArgumentException("Cannot update a completed training");
+        }
+        if (sessionLog.getStatus() == LogStatus.CANCELLED) {
+            throw new IllegalArgumentException("Cannot update a cancelled training");
+        }
+
         if (dto.getNotes() != null) {
             sessionLog.setNotes(dto.getNotes());
         }
@@ -123,6 +155,14 @@ public class SessionLogsService {
     }
 
     public void deleteSessionLog(UUID id) {
+        SessionLogs sessionLog = sessionLogsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("SessionLog not found"));
+
+        if (sessionLog.getStatus() == LogStatus.COMPLETED) {
+            throw new IllegalArgumentException(
+                    "Cannot delete a completed training. Use cancel instead for in-progress trainings.");
+        }
+
         sessionLogsRepository.deleteById(id);
     }
 

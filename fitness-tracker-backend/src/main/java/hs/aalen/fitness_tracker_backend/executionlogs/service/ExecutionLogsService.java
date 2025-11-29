@@ -15,6 +15,18 @@ public class ExecutionLogsService {
     @Autowired
     private ExecutionLogsRepository executionLogsRepository;
 
+    private void validateActualValues(Integer sets, Integer reps, Integer weight) {
+        if (sets != null && sets < 0) {
+            throw new IllegalArgumentException("Actual sets cannot be negative");
+        }
+        if (reps != null && reps < 0) {
+            throw new IllegalArgumentException("Actual reps cannot be negative");
+        }
+        if (weight != null && weight < 0) {
+            throw new IllegalArgumentException("Actual weight cannot be negative");
+        }
+    }
+
     public List<ExecutionLogsResponseDto> getAllExecutionLogs() {
         return executionLogsRepository.findAll().stream()
                 .map(this::mapToResponseDto)
@@ -36,6 +48,18 @@ public class ExecutionLogsService {
     public ExecutionLogsResponseDto updateExecutionLog(UUID id, ExecutionLogsUpdateDto dto) {
         ExecutionLogs executionLog = executionLogsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
+
+        if (executionLog.getSessionLog()
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.COMPLETED) {
+            throw new IllegalArgumentException("Cannot update exercises in a completed training");
+        }
+        if (executionLog.getSessionLog()
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.CANCELLED) {
+            throw new IllegalArgumentException("Cannot update exercises in a cancelled training");
+        }
+
+        validateActualValues(dto.getActualSets(), dto.getActualReps(), dto.getActualWeight());
+
         if (dto.getActualSets() != null) {
             executionLog.setActualSets(dto.getActualSets());
         }
@@ -56,6 +80,18 @@ public class ExecutionLogsService {
     }
 
     public void deleteExecutionLog(UUID id) {
+        ExecutionLogs executionLog = executionLogsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
+
+        if (executionLog.getSessionLog()
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.COMPLETED) {
+            throw new IllegalArgumentException("Cannot delete exercises from a completed training");
+        }
+        if (executionLog.getSessionLog()
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.CANCELLED) {
+            throw new IllegalArgumentException("Cannot delete exercises from a cancelled training");
+        }
+
         executionLogsRepository.deleteById(id);
     }
 

@@ -29,6 +29,12 @@ public class SessionLogsController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<SessionLogsResponseDto> cancelSession(@PathVariable UUID id) {
+        SessionLogsResponseDto response = sessionLogsService.cancelSession(id);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     public ResponseEntity<List<SessionLogsResponseDto>> getAllSessionLogs(
             @RequestParam(required = false) UUID sessionId) {
