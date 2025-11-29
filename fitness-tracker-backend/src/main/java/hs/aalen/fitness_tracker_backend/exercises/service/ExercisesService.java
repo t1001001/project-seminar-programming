@@ -19,11 +19,15 @@ public class ExercisesService {
 
     private final ExercisesRepository repository;
     private final SessionsRepository sessionsRepository;
+    private final hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository exerciseExecutionsRepository;
     private final ModelMapper mapper = new ModelMapper();
 
-    public ExercisesService(ExercisesRepository repository, SessionsRepository sessionsRepository) {
+    public ExercisesService(ExercisesRepository repository,
+            SessionsRepository sessionsRepository,
+            hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository exerciseExecutionsRepository) {
         this.repository = repository;
         this.sessionsRepository = sessionsRepository;
+        this.exerciseExecutionsRepository = exerciseExecutionsRepository;
     }
 
     public List<ExerciseResponseDto> getAll() {
@@ -55,12 +59,14 @@ public class ExercisesService {
             throw new EntityNotFoundException("Exercise not found");
         }
 
-        // Check if exercise is referenced in any sessions and remove it
-        List<Sessions> sessions = sessionsRepository.findByExerciseExecutions_Id(id);
-        for (Sessions session : sessions) {
-            session.getExerciseExecutions().removeIf(e -> e.getId().equals(id));
-            sessionsRepository.save(session);
+        // Find and delete all exercise executions referencing this exercise
+        List<hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions> executions = exerciseExecutionsRepository
+                .findByExerciseId(id);
+
+        if (!executions.isEmpty()) {
+            exerciseExecutionsRepository.deleteAll(executions);
         }
+
         repository.deleteById(id);
     }
 
