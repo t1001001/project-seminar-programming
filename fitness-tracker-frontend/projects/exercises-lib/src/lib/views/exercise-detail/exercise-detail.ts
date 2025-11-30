@@ -6,10 +6,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
-import { Exercise } from '../../provider-services/exercise-provider.service';
+import { Exercise, ExerciseCategory } from '../../provider-services/exercise-provider.service';
 
 @Component({
   selector: 'ex-exercise-detail',
@@ -19,6 +20,7 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatSelectModule,
     MatSnackBarModule,
     ReactiveFormsModule,
   ],
@@ -40,10 +42,12 @@ export class ExerciseDetailComponent implements OnInit {
 
   readonly form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    category: ['', [Validators.required]],
+    category: [ExerciseCategory.Unspecified, [Validators.required]],
     description: [''],
     muscleGroups: ['', [Validators.required]],
   });
+
+  readonly categories = Object.values(ExerciseCategory);
 
   ngOnInit(): void {
     this.exerciseId = this.route.snapshot.paramMap.get('id');
@@ -84,7 +88,7 @@ export class ExerciseDetailComponent implements OnInit {
 
       const exerciseData = {
         name: formValue.name || '',
-        category: formValue.category || '',
+        category: formValue.category as ExerciseCategory,
         description: formValue.description || '',
         muscleGroups: muscleGroupsArray.length > 0 ? muscleGroupsArray : ['General'],
       };

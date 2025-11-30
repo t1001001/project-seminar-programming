@@ -4,7 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Exercise } from '../../provider-services/exercise-provider.service';
+import { MatSelectModule } from '@angular/material/select';
+import { Exercise, ExerciseCategory } from '../../provider-services/exercise-provider.service';
 
 @Component({
   selector: 'ex-exercise-form-dialog',
@@ -13,6 +14,7 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     ReactiveFormsModule,
   ],
   templateUrl: './exercise-form-dialog.html',
@@ -25,17 +27,19 @@ export class ExerciseFormDialogComponent {
 
   readonly form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    category: ['', [Validators.required]],
+    category: [ExerciseCategory.Unspecified, [Validators.required]],
     description: [''],
     muscleGroups: ['', [Validators.required]],
   });
+
+  readonly categories = Object.values(ExerciseCategory);
 
   onCreate(): void {
     if (this.form.valid) {
       const formValue = this.form.value;
       const exercise: Omit<Exercise, 'id'> = {
         name: formValue.name?.trim() || '',
-        category: formValue.category?.trim() || '',
+        category: formValue.category as ExerciseCategory,
         description: formValue.description?.trim() || '',
         muscleGroups: formValue.muscleGroups
           ? formValue.muscleGroups.split(',').map((group: string) => group.trim())

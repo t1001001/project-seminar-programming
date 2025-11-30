@@ -33,12 +33,6 @@ export class PlanLogicService {
   getAllPlans(): Observable<TrainingPlan[]> {
     return this.planProviderService.getAllPlans()
       .pipe(
-        tap((plans: TrainingPlan[]) => {
-          // Calculate sessionsCount since backend doesn't provide it
-          plans.forEach(plan => {
-            plan.sessionsCount = plan.sessions ? plan.sessions.length : 0;
-          });
-        }),
         catchError((err) => {
           let errorMessage = 'Failed to load training plans';
 

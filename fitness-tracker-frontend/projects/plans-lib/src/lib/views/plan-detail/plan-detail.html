@@ -66,8 +66,9 @@
                                                 @if (session.exerciseExecutions && session.exerciseExecutions.length >
                                                 0) {
                                                 <div class="chip-container">
-                                                    @for (exercise of session.exerciseExecutions; track exercise.name) {
-                                                    <span class="exercise-chip">{{ exercise.name }}</span>
+                                                    @for (exercise of session.exerciseExecutions; track
+                                                    exercise.exercise.name) {
+                                                    <span class="exercise-chip">{{ exercise.exercise.name }}</span>
                                                     }
                                                 </div>
                                                 } @else {

@@ -2,24 +2,31 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export enum ExerciseCategory {
+  Unspecified = 'Unspecified',
+  BodyWeight = 'BodyWeight',
+  FreeWeight = 'FreeWeight',
+  Equipment = 'Equipment'
+}
+
 export interface Exercise {
   id: string;
   name: string;
-  category: string;
+  category: ExerciseCategory;
   muscleGroups: string[];
   description?: string;
 }
 
 export interface ExerciseCreate {
   name: string;
-  category: string;
+  category: ExerciseCategory;
   muscleGroups: string[];
   description?: string;
 }
 
 export interface ExerciseUpdate {
   name: string;
-  category: string;
+  category: ExerciseCategory;
   muscleGroups: string[];
   description?: string;
 }
