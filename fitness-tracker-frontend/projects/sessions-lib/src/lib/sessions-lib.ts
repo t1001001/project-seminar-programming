@@ -3,7 +3,8 @@ export * from './logic-services/session-logic.service';
 export * from './provider-services/session-provider.service';
 
 // UI Components
-// Components will be exported here when created
+export * from './ui/session-card/session-card';
 
 // View Components
-// Views will be exported here when created
+export * from './views/sessions-overview/sessions-overview';
+export * from './views/session-detail/session-detail';
