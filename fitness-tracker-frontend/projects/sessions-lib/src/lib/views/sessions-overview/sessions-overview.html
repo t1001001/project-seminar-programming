@@ -33,7 +33,7 @@
   @if (sessions.length) {
   <div class="sessions-list">
     @for (session of sessions; track session.id) {
-    <lib-session-card [session]="session" />
+    <lib-session-card [session]="session" (delete)="onDelete($event)" />
     }
   </div>
   }
