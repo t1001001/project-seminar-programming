@@ -1,0 +1,113 @@
+<section class="session-detail page-container">
+  <button mat-button class="back-btn" type="button" (click)="onBack()">
+    <mat-icon>arrow_back</mat-icon>
+    Back
+  </button>
+
+  @if (session$ | async; as session) {
+  <mat-card class="detail-card">
+    <mat-card-content>
+      <div class="header">
+        <h1>Session Details</h1>
+        <button mat-raised-button class="edit-btn" type="button" (click)="onEdit()">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+      </div>
+
+      <div class="detail-view">
+        <div class="detail-item name-item">
+          <span class="detail-label">Name:</span>
+          <span class="detail-value">{{ session.name }}</span>
+        </div>
+
+        <hr class="detail-divider tight-divider" />
+
+        <div class="detail-grid main-line">
+          <div class="detail-item">
+            <span class="detail-label">Plan</span>
+            <span class="detail-value">{{ session.planName || 'No plan' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Order</span>
+            <span class="detail-value">Day {{ session.orderID ?? 0 }}</span>
+          </div>
+        </div>
+
+        <hr class="detail-divider" />
+
+        <div class="detail-grid secondary-line">
+          <div class="detail-item">
+            <span class="detail-label">Times performed</span>
+            <span class="detail-value">{{ session.sessionLogCount ?? 0 }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Exercises</span>
+            <span class="detail-value">{{ session.exerciseExecutionsCount ?? (session.exercises?.length || 0) }}</span>
+          </div>
+        </div>
+
+        <hr class="detail-divider tight-divider" />
+
+        <div class="exercises-section">
+          <div class="section-header">
+            <h3>Exercise Timeline</h3>
+            <div class="count-chip">{{ session.exercises?.length || 0 }}</div>
+          </div>
+
+          @if (session.exercises?.length) {
+          <div class="timeline">
+            @for (exercise of session.exercises; track exercise.id; let last = $last) {
+            <div class="timeline-item" [class.last-item]="last">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content exercise-card">
+                <div class="exercise-header">
+                  <div class="exercise-title">
+                    <h4>{{ exercise.exerciseName }}</h4>
+                  </div>
+                  <span class="category-chip">{{ exercise.category || 'No category' }}</span>
+                </div>
+
+                <div class="exercise-divider"></div>
+
+                <div class="exercise-stats">
+                  <div class="stat-chip">
+                    <mat-icon class="stat-icon">dynamic_form</mat-icon>
+                    <span class="stat-label">Sets</span>
+                    <span class="stat-value">{{ exercise.plannedSets ?? '-' }}</span>
+                  </div>
+                  <div class="stat-chip">
+                    <mat-icon class="stat-icon">repeat</mat-icon>
+                    <span class="stat-label">Reps</span>
+                    <span class="stat-value">{{ exercise.plannedReps ?? '-' }}</span>
+                  </div>
+                  <div class="stat-chip">
+                    <mat-icon class="stat-icon">fitness_center</mat-icon>
+                    <span class="stat-label">Weight</span>
+                    <span class="stat-value">
+                      @if (exercise.plannedWeight != null) {
+                      {{ exercise.plannedWeight }} kg
+                      } @else {
+                      -
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="empty-exercises">
+            <mat-icon class="empty-icon">event_busy</mat-icon>
+            <p>No exercises added to this session yet</p>
+          </div>
+          }
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  } @else {
+  <p class="empty-state">Loading session...</p>
+  }
+</section>
