@@ -11,20 +11,16 @@
         <input type="text" [formControl]="searchControl" placeholder="Search by name or plan...">
       </div>
 
-      <div class="header-stats">
-        <div class="header-stat">
-          <span class="stat-value">{{ totalSessionsCount() }}</span>
-          <span class="stat-label">Sessions</span>
-        </div>
-        <div class="header-stat">
-          <span class="stat-value">{{ totalCompletedCount() }}</span>
-          <span class="stat-label">Times performed</span>
-        </div>
+      @if (totalSessionsCount(); as count) {
+      <div class="header-stat">
+        <span class="stat-value">{{ count }}</span>
+        <span class="stat-label">Sessions</span>
       </div>
+      }
     </div>
 
     <div class="header-decoration">
-      <span class="material-icons">fitness_center</span>
+      <span class="material-icons">directions_run</span>
     </div>
   </header>
 

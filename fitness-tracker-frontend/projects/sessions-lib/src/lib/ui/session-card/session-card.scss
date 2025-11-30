@@ -54,15 +54,15 @@
 }
 
 .plan-pill {
-  background-color: var(--fitness-bg-chip);
-  color: var(--fitness-text-secondary);
-  border: 1px solid var(--fitness-border);
-}
-
-.order-chip {
   background-color: rgba(var(--fitness-primary-rgb), 0.1);
   color: var(--fitness-primary);
   border: 1px solid rgba(var(--fitness-primary-rgb), 0.25);
+}
+
+.order-chip {
+  background-color: var(--fitness-bg-chip);
+  color: var(--fitness-text-secondary);
+  border: 1px solid var(--fitness-border);
 }
 
 .plan-pill .mat-icon,
@@ -109,6 +109,7 @@
   border-radius: 12px;
   border: 1px solid var(--fitness-border);
   min-width: 160px;
+  flex: 1;
 }
 
 .stat-chip .mat-icon {
@@ -170,13 +171,5 @@
   .card-content-wrapper {
     flex-direction: column;
     gap: 1rem;
-  }
-
-  .stats-section {
-    flex-direction: column;
-  }
-
-  .stat-chip {
-    width: 100%;
   }
 }

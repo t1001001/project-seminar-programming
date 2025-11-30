@@ -49,14 +49,6 @@
   align-items: center;
   gap: 1.5rem;
   z-index: 2;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.header-stats {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
 }
 
 .search-bar {
@@ -192,8 +184,13 @@
     justify-content: space-between;
   }
 
+  .search-bar {
+    flex: 1;
+    width: auto;
+  }
+
   .header-content h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .header-decoration {
@@ -205,21 +202,5 @@
   .create-fab {
     bottom: 1rem;
     left: 1rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .header-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-bar,
-  .header-stats {
-    width: 100%;
-  }
-
-  .search-bar {
-    width: 100%;
   }
 }
