@@ -2,11 +2,11 @@ package hs.aalen.fitness_tracker_backend.sessionlogs.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus;
+import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
 
 @Getter
 @Setter
 public class SessionLogsUpdateDto {
     private String notes;
-    private LogStatus status;
+    private SessionLogs.LogStatus status;
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.dto.ExerciseExecutionsCreateDto;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.dto.ExerciseExecutionsResponseDto;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.dto.ExerciseExecutionsUpdateDto;
@@ -19,7 +20,7 @@ public class ExerciseExecutionsController {
 
     @PostMapping
     public ResponseEntity<ExerciseExecutionsResponseDto> createExerciseExecution(
-            @RequestBody ExerciseExecutionsCreateDto dto) {
+            @Valid @RequestBody ExerciseExecutionsCreateDto dto) {
         ExerciseExecutionsResponseDto response = exerciseExecutionsService.createExerciseExecution(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -45,7 +46,7 @@ public class ExerciseExecutionsController {
     @PutMapping("/{id}")
     public ResponseEntity<ExerciseExecutionsResponseDto> updateExerciseExecution(
             @PathVariable UUID id,
-            @RequestBody ExerciseExecutionsUpdateDto dto) {
+            @Valid @RequestBody ExerciseExecutionsUpdateDto dto) {
         ExerciseExecutionsResponseDto response = exerciseExecutionsService.updateExerciseExecution(id, dto);
         return ResponseEntity.ok(response);
     }

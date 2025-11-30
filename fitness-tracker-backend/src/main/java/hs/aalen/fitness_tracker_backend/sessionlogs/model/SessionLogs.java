@@ -31,7 +31,7 @@ public class SessionLogs {
     private LocalDateTime completedAt;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LogStatus status = LogStatus.IN_PROGRESS;
+    private SessionLogs.LogStatus status = SessionLogs.LogStatus.InProgress;
     @Column(length = 1000)
     private String notes;
     @ManyToOne
@@ -40,4 +40,10 @@ public class SessionLogs {
     @OneToMany(mappedBy = "sessionLog", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ExecutionLogs> executionLogs = new ArrayList<>();
+
+    public enum LogStatus {
+        InProgress,
+        Completed,
+        Cancelled
+    }
 }

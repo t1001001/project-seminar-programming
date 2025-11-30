@@ -7,10 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository;
-import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsCreateDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsResponseDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsUpdateDto;
-import hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus;
 import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
 import hs.aalen.fitness_tracker_backend.sessionlogs.repository.SessionLogsRepository;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
@@ -52,7 +50,7 @@ public class SessionLogsService {
         sessionLog.setSessionPlanName(session.getPlan() != null ? session.getPlan().getName() : "No Plan");
         sessionLog.setSessionPlan(session.getPlan() != null ? session.getPlan().getDescription() : "");
         sessionLog.setStartedAt(LocalDateTime.now());
-        sessionLog.setStatus(LogStatus.IN_PROGRESS);
+        sessionLog.setStatus(SessionLogs.LogStatus.InProgress);
         sessionLog.setSession(session);
         // Save session log first to get ID
         SessionLogs savedLog = sessionLogsRepository.save(sessionLog);
@@ -66,8 +64,9 @@ public class SessionLogsService {
             executionLog.setExerciseExecutionPlannedReps(execution.getPlannedReps());
             executionLog.setExerciseExecutionPlannedWeight(execution.getPlannedWeight());
             // Denormalize Exercise data
+            executionLog.setExerciseId(execution.getExercise().getId());
             executionLog.setExerciseName(execution.getExercise().getName());
-            executionLog.setExerciseCategory(execution.getExercise().getCategory().name());
+            executionLog.setExerciseCategory(execution.getExercise().getCategory());
             executionLog.setExerciseMuscleGroup(execution.getExercise().getMuscleGroups());
             executionLog.setExerciseDescription(execution.getExercise().getDescription());
             // Initialize actual values to planned values
@@ -89,7 +88,7 @@ public class SessionLogsService {
     public SessionLogsResponseDto completeSession(UUID sessionLogId) {
         SessionLogs sessionLog = sessionLogsRepository.findById(sessionLogId)
                 .orElseThrow(() -> new RuntimeException("SessionLog not found"));
-        sessionLog.setStatus(LogStatus.COMPLETED);
+        sessionLog.setStatus(SessionLogs.LogStatus.Completed);
         sessionLog.setCompletedAt(LocalDateTime.now());
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
         return mapToResponseDto(updated);
@@ -100,12 +99,12 @@ public class SessionLogsService {
         SessionLogs sessionLog = sessionLogsRepository.findById(sessionLogId)
                 .orElseThrow(() -> new RuntimeException("SessionLog not found"));
 
-        if (sessionLog.getStatus() != LogStatus.IN_PROGRESS) {
+        if (sessionLog.getStatus() != SessionLogs.LogStatus.InProgress) {
             throw new IllegalArgumentException(
                     "Can only cancel a training that is in progress. Current status: " + sessionLog.getStatus());
         }
 
-        sessionLog.setStatus(LogStatus.CANCELLED);
+        sessionLog.setStatus(SessionLogs.LogStatus.Cancelled);
         sessionLog.setCompletedAt(LocalDateTime.now());
 
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
@@ -134,10 +133,10 @@ public class SessionLogsService {
         SessionLogs sessionLog = sessionLogsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SessionLog not found"));
 
-        if (sessionLog.getStatus() == LogStatus.COMPLETED) {
+        if (sessionLog.getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot update a completed training");
         }
-        if (sessionLog.getStatus() == LogStatus.CANCELLED) {
+        if (sessionLog.getStatus() == SessionLogs.LogStatus.Cancelled) {
             throw new IllegalArgumentException("Cannot update a cancelled training");
         }
 
@@ -146,7 +145,7 @@ public class SessionLogsService {
         }
         if (dto.getStatus() != null) {
             sessionLog.setStatus(dto.getStatus());
-            if (dto.getStatus() == LogStatus.COMPLETED && sessionLog.getCompletedAt() == null) {
+            if (dto.getStatus() == SessionLogs.LogStatus.Completed && sessionLog.getCompletedAt() == null) {
                 sessionLog.setCompletedAt(LocalDateTime.now());
             }
         }
@@ -158,7 +157,7 @@ public class SessionLogsService {
         SessionLogs sessionLog = sessionLogsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SessionLog not found"));
 
-        if (sessionLog.getStatus() == LogStatus.COMPLETED) {
+        if (sessionLog.getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException(
                     "Cannot delete a completed training. Use cancel instead for in-progress trainings.");
         }
