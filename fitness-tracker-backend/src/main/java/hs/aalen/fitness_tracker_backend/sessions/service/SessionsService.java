@@ -9,7 +9,6 @@ import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
@@ -20,36 +19,37 @@ public class SessionsService {
 
     private final SessionsRepository sessionsRepository;
     private final PlansRepository plansRepository;
-    private final ModelMapper mapper = new ModelMapper();
 
     public SessionsService(SessionsRepository sessionsRepository, PlansRepository plansRepository) {
         this.sessionsRepository = sessionsRepository;
         this.plansRepository = plansRepository;
     }
 
-    private void validateSessionOrder(UUID planId, Integer orderID, UUID excludeSessionId) {
+    private void validateOrderRange(Integer orderID) {
         if (orderID == null || orderID < 1 || orderID > 30) {
             throw new IllegalArgumentException("Order must be between 1 and 30");
         }
+    }
 
-        if (planId != null) {
-            sessionsRepository.findAll().stream()
-                    .filter(s -> s.getPlan() != null && s.getPlan().getId().equals(planId))
-                    .filter(s -> excludeSessionId == null || !s.getId().equals(excludeSessionId))
-                    .filter(s -> s.getOrderID().equals(orderID))
-                    .findFirst()
-                    .ifPresent(s -> {
-                        throw new IllegalArgumentException(
-                                "Order " + orderID + " is already used in this plan");
-                    });
-        }
+    private Optional<Sessions> findSessionWithOrder(UUID planId, Integer orderID, UUID excludeSessionId) {
+        return sessionsRepository.findByPlan_Id(planId).stream()
+                .filter(s -> excludeSessionId == null || !s.getId().equals(excludeSessionId))
+                .filter(s -> s.getOrderID().equals(orderID))
+                .findFirst();
+    }
+
+    private void validateOrderNotTaken(UUID planId, Integer orderID) {
+        validateOrderRange(orderID);
+        findSessionWithOrder(planId, orderID, null)
+                .ifPresent(s -> {
+                    throw new IllegalArgumentException(
+                            "Order " + orderID + " is already used in this plan");
+                });
     }
 
     private void validateMaxSessionsInPlan(UUID planId) {
         if (planId != null) {
-            long count = sessionsRepository.findAll().stream()
-                    .filter(s -> s.getPlan() != null && s.getPlan().getId().equals(planId))
-                    .count();
+            long count = sessionsRepository.findByPlan_Id(planId).size();
 
             if (count >= 30) {
                 throw new IllegalArgumentException(
@@ -58,107 +58,103 @@ public class SessionsService {
         }
     }
 
+    private SessionsResponseDto toResponseDto(Sessions session) {
+        SessionsResponseDto response = new SessionsResponseDto();
+        response.setId(session.getId());
+        response.setName(session.getName());
+        response.setPlanId(session.getPlan() != null ? session.getPlan().getId() : null);
+        response.setOrderID(session.getOrderID());
+        response.setExerciseExecutionsCount(session.getExerciseExecutions().size());
+        response.setSessionLogCount(session.getSessionLogCount());
+        return response;
+    }
+
     public List<SessionsResponseDto> getAll() {
         return sessionsRepository.findAll()
                 .stream()
-                .map(e -> mapper.map(e, SessionsResponseDto.class))
+                .map(this::toResponseDto)
                 .toList();
     }
 
     public SessionsResponseDto getById(UUID id) {
         Sessions session = sessionsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Exercise not found"));
-        SessionsResponseDto response = mapper.map(session, SessionsResponseDto.class);
-        response.setExerciseCount(session.getExerciseExecutions().size());
-        return response;
+                .orElseThrow(() -> new EntityNotFoundException("Session not found"));
+        return toResponseDto(session);
     }
 
-    // Create Session
     public SessionsResponseDto create(SessionsCreateDto dto) {
-        if (sessionsRepository.findByNameAndScheduledDateAndPlan_Id(
-                dto.getName(),
-                dto.getScheduledDate(),
-                dto.getPlanId()).isPresent()) {
-            throw new IllegalArgumentException(
-                    "Session with this name and date already exists in this plan");
-        }
+        Plans plan = plansRepository.findById(dto.getPlanId())
+                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
 
-        validateSessionOrder(dto.getPlanId(), dto.getOrderID(), null);
         validateMaxSessionsInPlan(dto.getPlanId());
 
-        Plans plan = null;
-        if (dto.getPlanId() != null) {
-            plan = plansRepository.findById(dto.getPlanId())
-                    .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+        if (sessionsRepository.findByNameAndPlan_Id(dto.getName(), dto.getPlanId()).isPresent()) {
+            throw new IllegalArgumentException(
+                    "Session with this name already exists in this plan");
         }
 
-        Sessions session = mapper.map(dto, Sessions.class);
-        session.setId(null);
+        if (dto.getOrderID() != null) {
+            validateOrderNotTaken(dto.getPlanId(), dto.getOrderID());
+        }
+
+        Sessions session = new Sessions();
+        session.setName(dto.getName());
         session.setPlan(plan);
-
-        if (session.getOrderID() == null) {
-            session.setOrderID(0);
+        if (dto.getOrderID() != null) {
+            session.setOrderID(dto.getOrderID());
         }
-
-        if (plan != null) {
-            plan.getSessions().add(session);
-        }
+        plan.getSessions().add(session);
 
         Sessions saved = sessionsRepository.save(session);
-        SessionsResponseDto response = mapper.map(saved, SessionsResponseDto.class);
-        response.setPlanId(saved.getPlan() != null ? saved.getPlan().getId() : null);
-        response.setExerciseCount(saved.getExerciseExecutions().size());
-        return response;
+        return toResponseDto(saved);
     }
 
     public SessionsResponseDto update(UUID id, SessionsUpdateDto dto) {
         Sessions existingSession = sessionsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Session not found"));
 
-        // Check if name and date already exist
-        Optional<Sessions> duplicate = sessionsRepository.findByNameAndScheduledDateAndPlan_Id(
-                dto.getName(),
-                dto.getScheduledDate(),
-                dto.getPlanId());
+        Plans plan = plansRepository.findById(dto.getPlanId())
+                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+
+        Optional<Sessions> duplicate = sessionsRepository.findByNameAndPlan_Id(
+                dto.getName(), dto.getPlanId());
 
         if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
             throw new IllegalArgumentException(
-                    "Session with this name and date already exists in this plan");
+                    "Session with this name already exists in this plan");
         }
 
         if (dto.getOrderID() != null) {
-            validateSessionOrder(dto.getPlanId(), dto.getOrderID(), id);
-        }
-
-        Plans plan = null;
-        if (dto.getPlanId() != null) {
-            plan = plansRepository.findById(dto.getPlanId())
-                    .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+            validateOrderRange(dto.getOrderID());
         }
 
         // Handle plan change
-        if (existingSession.getPlan() != null && !existingSession.getPlan().equals(plan)) {
+        if (existingSession.getPlan() != null && !existingSession.getPlan().getId().equals(dto.getPlanId())) {
             existingSession.getPlan().getSessions().remove(existingSession);
-        }
-
-        if (plan != null && !plan.equals(existingSession.getPlan())) {
             plan.getSessions().add(existingSession);
         }
 
-        existingSession.setPlan(plan);
-
-        // Update fields
-        existingSession.setName(dto.getName());
-        existingSession.setScheduledDate(dto.getScheduledDate());
-
+        // Swap order numbers if another session has the target order
         if (dto.getOrderID() != null) {
-            existingSession.setOrderID(dto.getOrderID());
+            Integer oldOrder = existingSession.getOrderID();
+            Integer newOrder = dto.getOrderID();
+
+            if (!oldOrder.equals(newOrder)) {
+                Optional<Sessions> sessionWithTargetOrder = findSessionWithOrder(dto.getPlanId(), newOrder, id);
+                if (sessionWithTargetOrder.isPresent()) {
+                    Sessions otherSession = sessionWithTargetOrder.get();
+                    otherSession.setOrderID(oldOrder);
+                    sessionsRepository.save(otherSession);
+                }
+            }
+            existingSession.setOrderID(newOrder);
         }
 
+        existingSession.setPlan(plan);
+        existingSession.setName(dto.getName());
+
         Sessions saved = sessionsRepository.save(existingSession);
-        SessionsResponseDto response = mapper.map(saved, SessionsResponseDto.class);
-        response.setExerciseCount(saved.getExerciseExecutions().size());
-        return response;
+        return toResponseDto(saved);
     }
 
     public void delete(UUID id) {

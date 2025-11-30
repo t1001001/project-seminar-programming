@@ -37,7 +37,7 @@ public class Exercises {
             if (value == null)
                 return Unspecified;
             try {
-                return Category.valueOf(value.toUpperCase());
+                return Category.valueOf(value);
             } catch (IllegalArgumentException e) {
                 return Unspecified;
             }

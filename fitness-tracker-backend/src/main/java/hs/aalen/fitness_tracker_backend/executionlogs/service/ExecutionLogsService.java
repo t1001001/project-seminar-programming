@@ -50,11 +50,11 @@ public class ExecutionLogsService {
                 .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
 
         if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.COMPLETED) {
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot update exercises in a completed training");
         }
         if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.CANCELLED) {
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Cancelled) {
             throw new IllegalArgumentException("Cannot update exercises in a cancelled training");
         }
 
@@ -84,11 +84,11 @@ public class ExecutionLogsService {
                 .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
 
         if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.COMPLETED) {
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot delete exercises from a completed training");
         }
         if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.CANCELLED) {
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Cancelled) {
             throw new IllegalArgumentException("Cannot delete exercises from a cancelled training");
         }
 
@@ -102,6 +102,7 @@ public class ExecutionLogsService {
         dto.setExerciseExecutionPlannedSets(executionLog.getExerciseExecutionPlannedSets());
         dto.setExerciseExecutionPlannedReps(executionLog.getExerciseExecutionPlannedReps());
         dto.setExerciseExecutionPlannedWeight(executionLog.getExerciseExecutionPlannedWeight());
+        dto.setExerciseId(executionLog.getExerciseId());
         dto.setExerciseName(executionLog.getExerciseName());
         dto.setExerciseCategory(executionLog.getExerciseCategory());
         dto.setExerciseMuscleGroup(executionLog.getExerciseMuscleGroup());

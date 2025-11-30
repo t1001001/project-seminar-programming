@@ -5,8 +5,6 @@ import hs.aalen.fitness_tracker_backend.exercises.dto.ExerciseResponseDto;
 import hs.aalen.fitness_tracker_backend.exercises.dto.ExercisesUpdateDto;
 import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 import hs.aalen.fitness_tracker_backend.exercises.repository.ExercisesRepository;
-import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
-import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -18,15 +16,12 @@ import java.util.UUID;
 public class ExercisesService {
 
     private final ExercisesRepository repository;
-    private final SessionsRepository sessionsRepository;
     private final hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository exerciseExecutionsRepository;
     private final ModelMapper mapper = new ModelMapper();
 
     public ExercisesService(ExercisesRepository repository,
-            SessionsRepository sessionsRepository,
             hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository exerciseExecutionsRepository) {
         this.repository = repository;
-        this.sessionsRepository = sessionsRepository;
         this.exerciseExecutionsRepository = exerciseExecutionsRepository;
     }
 

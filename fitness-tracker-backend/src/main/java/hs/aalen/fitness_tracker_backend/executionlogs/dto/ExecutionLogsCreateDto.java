@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
 import java.util.UUID;
+import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 
 @Getter
 @Setter
@@ -12,8 +13,9 @@ public class ExecutionLogsCreateDto {
     private Integer exerciseExecutionPlannedSets;
     private Integer exerciseExecutionPlannedReps;
     private Integer exerciseExecutionPlannedWeight;
+    private UUID exerciseId;
     private String exerciseName;
-    private String exerciseCategory;
+    private Exercises.Category exerciseCategory;
     private List<String> exerciseMuscleGroup;
     private String exerciseDescription;
     private Integer actualSets;

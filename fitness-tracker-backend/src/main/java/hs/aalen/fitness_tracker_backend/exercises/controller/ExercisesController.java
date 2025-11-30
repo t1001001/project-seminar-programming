@@ -9,8 +9,11 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 
 @RestController
 @RequestMapping("/api/v1/exercises")
@@ -25,6 +28,14 @@ public class ExercisesController {
     @GetMapping
     public List<ExerciseResponseDto> getAllExercises() {
         return service.getAll();
+    }
+
+    @GetMapping("/categories")
+    public List<String> getAvailableCategories() {
+        return Arrays.stream(Exercises.Category.values())
+                .filter(category -> category != Exercises.Category.Unspecified)
+                .map(Enum::name)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -59,7 +70,7 @@ public class ExercisesController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSession(
-            @PathVariable UUID id, 
+            @PathVariable UUID id,
             @Valid @RequestBody ExercisesUpdateDto dto) {
         try {
             ExerciseResponseDto updated = service.update(id, dto);

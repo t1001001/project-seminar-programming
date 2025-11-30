@@ -12,7 +12,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Configuration
@@ -158,7 +157,6 @@ public class DatabaseSeeder {
             // Session 1: Push Day (from Push Pull Legs)
             Sessions pushDay = new Sessions();
             pushDay.setName("Push Day - Chest & Shoulders");
-            pushDay.setScheduledDate(LocalDate.now().minusDays(7));
             pushDay.setPlan(pushPullLegs);
             pushDay.setOrderID(1);
             sessionsRepository.save(pushDay);
@@ -202,7 +200,6 @@ public class DatabaseSeeder {
             // Session 2: Pull Day (from Push Pull Legs)
             Sessions pullDay = new Sessions();
             pullDay.setName("Pull Day - Back & Biceps");
-            pullDay.setScheduledDate(LocalDate.now().minusDays(6));
             pullDay.setPlan(pushPullLegs);
             pullDay.setOrderID(2);
             sessionsRepository.save(pullDay);
@@ -246,7 +243,6 @@ public class DatabaseSeeder {
             // Session 3: Leg Day (from Push Pull Legs)
             Sessions legDay = new Sessions();
             legDay.setName("Leg Day - Quads & Glutes");
-            legDay.setScheduledDate(LocalDate.now().minusDays(5));
             legDay.setPlan(pushPullLegs);
             legDay.setOrderID(3);
             sessionsRepository.save(legDay);
@@ -281,7 +277,6 @@ public class DatabaseSeeder {
             // Session 4: Full Body Workout
             Sessions fullBodySession = new Sessions();
             fullBodySession.setName("Full Body - Day 1");
-            fullBodySession.setScheduledDate(LocalDate.now());
             fullBodySession.setPlan(fullBody);
             fullBodySession.setOrderID(1);
             sessionsRepository.save(fullBodySession);
@@ -334,7 +329,6 @@ public class DatabaseSeeder {
             // Session 5: Upper Body (from Upper Lower Split)
             Sessions upperBody = new Sessions();
             upperBody.setName("Upper Body Strength");
-            upperBody.setScheduledDate(LocalDate.now().plusDays(1));
             upperBody.setPlan(upperLower);
             upperBody.setOrderID(1);
             sessionsRepository.save(upperBody);
@@ -378,7 +372,6 @@ public class DatabaseSeeder {
             // Session 6: Bodyweight Circuit
             Sessions bodyweightCircuit = new Sessions();
             bodyweightCircuit.setName("Bodyweight Circuit");
-            bodyweightCircuit.setScheduledDate(LocalDate.now().plusDays(3));
             bodyweightCircuit.setPlan(fullBody);
             bodyweightCircuit.setOrderID(2);
             sessionsRepository.save(bodyweightCircuit);
