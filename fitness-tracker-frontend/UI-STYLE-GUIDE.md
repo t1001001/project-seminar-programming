@@ -166,6 +166,40 @@ Use the shared status variables for any widgets, alerts, stats, or pills that ne
 
 Each token also has an `*-rgb` counterpart (e.g., `--fitness-status-success-rgb`) for transparent overlays or glows. Pair text colors with the standard theme text variables to maintain contrast.
 
+### Complete Theme Variable Reference
+
+**Brand & Actions:**
+- `--fitness-primary`: Main brand green
+- `--fitness-primary-hover`: Darker green for hover
+- `--fitness-action-update`: Light blue for edit/update actions
+- `--fitness-action-delete`: Coral red for delete/destructive actions
+
+**Backgrounds:**
+- `--fitness-bg-page`: Main page background
+- `--fitness-bg-card`: Card surface
+- `--fitness-bg-elevated`: Elevated surfaces (dialogs, menus)
+- `--fitness-bg-chip`: Chips and tags
+- `--fitness-bg-input`: Form inputs
+
+**Text:**
+- `--fitness-text-primary`: Main content text
+- `--fitness-text-secondary`: Labels, secondary info
+- `--fitness-text-tertiary`: Placeholders, disabled text
+
+**Borders & Shadows:**
+- `--fitness-border`: Subtle borders
+- `--fitness-border-strong`: Focus/active borders
+- `--fitness-shadow`: Base shadow
+- `--fitness-shadow-strong`: Elevated shadow
+- `--fitness-shadow-glow`: Primary color glow
+- `--fitness-shadow-glow-update`: Update action glow
+- `--fitness-shadow-dropdown`: Dropdown menu shadow
+
+**Status Colors:**
+- `--fitness-status-success`: Success state (green)
+- `--fitness-status-info`: Info state (blue)
+- `--fitness-status-warning`: Warning state (yellow)
+
 ---
 
 ## ⚠️ CRITICAL: Theme Variable Usage Rules
@@ -211,16 +245,17 @@ color: var(--fitness-dark);                     // Adapts to theme
 
 ### Allowed Hardcoded Colors (Exceptions Only)
 
-These are the ONLY hardcoded colors allowed:
+**⚠️ CRITICAL UPDATE:**
+Hardcoded colors are **NO LONGER ALLOWED** for action buttons. You **MUST** use the following theme variables:
 
 ```scss
-/* Delete buttons - Consistent red across themes */
-background-color: #FF6B6B;  // Delete button
-background-color: #FF5252;  // Delete button hover
+/* Delete buttons */
+background-color: var(--fitness-action-delete);
+background-color: var(--fitness-action-delete-hover); // Hover state
 
-/* Update/Add buttons - Specific blue for secondary actions */
-background-color: #74C4FC;  // Update button
-background-color: #5AB8FA;  // Update button hover
+/* Update/Add buttons */
+background-color: var(--fitness-action-update);
+background-color: var(--fitness-action-update-hover); // Hover state
 ```
 
 ### ❌ Common Mistakes to Avoid
@@ -320,20 +355,22 @@ Before committing any new SCSS file, verify:
 **Intentional color - consistent across themes:**
 
 ```scss
+```scss
 .update-btn {
-  background-color: #74C4FC;  /* Intentional - specific action color */
+  background-color: var(--fitness-action-update);
   color: var(--fitness-dark);
   border-radius: 8px;
   padding: 0.5rem 1.5rem;
   font-weight: 500;
   text-transform: none;
-box-shadow: none;
-transition: all 0.2s ease;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
 ```
 
 **Hover State:**
 ```css
-background-color: #5AB8FA;
+background-color: var(--fitness-action-update-hover);
 transform: translateY(-2px);
 box-shadow: var(--fitness-shadow-glow-update);
 ```
@@ -345,7 +382,7 @@ box-shadow: var(--fitness-shadow-glow-update);
 
 ### Delete Button (Coral Red)
 ```css
-background-color: #FF6B6B;
+background-color: var(--fitness-action-delete);
 color: white;
 border-radius: 8px;
 padding: 0.5rem 1.5rem;
@@ -357,9 +394,9 @@ transition: all 0.2s ease;
 
 **Hover State:**
 ```css
-background-color: #FF5252;
+background-color: var(--fitness-action-delete-hover);
 transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3);
 ```
 
 **Icon:**
