@@ -1,0 +1,42 @@
+<mat-card class="session-card" (click)="onCardClick()">
+  <div class="card-content-wrapper">
+    <div class="info-section">
+      <div class="meta-row">
+        <div class="plan-pill" title="Linked training plan">
+          <mat-icon>assignment</mat-icon>
+          <span>{{ session().planName }}</span>
+        </div>
+        <div class="order-chip" title="Order within plan">
+          <mat-icon>format_list_numbered</mat-icon>
+          <span>Day {{ session().orderID || 0 }}</span>
+        </div>
+      </div>
+
+      <h3 class="session-name">{{ session().name }}</h3>
+    </div>
+
+    <div class="stats-section">
+      <div class="stat-chip">
+        <mat-icon>fitness_center</mat-icon>
+        <div class="stat-text">
+          <span class="label">Exercises</span>
+          <span class="value">{{ session().exerciseExecutionsCount ?? 0 }}</span>
+        </div>
+      </div>
+      <div class="stat-chip highlight">
+        <mat-icon>repeat</mat-icon>
+        <div class="stat-text">
+          <span class="label">Times performed</span>
+          <span class="value">{{ session().sessionLogCount ?? 0 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <span class="click-hint">
+      View details
+      <span class="material-icons">arrow_forward</span>
+    </span>
+  </div>
+</mat-card>
