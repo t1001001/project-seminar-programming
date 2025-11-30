@@ -25,7 +25,7 @@ public class Exercises {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private Category category = Category.Unspecified;
+    private Category category;
 
     public enum Category {
         Unspecified,
