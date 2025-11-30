@@ -31,7 +31,7 @@ public class SessionLogs {
     private LocalDateTime completedAt;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LogStatus status = LogStatus.IN_PROGRESS;
+    private LogStatus status = LogStatus.InProgress;
     @Column(length = 1000)
     private String notes;
     @ManyToOne
