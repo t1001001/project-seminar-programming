@@ -66,8 +66,9 @@ public class SessionLogsService {
             executionLog.setExerciseExecutionPlannedReps(execution.getPlannedReps());
             executionLog.setExerciseExecutionPlannedWeight(execution.getPlannedWeight());
             // Denormalize Exercise data
+            executionLog.setExerciseId(execution.getExercise().getId());
             executionLog.setExerciseName(execution.getExercise().getName());
-            executionLog.setExerciseCategory(execution.getExercise().getCategory().name());
+            executionLog.setExerciseCategory(execution.getExercise().getCategory());
             executionLog.setExerciseMuscleGroup(execution.getExercise().getMuscleGroups());
             executionLog.setExerciseDescription(execution.getExercise().getDescription());
             // Initialize actual values to planned values

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
+import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
 
 @Entity
 @Getter
@@ -26,9 +27,12 @@ public class ExecutionLogs {
     private Integer exerciseExecutionPlannedWeight;
     // Denormalized Exercise data
     @Column(nullable = false)
-    private String exerciseName;
+    private UUID exerciseId;
     @Column(nullable = false)
-    private String exerciseCategory;
+    private String exerciseName;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Exercises.Category exerciseCategory;
     @ElementCollection
     @CollectionTable(name = "execution_log_muscle_groups", joinColumns = @JoinColumn(name = "execution_log_id"))
     @Column(name = "muscle_group")

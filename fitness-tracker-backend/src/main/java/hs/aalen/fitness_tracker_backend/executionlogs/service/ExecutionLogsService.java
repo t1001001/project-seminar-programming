@@ -102,6 +102,7 @@ public class ExecutionLogsService {
         dto.setExerciseExecutionPlannedSets(executionLog.getExerciseExecutionPlannedSets());
         dto.setExerciseExecutionPlannedReps(executionLog.getExerciseExecutionPlannedReps());
         dto.setExerciseExecutionPlannedWeight(executionLog.getExerciseExecutionPlannedWeight());
+        dto.setExerciseId(executionLog.getExerciseId());
         dto.setExerciseName(executionLog.getExerciseName());
         dto.setExerciseCategory(executionLog.getExerciseCategory());
         dto.setExerciseMuscleGroup(executionLog.getExerciseMuscleGroup());
