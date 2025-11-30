@@ -48,4 +48,8 @@ export class SessionProviderService {
       `${this.exerciseExecutionsApiUrl}?sessionId=${sessionId}`
     );
   }
+
+  deleteSession(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.sessionsApiUrl}/${id}`);
+  }
 }
