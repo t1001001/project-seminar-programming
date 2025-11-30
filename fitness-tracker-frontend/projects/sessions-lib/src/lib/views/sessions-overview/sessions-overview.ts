@@ -3,12 +3,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgFor, NgIf } from '@angular/common';
 import { BehaviorSubject, debounceTime, shareReplay, startWith, switchMap, tap, catchError, of } from 'rxjs';
 
 import { SessionLogicService, SessionOverview } from '../../logic-services/session-logic.service';
 import { SessionCardComponent } from '../../ui/session-card/session-card';
+import { SessionDeleteDialogComponent } from '../../ui/session-delete-dialog/session-delete-dialog';
 
 @Component({
   selector: 'lib-sessions-overview',
@@ -16,10 +18,12 @@ import { SessionCardComponent } from '../../ui/session-card/session-card';
   imports: [
     MatIconModule,
     MatButtonModule,
+    MatDialogModule,
     ReactiveFormsModule,
     NgFor,
     NgIf,
-    SessionCardComponent
+    SessionCardComponent,
+    SessionDeleteDialogComponent
   ],
   templateUrl: './sessions-overview.html',
   styleUrl: './sessions-overview.scss',
@@ -27,6 +31,7 @@ import { SessionCardComponent } from '../../ui/session-card/session-card';
 })
 export class SessionsOverviewComponent {
   private readonly sessionService = inject(SessionLogicService);
+  private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly searchControl = new FormControl('');
@@ -74,6 +79,33 @@ export class SessionsOverviewComponent {
     this.snackBar.open('Session creation coming soon', 'Close', {
       duration: 2500,
       panelClass: ['info-snackbar']
+    });
+  }
+
+  onDelete(session: SessionOverview): void {
+    const dialogRef = this.dialog.open(SessionDeleteDialogComponent, {
+      data: { sessionName: session.name },
+      panelClass: 'custom-dialog-container',
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.sessionService.deleteSession(session.id).subscribe({
+          next: () => {
+            this.refresh();
+            this.snackBar.open('Session deleted successfully!', 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+          },
+          error: (err) => {
+            this.snackBar.open(err.message, 'Close', {
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        });
+      }
     });
   }
 
