@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository;
-import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsCreateDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsResponseDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsUpdateDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
