@@ -25,7 +25,7 @@ public class Exercises {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private Category category;
+    private Category category = Category.Unspecified;
 
     public enum Category {
         Unspecified,
@@ -37,7 +37,7 @@ public class Exercises {
             if (value == null)
                 return Unspecified;
             try {
-                return Category.valueOf(value.toUpperCase());
+                return Category.valueOf(value);
             } catch (IllegalArgumentException e) {
                 return Unspecified;
             }
