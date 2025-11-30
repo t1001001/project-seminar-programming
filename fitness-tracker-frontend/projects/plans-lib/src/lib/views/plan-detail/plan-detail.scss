@@ -245,20 +245,6 @@ mat-card-title {
     margin-bottom: 0.25rem !important;
 }
 
-mat-card-subtitle {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.85rem !important;
-    color: var(--fitness-text-secondary) !important;
-}
-
-.small-icon {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
-}
-
 .exercises-list {
     margin-top: 0.5rem;
     padding-top: 0.5rem;
@@ -337,36 +323,35 @@ mat-card-subtitle {
         padding: 1rem 1.5rem !important;
     }
 
-    .session-status-chip {
+    .order-chip {
         position: static !important;
         margin: 1rem 1rem 0 1rem;
-        display: inline-block;
+        display: inline-flex;
         width: fit-content;
     }
 }
 
-.session-status-chip {
+.order-chip {
     position: absolute;
     top: 1rem;
     right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.25rem 0.75rem;
+    background-color: var(--fitness-bg-chip);
+    border: 1px solid var(--fitness-border);
     border-radius: 16px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+    color: var(--fitness-text-secondary);
+    font-weight: 500;
     z-index: 10;
 
-    &.completed {
-        background-color: rgba(var(--fitness-primary-rgb), 0.1);
-        color: var(--fitness-primary);
-        border: 1px solid rgba(var(--fitness-primary-rgb), 0.2);
-    }
-
-    &.planned {
-        background-color: var(--fitness-bg-chip);
+    mat-icon {
+        font-size: 1.1rem;
+        width: 1.1rem;
+        height: 1.1rem;
         color: var(--fitness-text-secondary);
-        border: 1px solid var(--fitness-border);
     }
 }
 

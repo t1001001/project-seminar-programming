@@ -69,14 +69,14 @@ Represents a single workout session within a plan.
 - `status`: Enum (PLANNED, COMPLETED)
 
 #### `Exercises`
-Represents a specific exercise definition.
+Represents a specific exercise definition (Template). This acts as a catalog of available exercises.
 - `id`: UUID
 - `name`: String (Unique)
 - `muscleGroups`: List<String>
 - `category`: Enum (BodyWeight, FreeWeight, Equipment, Unspecified)
 
 #### `ExerciseExecutions`
-Represents the planned sets/reps for an exercise in a session.
+Represents the planned sets/reps for an exercise in a session. This entity links a `Session` to an `Exercise` template, defining the specific parameters for that workout.
 - `id`: UUID
 - `session`: Sessions
 - `exercise`: Exercises

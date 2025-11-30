@@ -8,7 +8,7 @@
         </div>
         <div class="order-chip" title="Order within plan">
           <mat-icon>format_list_numbered</mat-icon>
-          <span>Day {{ session().orderID || 0 }}</span>
+          <span>{{ session().orderID || 0 }}</span>
         </div>
       </div>
 
@@ -23,7 +23,7 @@
           <span class="value">{{ session().exerciseExecutionsCount ?? 0 }}</span>
         </div>
       </div>
-      <div class="stat-chip highlight">
+      <div class="stat-chip">
         <mat-icon>repeat</mat-icon>
         <div class="stat-text">
           <span class="label">Times performed</span>

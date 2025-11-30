@@ -42,19 +42,15 @@
                                 <div class="timeline-marker"></div>
                                 <div class="timeline-content">
                                     <mat-card class="session-card">
-                                        <div class="session-status-chip"
-                                            [class]="getSessionStatus(session) | lowercase">
-                                            {{ getSessionStatus(session) | titlecase }}
+                                        <div class="order-chip">
+                                            <mat-icon>format_list_numbered</mat-icon>
+                                            {{ session.orderID || 0 }}
                                         </div>
                                         <mat-card-header>
                                             <div mat-card-avatar class="session-avatar">
-                                                <mat-icon>fitness_center</mat-icon>
+                                                <mat-icon>directions_run</mat-icon>
                                             </div>
                                             <mat-card-title>{{ session.name }}</mat-card-title>
-                                            <mat-card-subtitle>
-                                                <mat-icon class="small-icon">calendar_today</mat-icon>
-                                                {{ session.scheduledDate | date:'mediumDate' }}
-                                            </mat-card-subtitle>
                                         </mat-card-header>
                                         <mat-card-content>
                                             <div class="exercises-list">
