@@ -98,6 +98,7 @@
   gap: 0.75rem;
   align-items: stretch;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .stat-chip {
@@ -141,6 +142,36 @@
   border-color: rgba(var(--fitness-primary-rgb), 0.25);
 }
 
+.side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.actions-section {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.delete-btn {
+  background-color: var(--fitness-action-delete) !important;
+  color: var(--fitness-dark) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.25rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.delete-btn:hover {
+  background-color: var(--fitness-action-delete-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3) !important;
+}
+
 .card-footer {
   display: flex;
   justify-content: flex-end;
@@ -171,5 +202,18 @@
   .card-content-wrapper {
     flex-direction: column;
     gap: 1rem;
+  }
+
+  .side-section {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .actions-section {
+    width: 100%;
+  }
+
+  .delete-btn {
+    width: 100% !important;
   }
 }

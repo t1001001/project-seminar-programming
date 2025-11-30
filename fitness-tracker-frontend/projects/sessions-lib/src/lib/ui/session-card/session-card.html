@@ -15,20 +15,29 @@
       <h3 class="session-name">{{ session().name }}</h3>
     </div>
 
-    <div class="stats-section">
-      <div class="stat-chip">
-        <mat-icon>fitness_center</mat-icon>
-        <div class="stat-text">
-          <span class="label">Exercises</span>
-          <span class="value">{{ session().exerciseExecutionsCount ?? 0 }}</span>
+    <div class="side-section">
+      <div class="stats-section">
+        <div class="stat-chip">
+          <mat-icon>fitness_center</mat-icon>
+          <div class="stat-text">
+            <span class="label">Exercises</span>
+            <span class="value">{{ session().exerciseExecutionsCount ?? 0 }}</span>
+          </div>
+        </div>
+        <div class="stat-chip">
+          <mat-icon>repeat</mat-icon>
+          <div class="stat-text">
+            <span class="label">Times performed</span>
+            <span class="value">{{ session().sessionLogCount ?? 0 }}</span>
+          </div>
         </div>
       </div>
-      <div class="stat-chip">
-        <mat-icon>repeat</mat-icon>
-        <div class="stat-text">
-          <span class="label">Times performed</span>
-          <span class="value">{{ session().sessionLogCount ?? 0 }}</span>
-        </div>
+
+      <div class="actions-section">
+        <button mat-raised-button type="button" class="delete-btn" (click)="onDelete($event)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
       </div>
     </div>
   </div>
