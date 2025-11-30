@@ -156,10 +156,6 @@ export class ExerciseLogicService {
   getAllExercises(): Observable<Exercise[]> {
     return this.exerciseProviderService.getAllExercises()
       .pipe(
-        tap((exercises: Exercise[]) => {
-          // Side effect: logging
-          console.log(exercises);
-        }),
         catchError((err) => {
           let errorMessage = 'Failed to load exercises';
           

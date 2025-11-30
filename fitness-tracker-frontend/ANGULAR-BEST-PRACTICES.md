@@ -87,7 +87,9 @@ component-name/
 
 ```typescript
 import { ChangeDetectionStrategy, Component, inject, input, output, computed, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { startWith, debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-component-name',
@@ -112,6 +114,14 @@ export class ComponentNameComponent {
   
   // Use computed() for derived state
   doubleCount = computed(() => this.count() * 2);
+
+  // Use toSignal for Observable interoperability
+  // Example: Search term with debounce
+  readonly searchControl = new FormControl('');
+  private readonly searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300)),
+    { initialValue: '' }
+  );
   
   // Methods
   onAction(): void {
@@ -478,9 +488,6 @@ export class ExerciseLogicService {
 
   getAllExercises(): Observable<Exercise[]> {
     return this.exerciseProviderService.getAllExercises().pipe(
-      tap((exercises: Exercise[]) => {
-        console.log(exercises); // Logging side effect
-      }),
       catchError((err) => {
         let errorMessage = 'Failed to load exercises';
         
