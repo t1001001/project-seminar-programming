@@ -209,3 +209,24 @@ body {
   padding: 2.5rem;
   box-sizing: border-box;
 }
+
+// Custom Select Styling
+.mat-mdc-select-panel {
+  background-color: var(--fitness-bg-elevated) !important;
+  box-shadow: var(--fitness-shadow-dropdown) !important;
+  border: 1px solid var(--fitness-border);
+  border-radius: 0 0 12px 12px !important;
+
+  .mat-mdc-option {
+    color: var(--fitness-text-primary) !important;
+
+    &.mdc-list-item--selected {
+      background-color: transparent !important;
+      color: var(--fitness-primary) !important;
+    }
+
+    &:hover:not(.mdc-list-item--disabled) {
+      background-color: var(--fitness-bg-chip) !important;
+    }
+  }
+}

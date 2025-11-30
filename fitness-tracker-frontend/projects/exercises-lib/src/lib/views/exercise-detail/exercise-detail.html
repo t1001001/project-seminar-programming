@@ -59,7 +59,11 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Category</mat-label>
-          <input matInput formControlName="category" required />
+          <mat-select formControlName="category" required>
+            @for (category of categories; track category) {
+            <mat-option [value]="category">{{ category }}</mat-option>
+            }
+          </mat-select>
           @if (form.get('category')?.invalid && form.get('category')?.touched) {
           <mat-error>Category is required</mat-error>
           }
