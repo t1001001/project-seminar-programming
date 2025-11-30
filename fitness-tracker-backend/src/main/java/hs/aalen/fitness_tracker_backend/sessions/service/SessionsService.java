@@ -25,21 +25,26 @@ public class SessionsService {
         this.plansRepository = plansRepository;
     }
 
-    private void validateSessionOrder(UUID planId, Integer orderID, UUID excludeSessionId) {
+    private void validateOrderRange(Integer orderID) {
         if (orderID == null || orderID < 1 || orderID > 30) {
             throw new IllegalArgumentException("Order must be between 1 and 30");
         }
+    }
 
-        if (planId != null) {
-            sessionsRepository.findByPlan_Id(planId).stream()
-                    .filter(s -> excludeSessionId == null || !s.getId().equals(excludeSessionId))
-                    .filter(s -> s.getOrderID().equals(orderID))
-                    .findFirst()
-                    .ifPresent(s -> {
-                        throw new IllegalArgumentException(
-                                "Order " + orderID + " is already used in this plan");
-                    });
-        }
+    private Optional<Sessions> findSessionWithOrder(UUID planId, Integer orderID, UUID excludeSessionId) {
+        return sessionsRepository.findByPlan_Id(planId).stream()
+                .filter(s -> excludeSessionId == null || !s.getId().equals(excludeSessionId))
+                .filter(s -> s.getOrderID().equals(orderID))
+                .findFirst();
+    }
+
+    private void validateOrderNotTaken(UUID planId, Integer orderID) {
+        validateOrderRange(orderID);
+        findSessionWithOrder(planId, orderID, null)
+                .ifPresent(s -> {
+                    throw new IllegalArgumentException(
+                            "Order " + orderID + " is already used in this plan");
+                });
     }
 
     private void validateMaxSessionsInPlan(UUID planId) {
@@ -78,30 +83,27 @@ public class SessionsService {
     }
 
     public SessionsResponseDto create(SessionsCreateDto dto) {
+        Plans plan = plansRepository.findById(dto.getPlanId())
+                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+
+        validateMaxSessionsInPlan(dto.getPlanId());
+
         if (sessionsRepository.findByNameAndPlan_Id(dto.getName(), dto.getPlanId()).isPresent()) {
             throw new IllegalArgumentException(
                     "Session with this name already exists in this plan");
         }
 
         if (dto.getOrderID() != null) {
-            validateSessionOrder(dto.getPlanId(), dto.getOrderID(), null);
-        }
-        validateMaxSessionsInPlan(dto.getPlanId());
-
-        Plans plan = null;
-        if (dto.getPlanId() != null) {
-            plan = plansRepository.findById(dto.getPlanId())
-                    .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+            validateOrderNotTaken(dto.getPlanId(), dto.getOrderID());
         }
 
         Sessions session = new Sessions();
         session.setName(dto.getName());
         session.setPlan(plan);
-        session.setOrderID(dto.getOrderID() != null ? dto.getOrderID() : 0);
-
-        if (plan != null) {
-            plan.getSessions().add(session);
+        if (dto.getOrderID() != null) {
+            session.setOrderID(dto.getOrderID());
         }
+        plan.getSessions().add(session);
 
         Sessions saved = sessionsRepository.save(session);
         return toResponseDto(saved);
@@ -110,6 +112,9 @@ public class SessionsService {
     public SessionsResponseDto update(UUID id, SessionsUpdateDto dto) {
         Sessions existingSession = sessionsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Session not found"));
+
+        Plans plan = plansRepository.findById(dto.getPlanId())
+                .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
 
         Optional<Sessions> duplicate = sessionsRepository.findByNameAndPlan_Id(
                 dto.getName(), dto.getPlanId());
@@ -120,30 +125,33 @@ public class SessionsService {
         }
 
         if (dto.getOrderID() != null) {
-            validateSessionOrder(dto.getPlanId(), dto.getOrderID(), id);
-        }
-
-        Plans plan = null;
-        if (dto.getPlanId() != null) {
-            plan = plansRepository.findById(dto.getPlanId())
-                    .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+            validateOrderRange(dto.getOrderID());
         }
 
         // Handle plan change
-        if (existingSession.getPlan() != null && !existingSession.getPlan().equals(plan)) {
+        if (existingSession.getPlan() != null && !existingSession.getPlan().getId().equals(dto.getPlanId())) {
             existingSession.getPlan().getSessions().remove(existingSession);
+            plan.getSessions().add(existingSession);
         }
 
-        if (plan != null && !plan.equals(existingSession.getPlan())) {
-            plan.getSessions().add(existingSession);
+        // Swap order numbers if another session has the target order
+        if (dto.getOrderID() != null) {
+            Integer oldOrder = existingSession.getOrderID();
+            Integer newOrder = dto.getOrderID();
+
+            if (!oldOrder.equals(newOrder)) {
+                Optional<Sessions> sessionWithTargetOrder = findSessionWithOrder(dto.getPlanId(), newOrder, id);
+                if (sessionWithTargetOrder.isPresent()) {
+                    Sessions otherSession = sessionWithTargetOrder.get();
+                    otherSession.setOrderID(oldOrder);
+                    sessionsRepository.save(otherSession);
+                }
+            }
+            existingSession.setOrderID(newOrder);
         }
 
         existingSession.setPlan(plan);
         existingSession.setName(dto.getName());
-
-        if (dto.getOrderID() != null) {
-            existingSession.setOrderID(dto.getOrderID());
-        }
 
         Sessions saved = sessionsRepository.save(existingSession);
         return toResponseDto(saved);
