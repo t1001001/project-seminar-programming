@@ -1,0 +1,52 @@
+<section class="sessions-overview page-container">
+  <header class="overview-header">
+    <div class="header-content">
+      <h1>Training Sessions</h1>
+      <p class="subtitle">Overview of all session templates</p>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-bar">
+        <span class="material-icons">search</span>
+        <input type="text" [formControl]="searchControl" placeholder="Search by name or plan...">
+      </div>
+
+      <div class="header-stats">
+        <div class="header-stat">
+          <span class="stat-value">{{ totalSessionsCount() }}</span>
+          <span class="stat-label">Sessions</span>
+        </div>
+        <div class="header-stat">
+          <span class="stat-value">{{ totalCompletedCount() }}</span>
+          <span class="stat-label">Times performed</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-decoration">
+      <span class="material-icons">fitness_center</span>
+    </div>
+  </header>
+
+  @if (filteredSessions(); as sessions) {
+  @if (!sessions.length) {
+  <p class="empty-state">
+    No sessions found.
+  </p>
+  }
+  @if (sessions.length) {
+  <div class="sessions-list">
+    @for (session of sessions; track session.id) {
+    <lib-session-card [session]="session" />
+    }
+  </div>
+  }
+  } @else {
+  <p class="empty-state">Loading sessions...</p>
+  }
+
+  <button mat-fab extended class="create-fab" type="button" (click)="onCreate()">
+    <span class="material-icons">add</span>
+    Create
+  </button>
+</section>
