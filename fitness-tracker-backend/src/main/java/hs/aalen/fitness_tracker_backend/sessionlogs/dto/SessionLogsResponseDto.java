@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus;
+import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
 
 @Getter
 @Setter
@@ -16,7 +16,7 @@ public class SessionLogsResponseDto {
     private String sessionPlan;
     private LocalDateTime startedAt;
     private LocalDateTime completedAt;
-    private LogStatus status;
+    private SessionLogs.LogStatus status;
     private String notes;
     private UUID originalSessionId;
     private Integer executionLogCount;

@@ -50,11 +50,11 @@ public class ExecutionLogsService {
                 .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
 
         if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.Completed) {
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot update exercises in a completed training");
         }
         if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.Cancelled) {
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Cancelled) {
             throw new IllegalArgumentException("Cannot update exercises in a cancelled training");
         }
 
@@ -84,11 +84,11 @@ public class ExecutionLogsService {
                 .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
 
         if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.Completed) {
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot delete exercises from a completed training");
         }
         if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.LogStatus.Cancelled) {
+                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Cancelled) {
             throw new IllegalArgumentException("Cannot delete exercises from a cancelled training");
         }
 
