@@ -45,15 +45,34 @@ public class ExerciseExecutionsService {
         }
     }
 
+    private java.util.Optional<ExerciseExecutions> findExecutionWithOrder(UUID sessionId, Integer orderID, UUID excludeId) {
+        return exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId).stream()
+                .filter(ee -> excludeId == null || !ee.getId().equals(excludeId))
+                .filter(ee -> ee.getOrderID().equals(orderID))
+                .findFirst();
+    }
+
+    private void validateOrderNotTaken(UUID sessionId, Integer orderID) {
+        findExecutionWithOrder(sessionId, orderID, null)
+                .ifPresent(ee -> {
+                    throw new IllegalArgumentException(
+                            "Order " + orderID + " is already used in this session");
+                });
+    }
+
     public ExerciseExecutionsResponseDto createExerciseExecution(ExerciseExecutionsCreateDto dto) {
         validatePlannedValues(dto.getPlannedSets(), dto.getPlannedReps(), dto.getPlannedWeight());
         checkDuplicateExerciseInSession(dto.getSessionId(), dto.getExerciseId(), null);
+
+        if (dto.getOrderID() != null) {
+            validateOrderNotTaken(dto.getSessionId(), dto.getOrderID());
+        }
 
         ExerciseExecutions execution = new ExerciseExecutions();
         execution.setPlannedSets(dto.getPlannedSets());
         execution.setPlannedReps(dto.getPlannedReps());
         execution.setPlannedWeight(dto.getPlannedWeight());
-        execution.setOrderID(dto.getOrderID());
+        execution.setOrderID(dto.getOrderID() != null ? dto.getOrderID() : 0);
 
         execution.setSession(sessionsRepository.findById(dto.getSessionId())
                 .orElseThrow(() -> new RuntimeException("Session not found")));
@@ -100,9 +119,24 @@ public class ExerciseExecutionsService {
         if (dto.getPlannedWeight() != null) {
             execution.setPlannedWeight(dto.getPlannedWeight());
         }
+
+        // Swap order numbers if another execution has the target order
         if (dto.getOrderID() != null) {
-            execution.setOrderID(dto.getOrderID());
+            Integer oldOrder = execution.getOrderID();
+            Integer newOrder = dto.getOrderID();
+
+            if (!oldOrder.equals(newOrder)) {
+                java.util.Optional<ExerciseExecutions> executionWithTargetOrder = 
+                        findExecutionWithOrder(execution.getSession().getId(), newOrder, id);
+                if (executionWithTargetOrder.isPresent()) {
+                    ExerciseExecutions otherExecution = executionWithTargetOrder.get();
+                    otherExecution.setOrderID(oldOrder);
+                    exerciseExecutionsRepository.save(otherExecution);
+                }
+            }
+            execution.setOrderID(newOrder);
         }
+
         if (dto.getExerciseId() != null) {
             checkDuplicateExerciseInSession(
                     execution.getSession().getId(),
