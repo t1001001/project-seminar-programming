@@ -1,0 +1,5 @@
+package hs.aalen.fitness_tracker_backend.sessions;
+
+public class SessionsServiceTest {
+    
+}
