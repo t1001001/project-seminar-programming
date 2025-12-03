@@ -5,12 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { NgFor, NgIf } from '@angular/common';
 import { BehaviorSubject, debounceTime, shareReplay, startWith, switchMap, tap, catchError, of } from 'rxjs';
 
 import { SessionLogicService, SessionOverview } from '../../logic-services/session-logic.service';
 import { SessionCardComponent } from '../../ui/session-card/session-card';
 import { SessionDeleteDialogComponent } from '../../ui/session-delete-dialog/session-delete-dialog';
+import { SessionCreateDialogComponent } from '../../ui/session-create-dialog/session-create-dialog';
 
 @Component({
   selector: 'lib-sessions-overview',
@@ -20,8 +20,6 @@ import { SessionDeleteDialogComponent } from '../../ui/session-delete-dialog/ses
     MatButtonModule,
     MatDialogModule,
     ReactiveFormsModule,
-    NgFor,
-    NgIf,
     SessionCardComponent,
     SessionDeleteDialogComponent
   ],
@@ -76,9 +74,20 @@ export class SessionsOverviewComponent {
   );
 
   onCreate(): void {
-    this.snackBar.open('Session creation coming soon', 'Close', {
-      duration: 2500,
-      panelClass: ['info-snackbar']
+    const dialogRef = this.dialog.open(SessionCreateDialogComponent, {
+      width: '500px',
+      maxWidth: '96vw',
+      panelClass: 'custom-dialog-container',
+    });
+
+    dialogRef.afterClosed().subscribe((created: boolean) => {
+      if (created) {
+        this.refresh();
+        this.snackBar.open('Session created successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+      }
     });
   }
 
