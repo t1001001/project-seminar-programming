@@ -16,6 +16,18 @@ export interface PlanSummary {
   name: string;
 }
 
+export interface SessionCreate {
+  name: string;
+  planId: string;
+  orderID?: number;
+}
+
+export interface SessionUpdate {
+  name: string;
+  planId: string;
+  orderID?: number;
+}
+
 export interface ExerciseExecution {
   id: string;
   orderID: number;
@@ -23,6 +35,23 @@ export interface ExerciseExecution {
   exerciseId?: string;
   sessionId?: string;
   sessionName?: string;
+  plannedSets?: number;
+  plannedReps?: number;
+  plannedWeight?: number;
+}
+
+export interface ExerciseExecutionCreate {
+  sessionId: string;
+  exerciseId: string;
+  orderID?: number;
+  plannedSets: number;
+  plannedReps: number;
+  plannedWeight: number;
+}
+
+export interface ExerciseExecutionUpdate {
+  exerciseId?: string;
+  orderID?: number;
   plannedSets?: number;
   plannedReps?: number;
   plannedWeight?: number;
@@ -47,6 +76,26 @@ export class SessionProviderService {
     return this.http.get<ExerciseExecution[]>(
       `${this.exerciseExecutionsApiUrl}?sessionId=${sessionId}`
     );
+  }
+
+  createSession(session: SessionCreate): Observable<Session> {
+    return this.http.post<Session>(this.sessionsApiUrl, session);
+  }
+
+  updateSession(id: string, session: SessionUpdate): Observable<Session> {
+    return this.http.put<Session>(`${this.sessionsApiUrl}/${id}`, session);
+  }
+
+  createExerciseExecution(execution: ExerciseExecutionCreate): Observable<ExerciseExecution> {
+    return this.http.post<ExerciseExecution>(this.exerciseExecutionsApiUrl, execution);
+  }
+
+  updateExerciseExecution(id: string, execution: ExerciseExecutionUpdate): Observable<ExerciseExecution> {
+    return this.http.put<ExerciseExecution>(`${this.exerciseExecutionsApiUrl}/${id}`, execution);
+  }
+
+  deleteExerciseExecution(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.exerciseExecutionsApiUrl}/${id}`);
   }
 
   deleteSession(id: string): Observable<void> {

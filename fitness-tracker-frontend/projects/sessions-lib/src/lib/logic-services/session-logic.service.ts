@@ -1,6 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, combineLatest, map, of, switchMap, throwError } from 'rxjs';
-import { SessionProviderService, Session, PlanSummary, ExerciseExecution } from '../provider-services/session-provider.service';
+import { Observable, catchError, combineLatest, forkJoin, map, of, switchMap, throwError } from 'rxjs';
+import {
+  SessionProviderService,
+  Session,
+  PlanSummary,
+  ExerciseExecution,
+  SessionCreate,
+  SessionUpdate,
+  ExerciseExecutionCreate,
+  ExerciseExecutionUpdate
+} from '../provider-services/session-provider.service';
 import { ExerciseProviderService, Exercise } from 'exercises-lib';
 
 export interface SessionOverview extends Session {
@@ -13,6 +22,24 @@ export interface SessionDetail extends SessionOverview {
 
 export interface SessionExerciseDetail extends ExerciseExecution {
   category?: string;
+}
+
+export interface SessionExerciseInput {
+  id?: string;
+  exerciseId: string;
+  plannedSets: number;
+  plannedReps: number;
+  plannedWeight: number;
+  orderID?: number;
+  category?: Exercise['category'];
+}
+
+export interface SessionCreatePayload extends SessionCreate {
+  exercises: SessionExerciseInput[];
+}
+
+export interface SessionUpdatePayload extends SessionUpdate {
+  exercises: SessionExerciseInput[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -122,6 +149,214 @@ export class SessionLogicService {
 
         if (err.status === 404) {
           errorMessage = 'Session not found. It may have been already deleted.';
+        } else if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  createSession(payload: SessionCreate): Observable<Session> {
+    const name = payload.name?.trim();
+    if (!name) {
+      return throwError(() => new Error('Session name is required'));
+    }
+    if (!payload.planId) {
+      return throwError(() => new Error('Plan is required to create a session'));
+    }
+    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > 30) {
+      return throwError(() => new Error('Order must be between 1 and 30'));
+    }
+
+    const sessionRequest: SessionCreate = {
+      name,
+      planId: payload.planId,
+      orderID: payload.orderID
+    };
+
+    return this.sessionProvider.createSession(sessionRequest).pipe(
+      catchError((err) => {
+        let errorMessage = 'Failed to create session';
+
+        if (err?.message) {
+          errorMessage = err.message;
+        } else if (err.status === 409) {
+          errorMessage = err.error || 'Session with this name or order already exists';
+        } else if (err.status === 400) {
+          errorMessage = 'Invalid session data. Please check all fields.';
+        } else if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  createSessionWithExercises(payload: SessionCreatePayload): Observable<Session> {
+    const name = payload.name?.trim();
+    if (!name) {
+      return throwError(() => new Error('Session name is required'));
+    }
+    if (!payload.planId) {
+      return throwError(() => new Error('Plan is required to create a session'));
+    }
+    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > 30) {
+      return throwError(() => new Error('Order must be between 1 and 30'));
+    }
+
+    const exerciseIds = new Set<string>();
+    for (const exercise of payload.exercises || []) {
+      if (exerciseIds.has(exercise.exerciseId)) {
+        return throwError(() => new Error('Each exercise can only be added once to the session'));
+      }
+      exerciseIds.add(exercise.exerciseId);
+
+      if (!exercise.plannedSets || exercise.plannedSets <= 0) {
+        return throwError(() => new Error('Sets must be greater than 0'));
+      }
+      if (!exercise.plannedReps || exercise.plannedReps <= 0) {
+        return throwError(() => new Error('Reps must be greater than 0'));
+      }
+      if (exercise.plannedWeight == null || exercise.plannedWeight < 0) {
+        return throwError(() => new Error('Weight must be 0 or greater'));
+      }
+      if (exercise.category !== 'BodyWeight' && exercise.plannedWeight <= 0) {
+        return throwError(() => new Error('Weight must be greater than 0 for this exercise'));
+      }
+    }
+
+    const sessionRequest: SessionCreate = {
+      name,
+      planId: payload.planId,
+      orderID: payload.orderID
+    };
+
+    return this.sessionProvider.createSession(sessionRequest).pipe(
+      switchMap((createdSession) => {
+        if (!payload.exercises?.length) {
+          return of(createdSession);
+        }
+
+        const executionRequests: ExerciseExecutionCreate[] = payload.exercises.map((exercise, index) => ({
+          sessionId: createdSession.id,
+          exerciseId: exercise.exerciseId,
+          plannedSets: exercise.plannedSets,
+          plannedReps: exercise.plannedReps,
+          plannedWeight: exercise.plannedWeight,
+          orderID: exercise.orderID ?? index + 1,
+        }));
+
+        return forkJoin(executionRequests.map(req => this.sessionProvider.createExerciseExecution(req))).pipe(
+          map(() => createdSession)
+        );
+      }),
+      catchError((err) => {
+        let errorMessage = 'Failed to create session';
+
+        if (err?.message) {
+          errorMessage = err.message;
+        } else if (err.status === 409) {
+          errorMessage = err.error || 'Session with this name or order already exists';
+        } else if (err.status === 400) {
+          errorMessage = 'Invalid session data. Please check all fields.';
+        } else if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  updateSessionWithExercises(sessionId: string, payload: SessionUpdatePayload): Observable<Session> {
+    const name = payload.name?.trim();
+    if (!name) {
+      return throwError(() => new Error('Session name is required'));
+    }
+    if (!payload.planId) {
+      return throwError(() => new Error('Plan is required to update a session'));
+    }
+    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > 30) {
+      return throwError(() => new Error('Order must be between 1 and 30'));
+    }
+
+    const exerciseIds = new Set<string>();
+    for (const exercise of payload.exercises || []) {
+      if (exerciseIds.has(exercise.exerciseId)) {
+        return throwError(() => new Error('Each exercise can only be added once to the session'));
+      }
+      exerciseIds.add(exercise.exerciseId);
+
+      if (!exercise.plannedSets || exercise.plannedSets <= 0) {
+        return throwError(() => new Error('Sets must be greater than 0'));
+      }
+      if (!exercise.plannedReps || exercise.plannedReps <= 0) {
+        return throwError(() => new Error('Reps must be greater than 0'));
+      }
+      if (exercise.plannedWeight == null || exercise.plannedWeight < 0) {
+        return throwError(() => new Error('Weight must be 0 or greater'));
+      }
+    }
+
+    const sessionUpdate: SessionUpdate = {
+      name,
+      planId: payload.planId,
+      orderID: payload.orderID
+    };
+
+    return this.sessionProvider.updateSession(sessionId, sessionUpdate).pipe(
+      switchMap((updatedSession) =>
+        this.sessionProvider.getExerciseExecutionsBySession(sessionId).pipe(
+          switchMap((existingExecutions) => {
+            const desiredIds = new Set<string>();
+            const updateCalls: Observable<ExerciseExecution>[] = [];
+            const createCalls: Observable<ExerciseExecution>[] = [];
+
+            payload.exercises.forEach((exercise, idx) => {
+              const execId = exercise.id;
+              const request: ExerciseExecutionUpdate | ExerciseExecutionCreate = {
+                exerciseId: exercise.exerciseId,
+                plannedSets: exercise.plannedSets,
+                plannedReps: exercise.plannedReps,
+                plannedWeight: exercise.plannedWeight,
+                orderID: exercise.orderID ?? idx + 1,
+              };
+
+              if (execId) {
+                desiredIds.add(execId);
+                updateCalls.push(this.sessionProvider.updateExerciseExecution(execId, request));
+              } else {
+                createCalls.push(this.sessionProvider.createExerciseExecution({
+                  ...(request as ExerciseExecutionCreate),
+                  sessionId
+                }));
+              }
+            });
+
+            const deleteCalls = existingExecutions
+              .filter(exec => !desiredIds.has(exec.id))
+              .map(exec => this.sessionProvider.deleteExerciseExecution(exec.id));
+
+            const allCalls = [...updateCalls, ...createCalls, ...deleteCalls];
+            if (!allCalls.length) {
+              return of(updatedSession);
+            }
+            return forkJoin(allCalls).pipe(map(() => updatedSession));
+          })
+        )
+      ),
+      catchError((err) => {
+        let errorMessage = 'Failed to update session';
+
+        if (err?.message) {
+          errorMessage = err.message;
+        } else if (err.status === 409) {
+          errorMessage = err.error || 'Session with this name or order already exists';
+        } else if (err.status === 400) {
+          errorMessage = 'Invalid session data. Please check all fields.';
         } else if (err.status === 0) {
           errorMessage = 'Cannot connect to server. Please check your connection.';
         }
