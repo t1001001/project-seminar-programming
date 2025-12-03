@@ -160,6 +160,17 @@ h1 {
   padding: 1rem 0 1rem 2rem;
   margin-left: 1rem;
   border-left: 2px solid rgba(var(--fitness-primary-rgb), 0.3);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -0.1rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    background: rgba(var(--fitness-primary-rgb), 0.35);
+    border-radius: 4px;
+  }
 }
 
 .timeline-item {

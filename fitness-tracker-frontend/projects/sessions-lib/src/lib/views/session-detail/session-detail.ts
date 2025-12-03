@@ -4,10 +4,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { AsyncPipe, DatePipe, NgFor, NgIf } from '@angular/common';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { AsyncPipe } from '@angular/common';
 import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
 
 import { SessionDetail, SessionLogicService } from '../../logic-services/session-logic.service';
+import { SessionFormDialogComponent } from '../../ui/session-form-dialog/session-form-dialog';
 
 @Component({
   selector: 'lib-session-detail',
@@ -16,10 +18,8 @@ import { SessionDetail, SessionLogicService } from '../../logic-services/session
     MatButtonModule,
     MatIconModule,
     MatCardModule,
+    MatDialogModule,
     AsyncPipe,
-    DatePipe,
-    NgFor,
-    NgIf
   ],
   templateUrl: './session-detail.html',
   styleUrl: './session-detail.scss',
@@ -30,6 +30,7 @@ export class SessionDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly sessionService = inject(SessionLogicService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
   session$: Observable<SessionDetail | null> | null = null;
@@ -57,10 +58,26 @@ export class SessionDetailComponent implements OnInit {
     this.router.navigate(['/sessions']);
   }
 
-  onEdit(): void {
-    this.snackBar.open('Session editing coming soon', 'Close', {
-      duration: 2500,
-      panelClass: ['info-snackbar']
+  onEdit(session: SessionDetail): void {
+    const dialogRef = this.dialog.open(SessionFormDialogComponent, {
+      width: '900px',
+      maxWidth: '96vw',
+      panelClass: 'custom-dialog-container',
+      data: { session }
     });
+
+    dialogRef.afterClosed().subscribe((updated: boolean) => {
+      if (updated) {
+        this.refresh();
+        this.snackBar.open('Session updated successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+      }
+    });
+  }
+
+  refresh(): void {
+    this.refreshTrigger$.next();
   }
 }
