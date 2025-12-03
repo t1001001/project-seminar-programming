@@ -9,7 +9,7 @@
     <mat-card-content>
       <div class="header">
         <h1>Session Details</h1>
-        <button mat-raised-button class="edit-btn" type="button" (click)="onEdit()">
+        <button mat-raised-button class="edit-btn" type="button" (click)="onEdit(session)">
           <mat-icon>edit</mat-icon>
           Edit
         </button>
@@ -59,7 +59,8 @@
           <div class="timeline">
             @for (exercise of session.exercises; track exercise.id; let last = $last) {
             <div class="timeline-item" [class.last-item]="last">
-              <div class="timeline-marker"></div>
+              <div class="timeline-marker">
+              </div>
               <div class="timeline-content exercise-card">
                 <div class="exercise-header">
                   <div class="exercise-title">
