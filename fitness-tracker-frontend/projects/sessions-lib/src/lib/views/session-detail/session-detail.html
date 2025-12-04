@@ -51,16 +51,14 @@
 
         <div class="exercises-section">
           <div class="section-header">
-            <h3>Exercise Timeline</h3>
-            <div class="count-chip">{{ session.exercises?.length || 0 }}</div>
+            <h3>Exercises: <span class="count-chip inline-chip">{{ session.exercises?.length || 0 }}</span></h3>
           </div>
 
           @if (session.exercises?.length) {
           <div class="timeline">
             @for (exercise of session.exercises; track exercise.id; let last = $last) {
             <div class="timeline-item" [class.last-item]="last">
-              <div class="timeline-marker">
-              </div>
+              <div class="timeline-marker"></div>
               <div class="timeline-content exercise-card">
                 <div class="exercise-header">
                   <div class="exercise-title">
