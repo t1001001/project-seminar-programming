@@ -153,20 +153,26 @@ h1 {
   margin: 0;
   font-size: 1.1rem;
   color: var(--fitness-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.inline-chip {
+  margin-left: 0;
 }
 
 .timeline {
   position: relative;
   padding: 1rem 0 1rem 2rem;
   margin-left: 1rem;
-  border-left: 2px solid rgba(var(--fitness-primary-rgb), 0.3);
 
   &::before {
     content: '';
     position: absolute;
     left: -0.1rem;
-    top: 0.5rem;
-    bottom: 0.5rem;
+    top: 0;
+    bottom: 0;
     width: 2px;
     background: rgba(var(--fitness-primary-rgb), 0.35);
     border-radius: 4px;
@@ -189,8 +195,9 @@ h1 {
 
 .timeline-marker {
   position: absolute;
-  left: -2.6rem;
+  left: -2.725rem;
   top: 1.5rem;
+  transform: none;
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
@@ -234,20 +241,6 @@ h1 {
   background-color: var(--fitness-border);
 }
 
-.exercise-order {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 64px;
-  height: 2rem;
-  border-radius: 999px;
-  padding: 0 0.75rem;
-  background-color: rgba(var(--fitness-primary-rgb), 0.1);
-  color: var(--fitness-primary);
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
 .exercise-title {
   display: flex;
   flex-direction: column;
@@ -266,7 +259,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.3rem 0.7rem;
+  padding: 0.24rem 0.65rem;
   background-color: var(--fitness-bg-chip);
   border: 1px solid var(--fitness-border);
   border-radius: 999px;
@@ -274,6 +267,7 @@ h1 {
   color: var(--fitness-text-secondary);
   font-weight: 500;
   text-transform: capitalize;
+  line-height: 1;
 }
 
 .exercise-stats {
@@ -356,12 +350,12 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 1.25rem;
-  min-width: 1.25rem;
-  padding: 0 0.4rem;
+  height: 1.4rem;
+  min-width: 1.4rem;
+  padding: 0 0.45rem;
   background-color: var(--fitness-bg-chip);
   border-radius: 12px;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--fitness-text-secondary);
   border: 1px solid var(--fitness-border);
