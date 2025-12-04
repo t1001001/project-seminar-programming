@@ -45,8 +45,7 @@
     <section class="timeline-section">
       <div class="timeline-header">
         <div class="title-row">
-          <h3>Exercise order</h3>
-          <span class="count-chip">{{ exerciseControls.length }}</span>
+          <h3>Exercises: <span class="count-chip inline-chip">{{ exerciseControls.length }}</span></h3>
         </div>
         @if (exerciseControls.length > 1) {
         <span class="hint">Drag the cards to rearrange.</span>
@@ -62,7 +61,10 @@
           <div class="exercise-card" cdkDragHandle>
             <div class="exercise-header">
               <div class="left">
-                <div class="order-chip">{{ i + 1 }}</div>
+                <div class="order-chip">
+                  <mat-icon>format_list_numbered</mat-icon>
+                  <span class="order-value">{{ i + 1 }}</span>
+                </div>
                 <div class="exercise-title">
                   <h4>{{ getExerciseName(exerciseGroup.value.exerciseId) }}</h4>
                   <span class="category-chip">{{ getExerciseCategory(exerciseGroup.value.exerciseId) }}</span>
@@ -107,7 +109,10 @@
           <mat-select formControlName="exerciseId" required>
             @for (exercise of availableExercises(); track exercise.id) {
             <mat-option [value]="exercise.id">
-              {{ exercise.name }} - {{ exercise.category }}
+              <div class="exercise-option">
+                <span class="option-name">{{ exercise.name }}</span>
+                <span class="category-chip option-category">{{ exercise.category || 'No category' }}</span>
+              </div>
             </mat-option>
             }
           </mat-select>

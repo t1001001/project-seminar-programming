@@ -345,6 +345,8 @@ export class SessionFormDialogComponent {
     }
 
     const formValue = this.sessionForm.value;
+    const position = Number(formValue.orderID);
+    const positionText = Number.isFinite(position) ? position : formValue.orderID;
     const payload: SessionCreatePayload | SessionUpdatePayload = {
       name: formValue.name?.trim() || '',
       planId: formValue.planId,
@@ -372,7 +374,24 @@ export class SessionFormDialogComponent {
       },
       error: (err) => {
         this.isSaving = false;
-        this.snackBar.open(err.message, 'Close', {
+        const rawMessage = typeof err?.error === 'string'
+          ? err.error
+          : typeof err?.error?.message === 'string'
+            ? err.error.message
+            : typeof err?.message === 'string'
+              ? err.message
+              : '';
+        const normalized = rawMessage ? rawMessage.toLowerCase() : '';
+        const isOrderConflict = err?.status === 409
+          || normalized.includes('order')
+          || normalized.includes('position')
+          || normalized.includes('already exists');
+        const conflictMessage = rawMessage
+          || (positionText ? `A session with position ${positionText} already exists in this plan.` : '');
+        const message = isOrderConflict
+          ? conflictMessage || 'A session with this position already exists in this plan.'
+          : rawMessage || 'Failed to save session';
+        this.snackBar.open(message, 'Close', {
           duration: 5000,
           panelClass: ['error-snackbar']
         });
