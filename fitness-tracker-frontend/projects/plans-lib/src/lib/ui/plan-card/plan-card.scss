@@ -92,8 +92,16 @@
   }
 }
 
-.actions-section {
-  flex-shrink: 0;
+.details-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.details-actions .delete-btn {
+  margin-top: -4px;
 }
 
 .delete-btn {
@@ -138,18 +146,13 @@
     gap: 1rem;
   }
 
-  .actions-section {
-    align-self: flex-start;
-    width: 100%;
-  }
-
-  .delete-btn {
-    width: 100% !important;
-  }
-
   .details-row {
     flex-direction: column;
     gap: 0.75rem;
     align-items: flex-start;
   }
+}
+
+.details-actions {
+  align-items: flex-start;
 }

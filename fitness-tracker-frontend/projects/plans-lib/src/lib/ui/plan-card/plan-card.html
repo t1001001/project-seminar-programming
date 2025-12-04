@@ -1,29 +1,28 @@
 <mat-card class="plan-card" (click)="onCardClick()">
-    <div class="card-content-wrapper">
-        <div class="info-section">
-            <h3 class="plan-name">{{ plan().name }}</h3>
-            <div class="details-row">
-                @if (plan().description) {
-                <div class="detail-item">
-                    <span class="detail-label">Description:</span>
-                    <span class="detail-value">{{ plan().description }}</span>
-                </div>
-                }
+  <div class="card-content-wrapper">
+    <div class="info-section">
+      <h3 class="plan-name">{{ plan().name }}</h3>
+      <div class="details-actions">
+        <div class="details-row">
+          @if (plan().description) {
+          <div class="detail-item">
+            <span class="detail-label">Description:</span>
+            <span class="detail-value">{{ plan().description }}</span>
+          </div>
+          }
 
-                <div class="stat-chip">
-                    <span class="label">Sessions</span>
-                    <span class="value">{{ plan().sessions?.length || 0 }}</span>
-                </div>
-            </div>
+          <div class="stat-chip">
+            <span class="label">Sessions</span>
+            <span class="value">{{ plan().sessions?.length || 0 }}</span>
+          </div>
         </div>
-
-        <div class="actions-section">
-            <button mat-raised-button class="delete-btn" (click)="onDelete($event)">
-                <mat-icon>delete</mat-icon>
-                Delete
-            </button>
-        </div>
+        <button mat-raised-button class="delete-btn" (click)="onDelete($event)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </div>
     </div>
+  </div>
     <div class="card-footer">
         <span class="click-hint">
             View details
