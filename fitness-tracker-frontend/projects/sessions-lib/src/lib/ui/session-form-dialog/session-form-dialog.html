@@ -19,11 +19,16 @@
       <div class="session-details-divider" aria-hidden="true"></div>
 
       <div class="plan-order-grid">
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="plan-select-field">
           <mat-label>Plan</mat-label>
-          <mat-select formControlName="planId" required>
+          <mat-select formControlName="planId" placeholder="Select a plan" required panelClass="plan-select-panel">
             @for (plan of plans; track plan.id) {
-            <mat-option [value]="plan.id">{{ plan.name }}</mat-option>
+            <mat-option [value]="plan.id">
+              <div class="plan-option">
+                <span class="plan-name">{{ plan.name }}</span>
+                <span class="plan-pill">Plan</span>
+              </div>
+            </mat-option>
             }
           </mat-select>
           @if (sessionForm.get('planId')?.invalid && sessionForm.get('planId')?.touched) {
@@ -32,9 +37,12 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Day</mat-label>
-          <input matInput type="number" formControlName="orderID" min="1" max="30" placeholder="1" />
-          <mat-hint>Day position inside the plan</mat-hint>
+          <mat-label>Position</mat-label>
+          <input matInput type="number" formControlName="orderID" min="1" max="30" placeholder="1-30" required />
+          <mat-hint>Position inside the plan</mat-hint>
+          @if (sessionForm.get('orderID')?.invalid && sessionForm.get('orderID')?.touched) {
+          <mat-error>Position is required (1-30)</mat-error>
+          }
         </mat-form-field>
       </div>
     </div>
