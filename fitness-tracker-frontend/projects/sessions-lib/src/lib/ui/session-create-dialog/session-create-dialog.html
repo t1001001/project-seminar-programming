@@ -11,16 +11,11 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="plan-select-field">
+    <mat-form-field appearance="outline">
       <mat-label>Plan</mat-label>
-      <mat-select formControlName="planId" placeholder="Select a plan" required panelClass="plan-select-panel">
+      <mat-select formControlName="planId" placeholder="Select a plan" required>
         @for (plan of plans; track plan.id) {
-        <mat-option [value]="plan.id">
-          <div class="plan-option">
-            <span class="plan-name">{{ plan.name }}</span>
-            <span class="plan-pill">Plan</span>
-          </div>
-        </mat-option>
+        <mat-option [value]="plan.id">{{ plan.name }}</mat-option>
         }
       </mat-select>
       @if (form.get('planId')?.invalid && form.get('planId')?.touched) {
