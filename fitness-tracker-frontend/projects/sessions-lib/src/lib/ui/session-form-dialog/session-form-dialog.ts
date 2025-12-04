@@ -121,6 +121,10 @@ export class SessionFormDialogComponent {
           this.populateFromSession(this.dialogData.session);
         }
       });
+
+    this.addExerciseForm.get('exerciseId')?.valueChanges.subscribe((exerciseId) => {
+      this.updateAddFormWeightValidator(exerciseId as string | null);
+    });
   }
 
   get exerciseControls(): FormGroup[] {
@@ -156,6 +160,9 @@ export class SessionFormDialogComponent {
 
   private buildExerciseGroup(exercise: Partial<SessionExerciseDetail>, index: number): FormGroup {
     const category = this.getExerciseCategory(exercise.exerciseId || exercise.id || '') as Exercise['category'];
+    const isBodyWeight = category === 'BodyWeight';
+    const weightValidators = this.getWeightValidators(category);
+    const initialWeight = exercise.plannedWeight ?? (isBodyWeight ? 0 : 1);
 
     return this.fb.group({
       executionId: [(exercise as SessionExerciseDetail).id || null],
@@ -163,8 +170,8 @@ export class SessionFormDialogComponent {
       plannedSets: [exercise.plannedSets ?? 0, [Validators.required, Validators.min(1)]],
       plannedReps: [exercise.plannedReps ?? 0, [Validators.required, Validators.min(1)]],
       plannedWeight: [
-        exercise.plannedWeight ?? 0,
-        [Validators.required, Validators.min(0)]
+        initialWeight,
+        weightValidators
       ],
       orderID: [exercise.orderID ?? index + 1],
     });
@@ -200,6 +207,8 @@ export class SessionFormDialogComponent {
       return;
     }
 
+    const category = this.getExerciseCategory(exerciseId);
+    const isBodyWeight = category === 'BodyWeight';
     if (plannedWeight < 0) {
       this.snackBar.open('Weight cannot be negative', 'Close', {
         duration: 3000,
@@ -208,8 +217,6 @@ export class SessionFormDialogComponent {
       return;
     }
 
-    const category = this.getExerciseCategory(exerciseId);
-    const isBodyWeight = category === 'BodyWeight';
     if (!isBodyWeight && plannedWeight <= 0) {
       this.snackBar.open('Weight must be greater than 0 for this exercise', 'Close', {
         duration: 3000,
@@ -274,6 +281,27 @@ export class SessionFormDialogComponent {
     if (fromSession?.category) return fromSession.category;
 
     return 'Unspecified';
+  }
+
+  getWeightHint(exerciseId: string | null | undefined): string {
+    const category = this.getExerciseCategory(exerciseId || '');
+    if (category === 'BodyWeight') {
+      return 'Can be >=0 for this exercise';
+    }
+    return 'Must be >0 for this exercise';
+  }
+
+  getAddFormWeightHint(): string {
+    const selectedId = this.addExerciseForm.get('exerciseId')?.value as string | null;
+    if (!selectedId) {
+      return 'Select an exercise to see weight guidance';
+    }
+    return this.getWeightHint(selectedId);
+  }
+
+  requiresPositiveWeight(exerciseId: string | null | undefined): boolean {
+    if (!exerciseId) return false;
+    return this.getExerciseCategory(exerciseId || '') !== 'BodyWeight';
   }
 
   onCancel(): void {
@@ -350,5 +378,32 @@ export class SessionFormDialogComponent {
         });
       }
     });
+  }
+
+  private getWeightValidators(category: Exercise['category'] | string) {
+    const minWeight = category === 'BodyWeight' ? 0 : 1;
+    return [Validators.required, Validators.min(minWeight)];
+  }
+
+  private updateAddFormWeightValidator(exerciseId: string | null): void {
+    const weightControl = this.addExerciseForm.get('plannedWeight');
+    if (!weightControl) return;
+
+    if (!exerciseId) {
+      weightControl.setValidators([Validators.required, Validators.min(0)]);
+      weightControl.updateValueAndValidity({ emitEvent: false });
+      return;
+    }
+
+    const category = this.getExerciseCategory(exerciseId || '');
+    const validators = this.getWeightValidators(category);
+    weightControl.setValidators(validators);
+
+    const minWeight = category === 'BodyWeight' ? 0 : 1;
+    if (weightControl.value == null || Number(weightControl.value) < minWeight) {
+      weightControl.setValue(minWeight);
+    }
+
+    weightControl.updateValueAndValidity({ emitEvent: false });
   }
 }
