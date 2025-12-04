@@ -179,18 +179,26 @@ export class SessionLogicService {
     return this.sessionProvider.createSession(sessionRequest).pipe(
       catchError((err) => {
         let errorMessage = 'Failed to create session';
+        const positionLabel = sessionRequest.orderID ?? payload.orderID;
+        const conflictMessage = typeof err?.error === 'string' && err.error.trim()
+          ? err.error
+          : '';
 
-        if (err?.message) {
-          errorMessage = err.message;
-        } else if (err.status === 409) {
-          errorMessage = err.error || 'Session with this name or order already exists';
-        } else if (err.status === 400) {
+        if (err?.status === 409) {
+          const positionText = positionLabel != null
+            ? `A session with position ${positionLabel} already exists in this plan.`
+            : 'A session with this position already exists in this plan.';
+          errorMessage = conflictMessage || positionText;
+        } else if (err?.status === 400) {
           errorMessage = 'Invalid session data. Please check all fields.';
-        } else if (err.status === 0) {
+        } else if (err?.status === 0) {
           errorMessage = 'Cannot connect to server. Please check your connection.';
+        } else if (err?.message) {
+          errorMessage = err.message;
         }
 
-        return throwError(() => new Error(errorMessage));
+        const error = Object.assign(new Error(errorMessage), { status: err?.status, error: err?.error });
+        return throwError(() => error);
       })
     );
   }
@@ -255,18 +263,26 @@ export class SessionLogicService {
       }),
       catchError((err) => {
         let errorMessage = 'Failed to create session';
+        const positionLabel = sessionRequest.orderID ?? payload.orderID;
+        const conflictMessage = typeof err?.error === 'string' && err.error.trim()
+          ? err.error
+          : '';
 
-        if (err?.message) {
-          errorMessage = err.message;
-        } else if (err.status === 409) {
-          errorMessage = err.error || 'Session with this name or order already exists';
-        } else if (err.status === 400) {
+        if (err?.status === 409) {
+          const positionText = positionLabel != null
+            ? `A session with position ${positionLabel} already exists in this plan.`
+            : 'A session with this position already exists in this plan.';
+          errorMessage = conflictMessage || positionText;
+        } else if (err?.status === 400) {
           errorMessage = 'Invalid session data. Please check all fields.';
-        } else if (err.status === 0) {
+        } else if (err?.status === 0) {
           errorMessage = 'Cannot connect to server. Please check your connection.';
+        } else if (err?.message) {
+          errorMessage = err.message;
         }
 
-        return throwError(() => new Error(errorMessage));
+        const error = Object.assign(new Error(errorMessage), { status: err?.status, error: err?.error });
+        return throwError(() => error);
       })
     );
   }
@@ -350,18 +366,26 @@ export class SessionLogicService {
       ),
       catchError((err) => {
         let errorMessage = 'Failed to update session';
+        const positionLabel = payload.orderID;
+        const conflictMessage = typeof err?.error === 'string' && err.error.trim()
+          ? err.error
+          : '';
 
-        if (err?.message) {
-          errorMessage = err.message;
-        } else if (err.status === 409) {
-          errorMessage = err.error || 'Session with this name or order already exists';
-        } else if (err.status === 400) {
+        if (err?.status === 409) {
+          const positionText = positionLabel != null
+            ? `A session with position ${positionLabel} already exists in this plan.`
+            : 'A session with this position already exists in this plan.';
+          errorMessage = conflictMessage || positionText;
+        } else if (err?.status === 400) {
           errorMessage = 'Invalid session data. Please check all fields.';
-        } else if (err.status === 0) {
+        } else if (err?.status === 0) {
           errorMessage = 'Cannot connect to server. Please check your connection.';
+        } else if (err?.message) {
+          errorMessage = err.message;
         }
 
-        return throwError(() => new Error(errorMessage));
+        const error = Object.assign(new Error(errorMessage), { status: err?.status, error: err?.error });
+        return throwError(() => error);
       })
     );
   }
