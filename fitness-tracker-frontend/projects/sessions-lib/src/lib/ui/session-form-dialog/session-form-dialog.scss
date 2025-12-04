@@ -66,35 +66,6 @@ h2 {
   max-width: 360px;
 }
 
-.plan-select-field .mat-mdc-select-trigger {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.plan-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-}
-
-.plan-name {
-  font-weight: 600;
-}
-
-.plan-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
-  background: var(--fitness-bg-chip);
-  border: 1px solid var(--fitness-border);
-  font-size: 0.75rem;
-  color: var(--fitness-text-secondary);
-}
-
 .session-dialog mat-form-field {
   width: 100%;
 }

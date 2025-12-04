@@ -19,16 +19,11 @@
       <div class="session-details-divider" aria-hidden="true"></div>
 
       <div class="plan-order-grid">
-        <mat-form-field appearance="outline" class="plan-select-field">
+        <mat-form-field appearance="outline">
           <mat-label>Plan</mat-label>
-          <mat-select formControlName="planId" placeholder="Select a plan" required panelClass="plan-select-panel">
+          <mat-select formControlName="planId" placeholder="Select a plan" required>
             @for (plan of plans; track plan.id) {
-            <mat-option [value]="plan.id">
-              <div class="plan-option">
-                <span class="plan-name">{{ plan.name }}</span>
-                <span class="plan-pill">Plan</span>
-              </div>
-            </mat-option>
+            <mat-option [value]="plan.id">{{ plan.name }}</mat-option>
             }
           </mat-select>
           @if (sessionForm.get('planId')?.invalid && sessionForm.get('planId')?.touched) {
@@ -61,7 +56,7 @@
       <div class="timeline-wrapper" cdkDropList cdkDropListOrientation="vertical"
         (cdkDropListDropped)="onReorder($event)" [cdkDropListDisabled]="exerciseControls.length <= 1">
         @for (exerciseGroup of exerciseControls; track exerciseGroup.value.exerciseId; let i = $index) {
-        <div class="timeline-item" cdkDrag cdkDragLockAxis="y" [cdkDragStartDelay]="90"
+        <div class="timeline-item" cdkDrag cdkDragLockAxis="y" [cdkDragStartDelay]="80"
           [formGroup]="exerciseGroup" [cdkDragDisabled]="exerciseControls.length <= 1">
           <div class="timeline-marker" aria-hidden="true"></div>
           <div class="exercise-card" cdkDragHandle>
@@ -93,8 +88,9 @@
 
               <mat-form-field appearance="outline">
                 <mat-label>Weight (kg)</mat-label>
-                <input matInput type="number" formControlName="plannedWeight" min="0" />
-                <mat-hint>0 kg only for Bodyweight</mat-hint>
+                <input matInput type="number" formControlName="plannedWeight"
+                  [min]="requiresPositiveWeight(exerciseGroup.value.exerciseId) ? 1 : 0" />
+                <mat-hint>{{ getWeightHint(exerciseGroup.value.exerciseId) }}</mat-hint>
               </mat-form-field>
             </div>
           </div>
@@ -136,8 +132,9 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Weight (kg)</mat-label>
-          <input matInput type="number" formControlName="plannedWeight" min="0" />
-          <mat-hint>0 kg only for Bodyweight</mat-hint>
+          <input matInput type="number" formControlName="plannedWeight"
+            [min]="requiresPositiveWeight(addExerciseForm.get('exerciseId')?.value) ? 1 : 0" />
+          <mat-hint>{{ getAddFormWeightHint() }}</mat-hint>
         </mat-form-field>
       </div>
 
