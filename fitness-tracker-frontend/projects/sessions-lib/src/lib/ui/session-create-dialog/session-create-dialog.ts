@@ -73,6 +73,8 @@ export class SessionCreateDialogComponent {
 
     this.isSaving = true;
     const value = this.form.value;
+    const position = Number(value.orderID);
+    const positionText = Number.isFinite(position) ? position : value.orderID;
     this.sessionService.createSession({
       name: value.name,
       planId: value.planId,
@@ -84,7 +86,24 @@ export class SessionCreateDialogComponent {
       },
       error: (err) => {
         this.isSaving = false;
-        this.snackBar.open(err.message, 'Close', {
+        const rawMessage = typeof err?.error === 'string'
+          ? err.error
+          : typeof err?.error?.message === 'string'
+            ? err.error.message
+            : typeof err?.message === 'string'
+              ? err.message
+              : '';
+        const normalized = rawMessage ? rawMessage.toLowerCase() : '';
+        const isOrderConflict = err?.status === 409
+          || normalized.includes('order')
+          || normalized.includes('position')
+          || normalized.includes('already exists');
+        const conflictMessage = rawMessage
+          || (positionText ? `A session with position ${positionText} already exists in this plan.` : '');
+        const message = isOrderConflict
+          ? conflictMessage || 'A session with this position already exists in this plan.'
+          : rawMessage || 'Failed to create session';
+        this.snackBar.open(message, 'Close', {
           duration: 5000,
           panelClass: ['error-snackbar']
         });
