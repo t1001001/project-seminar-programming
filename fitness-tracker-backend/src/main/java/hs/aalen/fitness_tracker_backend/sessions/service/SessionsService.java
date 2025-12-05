@@ -1,5 +1,7 @@
 package hs.aalen.fitness_tracker_backend.sessions.service;
 
+import hs.aalen.fitness_tracker_backend.exerciseexecutions.dto.ExerciseExecutionsResponseDto;
+import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 import hs.aalen.fitness_tracker_backend.plans.repository.PlansRepository;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsCreateDto;
@@ -8,6 +10,7 @@ import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsUpdateDto;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Comparator;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -65,8 +68,28 @@ public class SessionsService {
         response.setPlanId(session.getPlan() != null ? session.getPlan().getId() : null);
         response.setOrderID(session.getOrderID());
         response.setExerciseExecutionsCount(session.getExerciseExecutions().size());
+        response.setExerciseExecutions(session.getExerciseExecutions().stream()
+                .sorted(Comparator.comparing(
+                        ExerciseExecutions::getOrderID,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .map(this::toExerciseExecutionDto)
+                .toList());
         response.setSessionLogCount(session.getSessionLogCount());
         return response;
+    }
+
+    private ExerciseExecutionsResponseDto toExerciseExecutionDto(ExerciseExecutions execution) {
+        ExerciseExecutionsResponseDto dto = new ExerciseExecutionsResponseDto();
+        dto.setId(execution.getId());
+        dto.setPlannedSets(execution.getPlannedSets());
+        dto.setPlannedReps(execution.getPlannedReps());
+        dto.setPlannedWeight(execution.getPlannedWeight());
+        dto.setOrderID(execution.getOrderID());
+        dto.setSessionId(execution.getSession() != null ? execution.getSession().getId() : null);
+        dto.setSessionName(execution.getSession() != null ? execution.getSession().getName() : null);
+        dto.setExerciseId(execution.getExercise() != null ? execution.getExercise().getId() : null);
+        dto.setExerciseName(execution.getExercise() != null ? execution.getExercise().getName() : null);
+        return dto;
     }
 
     public List<SessionsResponseDto> getAll() {
