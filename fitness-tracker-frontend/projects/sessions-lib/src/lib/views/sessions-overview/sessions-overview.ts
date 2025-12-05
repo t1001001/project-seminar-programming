@@ -21,7 +21,6 @@ import { SessionCreateDialogComponent } from '../../ui/session-create-dialog/ses
     MatDialogModule,
     ReactiveFormsModule,
     SessionCardComponent,
-    SessionDeleteDialogComponent
   ],
   templateUrl: './sessions-overview.html',
   styleUrl: './sessions-overview.scss',

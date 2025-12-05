@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { NgFor, NgIf } from '@angular/common';
+
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { take, catchError, of, tap } from 'rxjs';
 
@@ -37,8 +37,6 @@ export interface SessionFormDialogData {
     MatIconModule,
     ReactiveFormsModule,
     DragDropModule,
-    NgFor,
-    NgIf,
   ],
   templateUrl: './session-form-dialog.html',
   styleUrl: './session-form-dialog.scss',

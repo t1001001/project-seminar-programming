@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { NgFor, NgIf } from '@angular/common';
+
 import { catchError, of, take, tap } from 'rxjs';
 
 import { SessionLogicService } from '../../logic-services/session-logic.service';
@@ -22,8 +22,6 @@ import { PlanSummary, SessionProviderService } from '../../provider-services/ses
     MatSelectModule,
     MatButtonModule,
     ReactiveFormsModule,
-    NgFor,
-    NgIf,
   ],
   templateUrl: './session-create-dialog.html',
   styleUrl: './session-create-dialog.scss',

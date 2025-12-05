@@ -43,7 +43,7 @@
           </div>
           <div class="detail-item">
             <span class="detail-label">Exercises</span>
-            <span class="detail-value">{{ session.exerciseExecutionsCount ?? (session.exercises?.length || 0) }}</span>
+            <span class="detail-value">{{ session.exerciseExecutionsCount ?? (session.exercises.length || 0) }}</span>
           </div>
         </div>
 
@@ -51,10 +51,10 @@
 
         <div class="exercises-section">
           <div class="section-header">
-            <h3>Exercises: <span class="count-chip inline-chip">{{ session.exercises?.length || 0 }}</span></h3>
+            <h3>Exercises: <span class="count-chip inline-chip">{{ session.exercises.length || 0 }}</span></h3>
           </div>
 
-          @if (session.exercises?.length) {
+          @if (session.exercises.length) {
           <div class="timeline">
             @for (exercise of session.exercises; track exercise.id; let last = $last) {
             <div class="timeline-item" [class.last-item]="last">
