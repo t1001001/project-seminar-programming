@@ -389,4 +389,34 @@ export class SessionLogicService {
       })
     );
   }
+
+  getNextAvailablePosition(planId: string, excludeSessionId?: string): Observable<number> {
+    if (!planId) {
+      return of(1);
+    }
+
+    return this.sessionProvider.getAllSessions().pipe(
+      map((sessions) => {
+        const usedPositions = (sessions || [])
+          .filter((session) => session.planId === planId && session.id !== excludeSessionId)
+          .map((session) => session.orderID)
+          .filter((orderId): orderId is number => typeof orderId === 'number' && orderId > 0);
+
+        if (!usedPositions.length) {
+          return 1;
+        }
+
+        const taken = new Set(usedPositions);
+        for (let i = 1; i <= 30; i++) {
+          if (!taken.has(i)) {
+            return i;
+          }
+        }
+
+        const max = Math.max(...usedPositions);
+        return Math.min(max + 1, 30);
+      }),
+      catchError(() => of(1))
+    );
+  }
 }
