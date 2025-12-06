@@ -27,10 +27,9 @@
       <mat-label>Position</mat-label>
       <input matInput type="number" formControlName="orderID" min="1" max="30" required readonly tabindex="-1"
         class="readonly-input">
-      <mat-hint>{{ form.get('orderID')?.value ? 'Position inside the plan' : 'Automatically set' }}</mat-hint>
-      @if (form.get('orderID')?.invalid && form.get('orderID')?.touched) {
-      <mat-error>Position is required (1-30)</mat-error>
-      }
+      <mat-hint>
+        {{ (form.get('orderID')?.value ?? '') !== '' ? 'Position inside the plan' : 'Automatically set when plan chosen' }}
+      </mat-hint>
     </mat-form-field>
   </form>
 </mat-dialog-content>

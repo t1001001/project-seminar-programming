@@ -81,7 +81,7 @@ h1 {
   font-weight: 600 !important;
   text-transform: none !important;
   color: var(--fitness-dark) !important;
-  border: 2px solid var(--fitness-dark) !important;
+  border: 2px solid transparent !important;
   background-color: var(--fitness-primary) !important;
   box-shadow: none !important;
   transition: all 0.2s ease;
@@ -90,7 +90,7 @@ h1 {
 .start-btn:hover {
   background-color: var(--fitness-primary-hover) !important;
   box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
-  border-color: var(--fitness-dark) !important;
+  border-color: transparent !important;
   transform: translateY(-2px);
 }
 
