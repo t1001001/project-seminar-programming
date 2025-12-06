@@ -57,6 +57,10 @@ export class SessionCreateDialogComponent {
         })
       )
       .subscribe();
+
+    this.form.get('planId')?.valueChanges.subscribe((planId) => {
+      this.prefillPosition(planId as string | null | undefined);
+    });
   }
 
   onCancel(): void {
@@ -107,5 +111,28 @@ export class SessionCreateDialogComponent {
         });
       }
     });
+  }
+
+  private prefillPosition(planId: string | null | undefined): void {
+    const positionControl = this.form.get('orderID');
+    if (!positionControl) return;
+
+    if (!planId) {
+      positionControl.setValue(null);
+      return;
+    }
+
+    this.sessionService.getNextAvailablePosition(planId)
+      .pipe(take(1))
+      .subscribe({
+        next: (nextPosition) => {
+          if (this.form.get('planId')?.value !== planId) return;
+          positionControl.setValue(nextPosition ?? null, { emitEvent: false });
+        },
+        error: () => {
+          if (this.form.get('planId')?.value !== planId) return;
+          positionControl.setValue(null, { emitEvent: false });
+        }
+      });
   }
 }

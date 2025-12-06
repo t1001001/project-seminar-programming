@@ -42,6 +42,17 @@ mat-dialog-actions button[mat-button]:hover {
   color: var(--fitness-primary) !important;
 }
 
+.readonly-input[readonly] {
+  background-color: transparent;
+  color: var(--fitness-text-secondary);
+  cursor: not-allowed;
+}
+
+.readonly-input[readonly]::placeholder {
+  color: var(--fitness-text-secondary);
+  opacity: 0.8;
+}
+
 .create-btn {
   background-color: var(--fitness-primary) !important;
   color: var(--fitness-dark) !important;
