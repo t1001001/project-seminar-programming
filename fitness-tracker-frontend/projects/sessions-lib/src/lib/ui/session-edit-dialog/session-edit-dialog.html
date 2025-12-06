@@ -36,9 +36,6 @@
           <input matInput type="number" formControlName="orderID" min="1" max="30" placeholder="Auto" required
             readonly tabindex="-1" class="readonly-input" />
           <mat-hint>Position inside the plan</mat-hint>
-          @if (sessionForm.get('orderID')?.invalid && sessionForm.get('orderID')?.touched) {
-          <mat-error>Position is required (1-30)</mat-error>
-          }
         </mat-form-field>
       </div>
     </div>
@@ -151,7 +148,8 @@
         <button mat-button class="cancel-btn" type="button" (click)="onToggleAddForm()">
           Cancel
         </button>
-        <button mat-raised-button class="create-btn" type="button" (click)="onAddExercise()">
+        <button mat-raised-button class="create-btn" type="button" (click)="onAddExercise()"
+          [disabled]="addExerciseForm.invalid || !addExerciseForm.get('exerciseId')?.value">
           <mat-icon>add_circle</mat-icon>
           Add to timeline
         </button>
@@ -161,10 +159,8 @@
   </mat-dialog-content>
 
   <mat-dialog-actions align="end" class="dialog-actions">
-    <button class="add-dot" type="button" (click)="onToggleAddForm()">
-      <span class="dot">
-        <mat-icon>add</mat-icon>
-      </span>
+    <button mat-raised-button class="create-btn" type="button" (click)="onToggleAddForm()">
+      <mat-icon>add_circle</mat-icon>
       <span>Add exercise</span>
     </button>
     <span class="actions-spacer"></span>

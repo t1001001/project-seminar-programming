@@ -299,6 +299,10 @@ h2 {
   gap: 0.65rem;
 }
 
+mat-hint {
+  font-size: 0.75rem;
+}
+
 .timeline-wrapper.cdk-drop-list-dragging .timeline-item:not(.cdk-drag-placeholder) {
   transition: transform 180ms cubic-bezier(0.2, 0, 0, 1);
 }
@@ -345,52 +349,6 @@ h2 {
 
 .ghost {
   opacity: 0.6;
-}
-
-.add-dot {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border: 1px solid transparent;
-  background: var(--fitness-primary);
-  padding: 0.6rem 1.05rem;
-  border-radius: 8px;
-  color: var(--fitness-dark);
-  cursor: pointer;
-  width: fit-content;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  font-size: 0.95rem;
-  margin: 0;
-  font-weight: 600;
-  box-shadow: var(--fitness-shadow-glow);
-
-  .dot {
-    display: grid;
-    place-items: center;
-    width: 1.2rem;
-    height: 1.2rem;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.4);
-
-    mat-icon {
-      width: 16px;
-      height: 16px;
-      font-size: 16px;
-      color: var(--fitness-text-secondary);
-      line-height: 1;
-    }
-  }
-
-  mat-icon {
-    font-size: 17px;
-  }
-
-  &:hover {
-    background: var(--fitness-primary-hover);
-    box-shadow: var(--fitness-shadow-glow-lg);
-    transform: translateY(-2px);
-  }
 }
 
 .add-form {
@@ -446,6 +404,11 @@ h2 {
 .add-actions {
   display: flex;
   justify-content: flex-start;
+}
+
+// Make footer "Add exercise" button match the inline add button styling
+.dialog-actions .create-btn mat-icon {
+  color: var(--fitness-dark);
 }
 
 .empty-state {
@@ -577,7 +540,4 @@ mat-dialog-actions button[mat-button]:hover {
     left: -1.8rem;
   }
 
-  .add-dot {
-    margin-left: 0;
-  }
 }

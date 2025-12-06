@@ -21,12 +21,12 @@ import {
 import { Exercise, ExerciseProviderService } from 'exercises-lib';
 import { PlanSummary, SessionProviderService } from '../../provider-services/session-provider.service';
 
-export interface SessionFormDialogData {
+export interface SessionEditDialogData {
   session?: SessionDetail;
 }
 
 @Component({
-  selector: 'lib-session-form-dialog',
+  selector: 'lib-session-edit-dialog',
   standalone: true,
   imports: [
     MatDialogModule,
@@ -38,13 +38,13 @@ export interface SessionFormDialogData {
     ReactiveFormsModule,
     DragDropModule,
   ],
-  templateUrl: './session-form-dialog.html',
-  styleUrl: './session-form-dialog.scss',
+  templateUrl: './session-edit-dialog.html',
+  styleUrl: './session-edit-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SessionFormDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<SessionFormDialogComponent>);
-  private readonly dialogData = inject<SessionFormDialogData | null>(MAT_DIALOG_DATA, { optional: true });
+export class SessionEditDialogComponent {
+  private readonly dialogRef = inject(MatDialogRef<SessionEditDialogComponent>);
+  private readonly dialogData = inject<SessionEditDialogData | null>(MAT_DIALOG_DATA, { optional: true });
   private readonly fb = inject(FormBuilder);
   private readonly sessionService = inject(SessionLogicService);
   private readonly sessionProvider = inject(SessionProviderService);
@@ -70,9 +70,9 @@ export class SessionFormDialogComponent {
 
   readonly addExerciseForm: FormGroup = this.fb.group({
     exerciseId: ['', Validators.required],
-    plannedSets: [3, [Validators.required, Validators.min(1)]],
-    plannedReps: [10, [Validators.required, Validators.min(1)]],
-    plannedWeight: [0, [Validators.required, Validators.min(0)]],
+    plannedSets: [null, [Validators.required, Validators.min(1)]],
+    plannedReps: [null, [Validators.required, Validators.min(1)]],
+    plannedWeight: [null, [Validators.required, Validators.min(0)]],
   });
 
   readonly exercisesArray: FormArray = this.fb.array([]);
@@ -168,7 +168,7 @@ export class SessionFormDialogComponent {
     const category = this.getExerciseCategory(exercise.exerciseId || exercise.id || '') as Exercise['category'];
     const isBodyWeight = category === 'BodyWeight';
     const weightValidators = this.getWeightValidators(category);
-    const initialWeight = exercise.plannedWeight ?? (isBodyWeight ? 0 : 1);
+    const initialWeight = exercise.plannedWeight ?? null;
 
     return this.fb.group({
       executionId: [(exercise as SessionExerciseDetail).id || null],
@@ -244,9 +244,9 @@ export class SessionFormDialogComponent {
     this.sessionForm.markAsDirty();
     this.addExerciseForm.patchValue({
       exerciseId: '',
-      plannedSets: 3,
-      plannedReps: 10,
-      plannedWeight: 0,
+      plannedSets: null,
+      plannedReps: null,
+      plannedWeight: null,
     });
     this.showAddForm = false;
   }
@@ -302,7 +302,7 @@ export class SessionFormDialogComponent {
   getAddFormWeightHint(): string {
     const selectedId = this.addExerciseForm.get('exerciseId')?.value as string | null;
     if (!selectedId) {
-      return 'Select an exercise to see weight guidance';
+      return 'Select an exercise to see guidance';
     }
     return this.getWeightHint(selectedId);
   }
@@ -448,11 +448,6 @@ export class SessionFormDialogComponent {
     const category = this.getExerciseCategory(exerciseId || '');
     const validators = this.getWeightValidators(category);
     weightControl.setValidators(validators);
-
-    const minWeight = category === 'BodyWeight' ? 0 : 1;
-    if (weightControl.value == null || Number(weightControl.value) < minWeight) {
-      weightControl.setValue(minWeight);
-    }
 
     weightControl.updateValueAndValidity({ emitEvent: false });
   }

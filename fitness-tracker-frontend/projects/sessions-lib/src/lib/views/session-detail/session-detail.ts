@@ -9,7 +9,7 @@ import { AsyncPipe } from '@angular/common';
 import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
 
 import { SessionDetail, SessionLogicService } from '../../logic-services/session-logic.service';
-import { SessionFormDialogComponent } from '../../ui/session-form-dialog/session-form-dialog';
+import { SessionEditDialogComponent } from '../../ui/session-edit-dialog/session-edit-dialog';
 
 @Component({
   selector: 'lib-session-detail',
@@ -59,7 +59,7 @@ export class SessionDetailComponent implements OnInit {
   }
 
   onEdit(session: SessionDetail): void {
-    const dialogRef = this.dialog.open(SessionFormDialogComponent, {
+    const dialogRef = this.dialog.open(SessionEditDialogComponent, {
       width: '900px',
       maxWidth: '96vw',
       panelClass: 'custom-dialog-container',
