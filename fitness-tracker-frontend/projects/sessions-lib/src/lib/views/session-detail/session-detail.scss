@@ -45,6 +45,12 @@
   margin-bottom: 2rem;
 }
 
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 h1 {
   margin: 0;
   font-size: 2rem;
@@ -67,6 +73,25 @@ h1 {
   background-color: var(--fitness-primary-hover) !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
+}
+
+.start-btn {
+  border-radius: 8px !important;
+  padding: 0.5rem 1.3rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  color: var(--fitness-dark) !important;
+  border: 2px solid var(--fitness-dark) !important;
+  background-color: var(--fitness-primary) !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease;
+}
+
+.start-btn:hover {
+  background-color: var(--fitness-primary-hover) !important;
+  box-shadow: 0 4px 12px rgba(var(--fitness-primary-rgb), 0.3) !important;
+  border-color: var(--fitness-dark) !important;
+  transform: translateY(-2px);
 }
 
 .detail-view {
@@ -195,7 +220,7 @@ h1 {
 
 .timeline-marker {
   position: absolute;
-  left: -2.725rem;
+  left: -2.735rem;
   top: 1.5rem;
   transform: none;
   width: 1rem;
