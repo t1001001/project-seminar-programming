@@ -58,6 +58,7 @@ export class SessionFormDialogComponent {
   exercises: Exercise[] = [];
   isSaving = false;
   showAddForm = false;
+  private isInitializingPosition = false;
 
   @ViewChild('addFormRef') addFormRef?: ElementRef<HTMLElement>;
 
@@ -123,6 +124,11 @@ export class SessionFormDialogComponent {
     this.addExerciseForm.get('exerciseId')?.valueChanges.subscribe((exerciseId) => {
       this.updateAddFormWeightValidator(exerciseId as string | null);
     });
+
+    this.sessionForm.get('planId')?.valueChanges.subscribe((planId) => {
+      if (this.isInitializingPosition) return;
+      this.prefillPosition(planId as string | null | undefined);
+    });
   }
 
   get exerciseControls(): FormGroup[] {
@@ -143,11 +149,13 @@ export class SessionFormDialogComponent {
   }
 
   private populateFromSession(session: SessionDetail): void {
+    this.isInitializingPosition = true;
     this.sessionForm.patchValue({
       name: session.name,
       planId: session.planId ?? '',
       orderID: session.orderID ?? null,
     });
+    this.isInitializingPosition = false;
 
     this.exercisesArray.clear();
     (session.exercises || []).forEach((exercise, idx) => {
@@ -261,7 +269,9 @@ export class SessionFormDialogComponent {
     this.sessionForm.markAsDirty();
   }
 
-  getExerciseName(exerciseId: string): string {
+  getExerciseName(exerciseId: string | null | undefined): string {
+    if (!exerciseId) return 'Exercise';
+
     const fromLibrary = this.findExercise(exerciseId)?.name;
     if (fromLibrary) return fromLibrary;
 
@@ -400,6 +410,29 @@ export class SessionFormDialogComponent {
   private getWeightValidators(category: Exercise['category'] | string) {
     const minWeight = category === 'BodyWeight' ? 0 : 1;
     return [Validators.required, Validators.min(minWeight)];
+  }
+
+  private prefillPosition(planId: string | null | undefined): void {
+    const positionControl = this.sessionForm.get('orderID');
+    if (!positionControl) return;
+
+    if (!planId) {
+      positionControl.setValue(null);
+      return;
+    }
+
+    this.sessionService.getNextAvailablePosition(planId, this.sessionId ?? undefined)
+      .pipe(take(1))
+      .subscribe({
+        next: (nextPosition) => {
+          if (this.sessionForm.get('planId')?.value !== planId) return;
+          positionControl.setValue(nextPosition ?? null, { emitEvent: false });
+        },
+        error: () => {
+          if (this.sessionForm.get('planId')?.value !== planId) return;
+          positionControl.setValue(null, { emitEvent: false });
+        }
+      });
   }
 
   private updateAddFormWeightValidator(exerciseId: string | null): void {

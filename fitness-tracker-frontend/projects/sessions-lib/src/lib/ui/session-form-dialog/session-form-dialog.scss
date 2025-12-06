@@ -77,6 +77,17 @@ h2 {
   margin: 0.3rem 0 0.4rem;
 }
 
+.readonly-input[readonly] {
+  background-color: transparent;
+  color: var(--fitness-text-secondary);
+  cursor: not-allowed;
+}
+
+.readonly-input[readonly]::placeholder {
+  color: var(--fitness-text-secondary);
+  opacity: 0.8;
+}
+
 .section-divider {
   height: 1px;
   background: var(--fitness-border);
@@ -86,7 +97,7 @@ h2 {
 
 .timeline-section {
   --timeline-line-x: 1rem;
-  --timeline-left-space: 2.75rem;
+  --timeline-left-space: 2.735rem;
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
@@ -185,7 +196,7 @@ h2 {
 
 .timeline-marker {
   position: absolute;
-  left: calc(var(--timeline-line-x, 1rem) - var(--timeline-left-space, 2.75rem) - 0.625rem);
+  left: calc(var(--timeline-line-x, 1rem) - var(--timeline-left-space, 2.735rem) - 0.625rem);
   top: 1.3rem;
   transform: none;
   width: 1rem;
