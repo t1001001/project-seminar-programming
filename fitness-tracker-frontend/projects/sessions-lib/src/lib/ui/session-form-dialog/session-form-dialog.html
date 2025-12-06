@@ -31,9 +31,10 @@
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="readonly-field" floatLabel="always">
           <mat-label>Position</mat-label>
-          <input matInput type="number" formControlName="orderID" min="1" max="30" placeholder="1-30" required />
+          <input matInput type="number" formControlName="orderID" min="1" max="30" placeholder="Auto" required
+            readonly tabindex="-1" class="readonly-input" />
           <mat-hint>Position inside the plan</mat-hint>
           @if (sessionForm.get('orderID')?.invalid && sessionForm.get('orderID')?.touched) {
           <mat-error>Position is required (1-30)</mat-error>
@@ -107,6 +108,9 @@
         <mat-form-field appearance="outline">
           <mat-label>Select exercise</mat-label>
           <mat-select formControlName="exerciseId" required>
+            <mat-select-trigger>
+              {{ getExerciseName(addExerciseForm.get('exerciseId')?.value) || 'Select exercise' }}
+            </mat-select-trigger>
             @for (exercise of availableExercises(); track exercise.id) {
             <mat-option [value]="exercise.id">
               <div class="exercise-option">
