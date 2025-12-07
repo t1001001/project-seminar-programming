@@ -6,6 +6,7 @@ export * from './provider-services/plan-provider.service';
 export * from './ui/plan-card/plan-card';
 export * from './ui/plan-form-dialog/plan-form-dialog';
 export * from './ui/plan-delete-dialog/plan-delete-dialog';
+export * from './ui/plan-edit-dialog/plan-edit-dialog';
 
 // View Components
 export * from './views/plans-overview/plans-overview';
