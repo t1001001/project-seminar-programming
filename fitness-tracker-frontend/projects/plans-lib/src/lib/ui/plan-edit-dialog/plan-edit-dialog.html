@@ -1,0 +1,92 @@
+<form class="plan-edit-form" [formGroup]="form" (ngSubmit)="onSave()">
+  <h2 mat-dialog-title>Edit plan</h2>
+
+  <mat-dialog-content class="plan-edit-content">
+    <p class="required-hint">* Required fields</p>
+    <p class="dialog-subtitle">Update the plan info and drag sessions to reorder them.</p>
+
+    <div class="plan-fields">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" required />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <mat-error>Name is required (min 2 characters)</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="3"></textarea>
+      </mat-form-field>
+
+      <div class="field-divider"></div>
+    </div>
+
+    <section class="timeline-section">
+      <div class="timeline-header">
+        <div class="title-row">
+          <h3>Sessions: <span class="count-chip inline-chip">{{ sessions.length }}</span></h3>
+        </div>
+        @if (sessions.length > 1) {
+        <span class="hint">Drag the cards to rearrange.</span>
+        }
+      </div>
+
+      @if (sessions.length) {
+      <div class="timeline-wrapper" cdkDropList cdkDropListOrientation="vertical"
+        (cdkDropListDropped)="onReorderSessions($event)" [cdkDropListDisabled]="sessions.length <= 1">
+        @for (session of sessions; track session.id ?? session.name; let i = $index) {
+        <div class="timeline-item" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="sessions.length <= 1"
+          [cdkDragStartDelay]="80">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content drag-card" cdkDragHandle>
+            <mat-card class="session-card">
+              <div class="order-chip">
+                <mat-icon>format_list_numbered</mat-icon>
+                {{ i + 1 }}
+              </div>
+              <mat-card-header>
+                <div mat-card-avatar class="session-avatar">
+                  <mat-icon>directions_run</mat-icon>
+                </div>
+                <mat-card-title>{{ session.name }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="exercises-list">
+                  <div class="exercises-header">
+                    <span class="count-chip">{{ session.exerciseExecutions?.length || 0 }}</span>
+                    <span class="exercises-label">Exercises:</span>
+                  </div>
+                  @if (session.exerciseExecutions && session.exerciseExecutions.length) {
+                  <div class="chip-container">
+                    @for (exercise of session.exerciseExecutions; track exercise.exercise.name) {
+                    <span class="exercise-chip">{{ exercise.exercise.name }}</span>
+                    }
+                  </div>
+                  } @else {
+                  <span class="no-exercises">No exercises added</span>
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">event_busy</mat-icon>
+        <p>No sessions in this plan yet</p>
+      </div>
+      }
+    </section>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button class="cancel-btn" type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button class="update-btn" type="submit" [disabled]="form.invalid || isSaving || !isDirty">
+      <mat-icon>save</mat-icon>
+      <span>Update</span>
+    </button>
+  </mat-dialog-actions>
+</form>
