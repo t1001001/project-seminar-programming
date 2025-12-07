@@ -9,15 +9,12 @@
         <mat-card-content>
             <div class="header">
                 <h1>Training Plan Details</h1>
-                @if (!isEditMode) {
-                <button mat-raised-button class="edit-btn" (click)="enableEditMode()">
+                <button mat-raised-button class="edit-btn" (click)="openEditDialog(plan)">
                     <mat-icon>edit</mat-icon>
                     Edit
                 </button>
-                }
             </div>
 
-            @if (!isEditMode) {
             <!-- Read-only card view -->
             <div class="detail-view">
                 <div class="detail-item">
@@ -33,11 +30,14 @@
                 }
 
                 <div class="sessions-section">
-                    <h3>List of Sessions</h3>
+                    <div class="sessions-header">
+                        <h3>Sessions:</h3>
+                        <span class="count-chip">{{ plan.sessions?.length || 0 }}</span>
+                    </div>
                     <div class="sessions-list">
                         @if (plan.sessions && plan.sessions.length > 0) {
                         <div class="timeline">
-                            @for (session of plan.sessions; track session.name; let last = $last) {
+                            @for (session of plan.sessions; track session.id ?? session.name; let last = $last) {
                             <div class="timeline-item" [class.last-item]="last">
                                 <div class="timeline-marker"></div>
                                 <div class="timeline-content">
@@ -86,37 +86,7 @@
                     </div>
                 </div>
             </div>
-            } @else {
-            <!-- Edit mode form -->
-            <p class="required-hint">* Required fields</p>
-            <form [formGroup]="form" class="detail-form">
-                <mat-form-field appearance="outline">
-                    <mat-label>Name</mat-label>
-                    <input matInput formControlName="name" required />
-                    @if (form.get('name')?.invalid && form.get('name')?.touched) {
-                    <mat-error>Name is required (min 2 characters)</mat-error>
-                    }
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                    <mat-label>Description</mat-label>
-                    <textarea matInput formControlName="description" rows="4"></textarea>
-                </mat-form-field>
-            </form>
-            }
         </mat-card-content>
-
-        @if (isEditMode) {
-        <mat-card-actions align="end">
-            <button mat-button class="cancel-btn" (click)="cancelEdit()">
-                Cancel
-            </button>
-            <button mat-raised-button class="update-btn" (click)="saveChanges(plan.id)"
-                [disabled]="form.invalid || !form.dirty">
-                Update
-            </button>
-        </mat-card-actions>
-        }
     </mat-card>
     }
 </section>
