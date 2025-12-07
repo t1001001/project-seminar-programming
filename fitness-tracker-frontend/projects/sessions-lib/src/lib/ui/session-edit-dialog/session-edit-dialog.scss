@@ -43,7 +43,7 @@ h2 {
 .session-details {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.1rem;
   align-items: stretch;
 }
 
@@ -52,29 +52,33 @@ h2 {
 }
 
 .name-row mat-form-field {
-  max-width: 520px;
+  max-width: 100%;
+}
+
+.full-width {
+  width: 100%;
 }
 
 .plan-order-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0.75rem 1.1rem;
+  grid-template-columns: 1fr;
+  gap: 0.75rem 0.6rem;
   align-items: start;
 }
 
 .plan-order-grid mat-form-field {
-  max-width: 360px;
+  max-width: 100%;
 }
 
 .session-dialog mat-form-field {
   width: 100%;
 }
 
-.session-details-divider {
+.field-divider {
   height: 1px;
   background: var(--fitness-border);
   width: 100%;
-  margin: 0.3rem 0 0.4rem;
+  margin: 0.8rem 0 0.6rem;
 }
 
 .readonly-input[readonly] {
@@ -86,13 +90,6 @@ h2 {
 .readonly-input[readonly]::placeholder {
   color: var(--fitness-text-secondary);
   opacity: 0.8;
-}
-
-.section-divider {
-  height: 1px;
-  background: var(--fitness-border);
-  width: 100%;
-  margin: 0.6rem 0 0.45rem;
 }
 
 .timeline-section {
@@ -197,7 +194,7 @@ h2 {
 .timeline-marker {
   position: absolute;
   left: calc(var(--timeline-line-x, 1rem) - var(--timeline-left-space, 2.735rem) - 0.625rem);
-  top: 1.3rem;
+  top: 1.1rem;
   transform: none;
   width: 1rem;
   height: 1rem;
@@ -213,7 +210,7 @@ h2 {
   border: 1px solid var(--fitness-border);
   border-radius: 10px;
   background: var(--fitness-bg-card);
-  padding: 0.65rem 0.7rem;
+  padding: 0.65rem 0.95rem 1rem 0.95rem;
   box-shadow: none;
   min-width: 0;
   cursor: grab;
@@ -226,7 +223,7 @@ h2 {
   align-items: center;
   justify-content: space-between;
   gap: 0.65rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
   flex-wrap: wrap;
 }
 
@@ -261,9 +258,6 @@ h2 {
   }
 }
 
-.title-block {
-}
-
 .exercise-title {
   display: inline-flex;
   align-items: center;
@@ -283,6 +277,13 @@ h2 {
   line-height: 1;
 }
 
+.exercise-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--fitness-border);
+  margin: 0.6rem 0 0.6rem 0;
+}
+
 .actions {
   display: inline-flex;
   align-items: center;
@@ -297,6 +298,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 0.65rem;
+  margin-top: 0.75rem;
 }
 
 mat-hint {
