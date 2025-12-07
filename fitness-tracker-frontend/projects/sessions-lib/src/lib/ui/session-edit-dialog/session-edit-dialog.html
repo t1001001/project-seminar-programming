@@ -7,7 +7,7 @@
 
     <div class="session-details">
       <div class="name-row">
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Session name</mat-label>
           <input matInput formControlName="name" placeholder="Upper Body Blast" required />
           @if (sessionForm.get('name')?.invalid && sessionForm.get('name')?.touched) {
@@ -16,10 +16,8 @@
         </mat-form-field>
       </div>
 
-      <div class="session-details-divider" aria-hidden="true"></div>
-
       <div class="plan-order-grid">
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Plan</mat-label>
           <mat-select formControlName="planId" placeholder="Select a plan" required>
             @for (plan of plans; track plan.id) {
@@ -31,12 +29,7 @@
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="readonly-field" floatLabel="always">
-          <mat-label>Position</mat-label>
-          <input matInput type="number" formControlName="orderID" min="1" max="30" placeholder="Auto" required
-            readonly tabindex="-1" class="readonly-input" />
-          <mat-hint>Position inside the plan</mat-hint>
-        </mat-form-field>
+        <div class="field-divider"></div>
       </div>
     </div>
 
@@ -74,6 +67,8 @@
                 </button>
               </div>
             </div>
+
+            <div class="exercise-divider"></div>
 
             <div class="exercise-stats">
               <mat-form-field appearance="outline">
