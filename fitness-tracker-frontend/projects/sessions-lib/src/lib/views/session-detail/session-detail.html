@@ -62,15 +62,26 @@
 
           @if (session.exercises.length) {
           <div class="timeline">
-            @for (exercise of session.exercises; track exercise.id; let last = $last) {
+            @for (exercise of session.exercises; track exercise.id; let last = $last; let i = $index) {
             <div class="timeline-item" [class.last-item]="last">
               <div class="timeline-marker"></div>
               <div class="timeline-content exercise-card">
                 <div class="exercise-header">
-                  <div class="exercise-title">
-                    <h4>{{ exercise.exerciseName }}</h4>
+                  <div class="left">
+                    <div class="exercise-icon">
+                      <mat-icon>fitness_center</mat-icon>
+                    </div>
+                    <div class="exercise-title">
+                      <h4>{{ exercise.exerciseName }}</h4>
+                    </div>
                   </div>
-                  <span class="category-chip">{{ exercise.category || 'No category' }}</span>
+                  <div class="right">
+                    <div class="order-chip">
+                      <mat-icon>format_list_numbered</mat-icon>
+                      <span class="order-value">{{ exercise.orderID ?? (i + 1) }}</span>
+                    </div>
+                    <span class="category-chip">{{ exercise.category || 'No category' }}</span>
+                  </div>
                 </div>
 
                 <div class="exercise-divider"></div>
