@@ -67,49 +67,49 @@
               <div class="timeline-marker"></div>
               <div class="timeline-content" (click)="navigateToExercise(exercise)">
                 <div class="exercise-card">
-                <div class="exercise-header">
-                  <div class="left">
-                    <div class="exercise-icon">
-                      <mat-icon>fitness_center</mat-icon>
+                  <div class="exercise-header">
+                    <div class="left">
+                      <div class="exercise-icon">
+                        <mat-icon>fitness_center</mat-icon>
+                      </div>
+                      <div class="exercise-title">
+                        <h4>{{ exercise.exerciseName }}</h4>
+                      </div>
                     </div>
-                    <div class="exercise-title">
-                      <h4>{{ exercise.exerciseName }}</h4>
+                    <div class="right">
+                      <div class="order-chip">
+                        <mat-icon>format_list_numbered</mat-icon>
+                        <span class="order-value">{{ exercise.orderID }}</span>
+                      </div>
+                      <span class="category-chip">{{ exercise.category || 'No category' }}</span>
                     </div>
                   </div>
-                  <div class="right">
-                    <div class="order-chip">
-                      <mat-icon>format_list_numbered</mat-icon>
-                      <span class="order-value">{{ exercise.orderID ?? (i + 1) }}</span>
-                    </div>
-                    <span class="category-chip">{{ exercise.category || 'No category' }}</span>
-                  </div>
-                </div>
 
-                <div class="exercise-divider"></div>
+                  <div class="exercise-divider"></div>
 
-                <div class="exercise-stats">
-                  <div class="stat-chip">
-                    <mat-icon class="stat-icon">dynamic_form</mat-icon>
-                    <span class="stat-label">Sets</span>
-                    <span class="stat-value">{{ exercise.plannedSets ?? '-' }}</span>
+                  <div class="exercise-stats">
+                    <div class="stat-chip">
+                      <mat-icon class="stat-icon">dynamic_form</mat-icon>
+                      <span class="stat-label">Sets</span>
+                      <span class="stat-value">{{ exercise.plannedSets ?? '-' }}</span>
+                    </div>
+                    <div class="stat-chip">
+                      <mat-icon class="stat-icon">repeat</mat-icon>
+                      <span class="stat-label">Reps</span>
+                      <span class="stat-value">{{ exercise.plannedReps ?? '-' }}</span>
+                    </div>
+                    <div class="stat-chip">
+                      <mat-icon class="stat-icon">fitness_center</mat-icon>
+                      <span class="stat-label">Weight</span>
+                      <span class="stat-value">
+                        @if (exercise.plannedWeight != null) {
+                        {{ exercise.plannedWeight }} kg
+                        } @else {
+                        -
+                        }
+                      </span>
+                    </div>
                   </div>
-                  <div class="stat-chip">
-                    <mat-icon class="stat-icon">repeat</mat-icon>
-                    <span class="stat-label">Reps</span>
-                    <span class="stat-value">{{ exercise.plannedReps ?? '-' }}</span>
-                  </div>
-                  <div class="stat-chip">
-                    <mat-icon class="stat-icon">fitness_center</mat-icon>
-                    <span class="stat-label">Weight</span>
-                    <span class="stat-value">
-                      @if (exercise.plannedWeight != null) {
-                      {{ exercise.plannedWeight }} kg
-                      } @else {
-                      -
-                      }
-                    </span>
-                  </div>
-                </div>
                   <div class="card-footer">
                     <span class="click-hint">
                       Go to exercise
