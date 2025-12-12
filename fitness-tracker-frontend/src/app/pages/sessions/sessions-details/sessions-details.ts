@@ -3,7 +3,6 @@ import { SessionDetailComponent } from 'sessions-lib';
 
 @Component({
   selector: 'app-sessions-details',
-  standalone: true,
   imports: [SessionDetailComponent],
   template: `<lib-session-detail />`,
   styleUrl: './sessions-details.scss',
