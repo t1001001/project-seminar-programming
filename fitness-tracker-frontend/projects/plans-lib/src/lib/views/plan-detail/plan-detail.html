@@ -40,7 +40,7 @@
                             @for (session of plan.sessions; track session.id ?? session.name; let last = $last) {
                             <div class="timeline-item" [class.last-item]="last">
                                 <div class="timeline-marker"></div>
-                                <div class="timeline-content">
+                                <div class="timeline-content" (click)="navigateToSession(session)">
                                     <mat-card class="session-card">
                                         <div class="order-chip">
                                             <mat-icon>format_list_numbered</mat-icon>
@@ -75,6 +75,12 @@
                                                 }
                                             </div>
                                         </mat-card-content>
+                                        <div class="card-footer">
+                                            <span class="click-hint">
+                                                Go to session
+                                                <span class="material-icons">arrow_forward</span>
+                                            </span>
+                                        </div>
                                     </mat-card>
                                 </div>
                             </div>

@@ -96,4 +96,10 @@ export class PlanDetailComponent implements OnInit {
         orderID: session.orderID ?? idx + 1,
       }));
   }
+
+  navigateToSession(session: Session): void {
+    if (session.id) {
+      this.router.navigate(['/sessions', String(session.id)]);
+    }
+  }
 }
