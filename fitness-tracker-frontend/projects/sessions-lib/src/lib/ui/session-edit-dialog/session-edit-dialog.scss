@@ -4,6 +4,11 @@ h2 {
   color: var(--fitness-dark);
 }
 
+/* Ensure dialog title stays bold even if Material overrides typography */
+h2[mat-dialog-title] {
+  font-weight: 700 !important;
+}
+
 .session-form {
   display: flex;
   flex-direction: column;
