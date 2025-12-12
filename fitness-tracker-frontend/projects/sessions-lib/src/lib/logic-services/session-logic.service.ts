@@ -419,4 +419,32 @@ export class SessionLogicService {
       catchError(() => of(1))
     );
   }
+
+  getPlans(): Observable<PlanSummary[]> {
+    return this.sessionProvider.getPlans().pipe(
+      catchError((err) => {
+        let errorMessage = 'Failed to load plans';
+
+        if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  getAllExercises(): Observable<Exercise[]> {
+    return this.exerciseProvider.getAllExercises().pipe(
+      catchError((err) => {
+        let errorMessage = 'Failed to load exercises';
+
+        if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
 }
