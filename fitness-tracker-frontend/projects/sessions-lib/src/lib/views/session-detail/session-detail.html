@@ -65,7 +65,8 @@
             @for (exercise of session.exercises; track exercise.id; let last = $last; let i = $index) {
             <div class="timeline-item" [class.last-item]="last">
               <div class="timeline-marker"></div>
-              <div class="timeline-content exercise-card">
+              <div class="timeline-content" (click)="navigateToExercise(exercise)">
+                <div class="exercise-card">
                 <div class="exercise-header">
                   <div class="left">
                     <div class="exercise-icon">
@@ -106,6 +107,13 @@
                       } @else {
                       -
                       }
+                    </span>
+                  </div>
+                </div>
+                  <div class="card-footer">
+                    <span class="click-hint">
+                      Go to exercise
+                      <span class="material-icons">arrow_forward</span>
                     </span>
                   </div>
                 </div>

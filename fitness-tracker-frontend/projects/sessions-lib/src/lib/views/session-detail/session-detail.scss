@@ -247,6 +247,7 @@ h1 {
   background-color: var(--fitness-bg-card);
   padding: 0.75rem 1rem;
   box-shadow: none;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -405,6 +406,31 @@ h1 {
   align-items: center;
   line-height: 1;
   font-weight: 600;
+}
+
+.exercise-card .card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.75rem 0 0 0;
+}
+
+.click-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--fitness-text-secondary);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.exercise-card:hover .click-hint {
+  opacity: 1;
+  color: var(--fitness-primary);
+}
+
+.click-hint .material-icons {
+  font-size: 1rem;
 }
 
 .empty-exercises {

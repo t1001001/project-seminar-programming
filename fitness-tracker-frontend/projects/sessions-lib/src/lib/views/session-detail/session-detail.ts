@@ -79,4 +79,10 @@ export class SessionDetailComponent implements OnInit {
   refresh(): void {
     this.refreshTrigger$.next();
   }
+
+  navigateToExercise(exercise: any): void {
+    if (exercise.exerciseId) {
+      this.router.navigate(['/exercises', exercise.exerciseId]);
+    }
+  }
 }

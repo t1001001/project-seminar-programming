@@ -227,6 +227,7 @@ mat-card-actions {
 
 .timeline-content {
     transition: transform 0.2s ease;
+    cursor: pointer;
 
     &:hover {
         transform: translateY(-2px);
@@ -240,7 +241,7 @@ mat-card-actions {
     border: 1px solid var(--fitness-border) !important;
     background-color: var(--fitness-bg-card) !important;
     overflow: hidden;
-    cursor: default;
+    cursor: pointer;
 
     mat-card-header {
         padding: 1rem 1rem 0.5rem 1rem !important;
@@ -248,6 +249,31 @@ mat-card-actions {
 
     mat-card-content {
         padding: 0.5rem 1rem 1rem 1rem !important;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 0.75rem 1rem 1rem 1rem;
+    }
+
+    .click-hint {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--fitness-text-secondary);
+        opacity: 0.7;
+        transition: all 0.2s ease;
+    }
+
+    &:hover .click-hint {
+        opacity: 1;
+        color: var(--fitness-primary);
+    }
+
+    .click-hint .material-icons {
+        font-size: 1rem;
     }
 }
 
