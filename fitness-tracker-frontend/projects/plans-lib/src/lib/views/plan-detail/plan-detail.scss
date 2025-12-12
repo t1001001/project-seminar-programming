@@ -331,6 +331,32 @@ mat-card-title {
     }
 }
 
+.empty-exercises {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    color: var(--fitness-text-tertiary);
+    background-color: var(--fitness-bg-chip);
+    border-radius: 8px;
+    border: 1px dashed var(--fitness-border);
+}
+
+.empty-exercises .empty-icon {
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.empty-exercises p {
+    margin: 0;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
 @media (max-width: 768px) {
     h1 {
         font-size: 1.5rem;

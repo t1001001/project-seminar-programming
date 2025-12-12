@@ -38,7 +38,7 @@ export class SessionCreateDialogComponent {
   readonly form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     planId: ['', [Validators.required]],
-    orderID: [null, [Validators.required, Validators.min(1), Validators.max(30)]],
+    orderID: [null, [Validators.min(1), Validators.max(30)]],
   });
 
   constructor() {

@@ -23,14 +23,6 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="readonly-field" floatLabel="always">
-      <mat-label>Position</mat-label>
-      <input matInput type="number" formControlName="orderID" min="1" max="30" required readonly tabindex="-1"
-        class="readonly-input">
-      <mat-hint>
-        {{ (form.get('orderID')?.value ?? '') !== '' ? 'Position inside the plan' : 'Automatically set when plan chosen' }}
-      </mat-hint>
-    </mat-form-field>
   </form>
 </mat-dialog-content>
 
