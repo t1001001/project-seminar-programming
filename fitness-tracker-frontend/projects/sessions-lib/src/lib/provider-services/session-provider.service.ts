@@ -68,6 +68,10 @@ export class SessionProviderService {
     return this.http.get<Session[]>(this.sessionsApiUrl);
   }
 
+  getSessionById(id: string): Observable<Session> {
+    return this.http.get<Session>(`${this.sessionsApiUrl}/${id}`);
+  }
+
   getPlans(): Observable<PlanSummary[]> {
     return this.http.get<PlanSummary[]>(this.plansApiUrl);
   }

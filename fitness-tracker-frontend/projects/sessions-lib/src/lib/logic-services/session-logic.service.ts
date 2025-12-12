@@ -44,6 +44,7 @@ export interface SessionUpdatePayload extends SessionUpdate {
 
 @Injectable({ providedIn: 'root' })
 export class SessionLogicService {
+  private readonly MAX_ORDER_VALUE = 30;
   private readonly sessionProvider = inject(SessionProviderService);
   private readonly exerciseProvider = inject(ExerciseProviderService);
 
@@ -85,13 +86,8 @@ export class SessionLogicService {
   }
 
   getSessionDetail(sessionId: string): Observable<SessionDetail> {
-    return this.sessionProvider.getAllSessions().pipe(
-      switchMap((sessions) => {
-        const session = sessions?.find((item) => item.id === sessionId);
-        if (!session) {
-          return throwError(() => new Error('Session not found'));
-        }
-
+    return this.sessionProvider.getSessionById(sessionId).pipe(
+      switchMap((session) => {
         const plan$ = this.sessionProvider.getPlans()
           .pipe(catchError(() => of([] as PlanSummary[])));
 
@@ -186,8 +182,8 @@ export class SessionLogicService {
     if (!payload.planId) {
       return throwError(() => new Error('Plan is required to create a session'));
     }
-    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > 30) {
-      return throwError(() => new Error('Order must be between 1 and 30'));
+    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > this.MAX_ORDER_VALUE) {
+      return throwError(() => new Error(`Order must be between 1 and ${this.MAX_ORDER_VALUE}`));
     }
 
     const sessionRequest: SessionCreate = {
@@ -231,8 +227,8 @@ export class SessionLogicService {
     if (!payload.planId) {
       return throwError(() => new Error('Plan is required to create a session'));
     }
-    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > 30) {
-      return throwError(() => new Error('Order must be between 1 and 30'));
+    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > this.MAX_ORDER_VALUE) {
+      return throwError(() => new Error(`Order must be between 1 and ${this.MAX_ORDER_VALUE}`));
     }
 
     const exerciseIds = new Set<string>();
@@ -315,8 +311,8 @@ export class SessionLogicService {
     if (!payload.planId) {
       return throwError(() => new Error('Plan is required to update a session'));
     }
-    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > 30) {
-      return throwError(() => new Error('Order must be between 1 and 30'));
+    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > this.MAX_ORDER_VALUE) {
+      return throwError(() => new Error(`Order must be between 1 and ${this.MAX_ORDER_VALUE}`));
     }
 
     const exerciseIds = new Set<string>();
@@ -334,6 +330,9 @@ export class SessionLogicService {
       }
       if (exercise.plannedWeight == null || exercise.plannedWeight < 0) {
         return throwError(() => new Error('Weight must be 0 or greater'));
+      }
+      if (exercise.category !== 'BodyWeight' && exercise.plannedWeight <= 0) {
+        return throwError(() => new Error('Weight must be greater than 0 for this exercise'));
       }
     }
 
@@ -427,14 +426,14 @@ export class SessionLogicService {
         }
 
         const taken = new Set(usedPositions);
-        for (let i = 1; i <= 30; i++) {
+        for (let i = 1; i <= this.MAX_ORDER_VALUE; i++) {
           if (!taken.has(i)) {
             return i;
           }
         }
 
         const max = Math.max(...usedPositions);
-        return Math.min(max + 1, 30);
+        return Math.min(max + 1, this.MAX_ORDER_VALUE);
       }),
       catchError(() => of(1))
     );
