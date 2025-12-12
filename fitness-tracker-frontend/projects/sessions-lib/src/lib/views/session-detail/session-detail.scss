@@ -361,6 +361,7 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .stat-chip {
@@ -374,13 +375,10 @@ h1 {
   font-weight: 500;
   color: var(--fitness-dark);
   min-width: 90px;
+  flex: 1;
+  justify-content: center;
 }
 
-.stat-chip + .stat-chip {
-  border-left: 1px solid var(--fitness-border);
-  padding-left: 1rem;
-  margin-left: 0.5rem;
-}
 
 .stat-icon {
   font-size: 1rem;
