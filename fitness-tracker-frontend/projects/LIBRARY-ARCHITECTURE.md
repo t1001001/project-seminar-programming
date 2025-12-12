@@ -193,7 +193,7 @@ export class ExerciseLogicService {
 
 ### **3. UI Components Layer** (`ui/`)
 
-**Purpose:** Reusable, presentational (dumb) components. This is the **presentation layer**.
+**Purpose:** Reusable, presentational components. This is the **presentation layer**.
 
 #### **Responsibilities:**
 - ✅ Display data passed via `@Input()` or `input()`
@@ -201,10 +201,25 @@ export class ExerciseLogicService {
 - ✅ Handle user interactions (clicks, form inputs)
 - ✅ Contain component-specific styling
 - ✅ Use `OnPush` change detection
-- ❌ **NO** service injections (except Router for navigation)
-- ❌ **NO** business logic
-- ❌ **NO** HTTP calls
-- ❌ **NO** state management
+- ❌ **NO** HTTP calls (use logic services if needed)
+- ❌ **NO** direct provider service injections
+
+#### **Service Injection Rules:**
+UI components are typically **presentational (dumb)** and should avoid service injections. However, there are exceptions:
+
+| Component Type | Allowed Injections |
+|----------------|-------------------|
+| **Simple UI** (cards, chips, badges) | Router only |
+| **Form Dialogs** (create forms) | `MatDialogRef`, `FormBuilder`, `MAT_DIALOG_DATA` |
+| **Confirmation Dialogs** | `MatDialogRef`, `MAT_DIALOG_DATA` |
+| **Edit Dialogs** (complex forms with save) | Logic services, `MatDialogRef`, `FormBuilder`, `MatSnackBar`, `MAT_DIALOG_DATA` |
+
+**Rationale:** Edit dialogs often need to:
+- Orchestrate multiple save operations (e.g., reordering items, updating entities)
+- Show success/error notifications directly
+- Handle complex state internally before closing
+
+These components are still in `ui/` because they are **reusable dialogs** opened via `MatDialog.open()`, not routable page components.
 
 #### **Directory Structure:**
 ```
@@ -525,9 +540,10 @@ export class ExerciseDetailComponent implements OnInit {
 - Views → Logic Services ✅
 - Views → UI Components ✅
 - Logic Services → Provider Services ✅
-- UI Components → Nothing (except Router) ✅
+- Simple UI Components → Router only ✅
+- Edit Dialogs → Logic Services ✅ (for save operations)
 - Views → Provider Services ❌ (skip logic layer)
-- UI Components → Services ❌ (stay presentational)
+- Any Component → Provider Services ❌ (always use logic layer)
 
 ### **State Management**
 - **Provider**: Stateless (no BehaviorSubject)
@@ -558,7 +574,8 @@ When creating a new feature library, ensure:
   - [ ] `input()` for data
   - [ ] `output()` for events
   - [ ] `OnPush` change detection
-  - [ ] No service injections (except Router)
+  - [ ] Service injections follow the rules (see UI Layer section)
+  - [ ] Edit dialogs may inject Logic Services for save operations
 
 - [ ] **View Components** created with:
   - [ ] Logic service injection (not provider)
