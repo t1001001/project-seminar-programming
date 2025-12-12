@@ -26,12 +26,7 @@
     vertical-align: middle;
 }
 
-.required-hint {
-    margin: 0 0 1rem 0;
-    padding: 0.5rem 0;
-    font-size: 0.875rem;
-    color: var(--fitness-text-secondary);
-}
+
 
 .detail-card {
     background-color: var(--fitness-bg-card) !important;
@@ -135,11 +130,6 @@ h1 {
     }
 }
 
-.detail-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
 
 mat-form-field {
     width: 100%;
