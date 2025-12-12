@@ -103,7 +103,7 @@ h2[mat-dialog-title] {
   min-width: 1.4rem;
   padding: 0 0.45rem;
   height: 1.4rem;
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--fitness-bg-chip);
   border: 1px solid var(--fitness-border);
   font-weight: 600;
@@ -189,7 +189,7 @@ mat-card.session-card {
   padding: 0.25rem 0.75rem;
   background-color: var(--fitness-bg-chip);
   border: 1px solid var(--fitness-border);
-  border-radius: 16px;
+  border-radius: 12px;
   font-size: 0.85rem;
   color: var(--fitness-text-secondary);
   font-weight: 500;
@@ -262,7 +262,7 @@ mat-card-title {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   background-color: var(--fitness-bg-chip);
-  border-radius: 16px;
+  border-radius: 12px;
   font-size: 0.85rem;
   color: var(--fitness-dark);
   font-weight: 500;

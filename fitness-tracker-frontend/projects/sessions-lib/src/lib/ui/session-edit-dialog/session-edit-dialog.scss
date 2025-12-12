@@ -135,7 +135,7 @@ h2[mat-dialog-title] {
   min-width: 1.4rem;
   padding: 0 0.45rem;
   height: 1.4rem;
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--fitness-bg-chip);
   border: 1px solid var(--fitness-border);
   font-weight: 600;
@@ -268,7 +268,7 @@ h2[mat-dialog-title] {
   align-items: center;
   gap: 0.35rem;
   padding: 0.25rem 0.5rem;
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--fitness-bg-chip);
   border: 1px solid var(--fitness-border);
   color: var(--fitness-text-secondary);
@@ -309,7 +309,7 @@ h2[mat-dialog-title] {
   gap: 0.35rem;
   padding: 0.25rem 0.5rem;
   background: var(--fitness-bg-chip);
-  border-radius: 999px;
+  border-radius: 12px;
   border: 1px solid var(--fitness-border);
   font-size: 0.85rem;
   color: var(--fitness-text-secondary);

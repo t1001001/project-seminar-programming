@@ -487,15 +487,56 @@ box-shadow: var(--fitness-shadow-glow-lg);
 
 ## 🏷️ Tags & Chips
 
-### Muscle Group Chips
-```css
-display: inline-block;
-padding: 0.25rem 0.75rem;
-background-color: #f1f5f9;
-border-radius: 16px;
-font-size: 0.875rem;
-color: var(--fitness-dark);
+### Stat Chips
+```scss
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.8rem;
+  background-color: var(--fitness-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fitness-border);
+  font-weight: 500;
+  color: var(--fitness-dark);
+  min-width: 90px;
+}
 ```
+
+**Usage:**
+- Display exercise statistics (SETS, REPS, WEIGHT)
+- Show session metrics (exercises count, duration, etc.)
+- Consistent 12px border-radius for all stat chips
+- Use `var(--fitness-bg-card)` background for better contrast
+- Minimum width ensures consistent alignment
+
+**Icon Usage:**
+```scss
+.stat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--fitness-text-secondary);
+}
+```
+
+### Muscle Group Chips
+```scss
+.muscle-chip {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: var(--fitness-bg-chip);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--fitness-dark);
+}
+```
+
+**Usage:**
+- Display exercise muscle groups
+- Consistent 12px border-radius (updated from 16px)
+- Use `var(--fitness-bg-chip)` for subtle background
 
 ## 📝 Typography
 
