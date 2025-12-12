@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, of, take, tap } from 'rxjs';
 
 import { SessionLogicService } from '../../logic-services/session-logic.service';
-import { PlanSummary, SessionProviderService } from '../../provider-services/session-provider.service';
+import { PlanSummary } from '../../provider-services/session-provider.service';
 
 @Component({
   selector: 'lib-session-create-dialog',
@@ -30,7 +30,6 @@ export class SessionCreateDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<SessionCreateDialogComponent>);
   private readonly fb = inject(FormBuilder);
   private readonly sessionService = inject(SessionLogicService);
-  private readonly sessionProvider = inject(SessionProviderService);
   private readonly snackBar = inject(MatSnackBar);
 
   plans: PlanSummary[] = [];
@@ -43,7 +42,7 @@ export class SessionCreateDialogComponent {
   });
 
   constructor() {
-    this.sessionProvider.getPlans()
+    this.sessionService.getPlans()
       .pipe(
         take(1),
         tap(plans => this.plans = plans),

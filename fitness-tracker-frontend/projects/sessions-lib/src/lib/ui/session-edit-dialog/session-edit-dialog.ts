@@ -18,8 +18,8 @@ import {
   SessionExerciseDetail,
   SessionUpdatePayload
 } from '../../logic-services/session-logic.service';
-import { Exercise, ExerciseProviderService } from 'exercises-lib';
-import { PlanSummary, SessionProviderService } from '../../provider-services/session-provider.service';
+import { Exercise } from 'exercises-lib';
+import { PlanSummary } from '../../provider-services/session-provider.service';
 
 export interface SessionEditDialogData {
   session?: SessionDetail;
@@ -46,8 +46,6 @@ export class SessionEditDialogComponent {
   private readonly dialogData = inject<SessionEditDialogData | null>(MAT_DIALOG_DATA, { optional: true });
   private readonly fb = inject(FormBuilder);
   private readonly sessionService = inject(SessionLogicService);
-  private readonly sessionProvider = inject(SessionProviderService);
-  private readonly exerciseProvider = inject(ExerciseProviderService);
   private readonly snackBar = inject(MatSnackBar);
 
   private sessionId: string | null = null;
@@ -83,7 +81,7 @@ export class SessionEditDialogComponent {
       this.populateFromSession(this.dialogData.session);
     }
 
-    this.exerciseProvider.getAllExercises()
+    this.sessionService.getAllExercises()
       .pipe(
         take(1),
         tap((list) => this.exercises = list),
@@ -102,7 +100,7 @@ export class SessionEditDialogComponent {
       });
 
     // Fetch plans to allow creating sessions directly
-    this.sessionProvider.getPlans()
+    this.sessionService.getPlans()
       .pipe(
         take(1),
         tap((plans) => this.plans = plans),
