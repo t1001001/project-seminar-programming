@@ -78,7 +78,7 @@ h2 {
   height: 1px;
   background: var(--fitness-border);
   width: 100%;
-  margin: 0.8rem 0 0.6rem;
+  margin: 0.2rem 0 0.3rem;
 }
 
 .readonly-input[readonly] {
@@ -208,7 +208,7 @@ h2 {
 .exercise-card {
   flex: 1;
   border: 1px solid var(--fitness-border);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--fitness-bg-card);
   padding: 0.65rem 0.95rem 1rem 0.95rem;
   box-shadow: none;
@@ -288,6 +288,16 @@ h2 {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+
+  button {
+    color: var(--fitness-text-secondary); // Start neutral
+    transition: all 0.2s ease;
+  }
+
+  button:hover {
+    color: var(--fitness-action-delete) !important;
+    background-color: rgba(var(--fitness-action-delete-rgb), 0.1) !important;
+  }
 
   button[cdkDragHandle] {
     cursor: grab;
@@ -431,52 +441,34 @@ mat-hint {
   }
 }
 
-mat-dialog-actions {
-  padding: 1rem 1.4rem 1.25rem;
+.dialog-actions {
+  padding: 1rem 1.4rem 1.1rem;
   display: flex;
   align-items: center;
-}
-
-.dialog-actions {
-  margin-top: 1rem;
-  background: none;
-  padding-top: 0.75rem;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  gap: 0.6rem;
 }
 
 .actions-spacer {
   flex: 1 1 auto;
 }
 
-mat-dialog-actions button {
-  font-weight: 500 !important;
-  text-transform: none !important;
-  transition: all 0.2s ease;
-}
-
-mat-dialog-actions button[mat-button] {
-  color: var(--fitness-dark) !important;
-  background-color: transparent !important;
-  border-radius: 0 !important;
-  padding: 0.5rem 1rem !important;
-}
-
-mat-dialog-actions button[mat-button]:hover {
-  background-color: transparent !important;
-  color: var(--fitness-primary) !important;
-}
-
 .cancel-btn {
   color: var(--fitness-dark) !important;
   background-color: transparent !important;
-  border-radius: 0 !important;
+  border-radius: 8px !important;
+  /* Guide says 0 or 8? Text buttons usually 0 or small. Cancel matches others radius? No, guide Cancel says text button. */
+  /* Guide says Text Button: border-radius: 0; padding 0.5rem 1rem. */
   padding: 0.5rem 1rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease !important;
 }
 
 .cancel-btn:hover {
   background-color: transparent !important;
   color: var(--fitness-primary) !important;
+  transform: none !important;
+  /* Text buttons usually don't lift */
 }
 
 .create-btn {
@@ -485,6 +477,9 @@ mat-dialog-actions button[mat-button]:hover {
   box-shadow: none !important;
   border-radius: 8px !important;
   padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease !important;
 }
 
 .create-btn:hover:not(:disabled) {
@@ -496,6 +491,8 @@ mat-dialog-actions button[mat-button]:hover {
 .create-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .update-btn {
@@ -504,17 +501,22 @@ mat-dialog-actions button[mat-button]:hover {
   box-shadow: none !important;
   border-radius: 8px !important;
   padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease !important;
 }
 
 .update-btn:hover:not(:disabled) {
   background-color: var(--fitness-action-update-hover) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--fitness-action-update-rgb), 0.3) !important;
+  box-shadow: var(--fitness-shadow-glow-update) !important;
 }
 
 .update-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 @media (max-width: 620px) {
@@ -535,11 +537,9 @@ mat-dialog-actions button[mat-button]:hover {
 
   .timeline-wrapper {
     --timeline-line-x: 0.9rem;
-    --timeline-left-space: 1.4rem;
+    --timeline-left-space: 1.85rem;
   }
 
-  .timeline-marker {
-    left: -1.8rem;
-  }
+
 
 }

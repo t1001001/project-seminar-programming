@@ -1,14 +1,14 @@
 <section class="sessions-overview page-container">
   <header class="overview-header">
     <div class="header-content">
-      <h1>Training Sessions</h1>
+      <h1>Sessions</h1>
       <p class="subtitle">Overview of all session templates</p>
     </div>
 
     <div class="header-actions">
       <div class="search-bar">
         <span class="material-icons">search</span>
-        <input type="text" [formControl]="searchControl" placeholder="Search by name or plan...">
+        <input type="text" [formControl]="searchControl" placeholder="Search sessions ...">
       </div>
 
       @if (totalSessionsCount(); as count) {

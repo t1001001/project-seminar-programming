@@ -44,8 +44,8 @@ export interface SessionUpdatePayload extends SessionUpdate {
 
 @Injectable({ providedIn: 'root' })
 export class SessionLogicService {
-  private sessionProvider = inject(SessionProviderService);
-  private exerciseProvider = inject(ExerciseProviderService);
+  private readonly sessionProvider = inject(SessionProviderService);
+  private readonly exerciseProvider = inject(ExerciseProviderService);
 
   getAllSessions(): Observable<SessionOverview[]> {
     return this.sessionProvider.getAllSessions().pipe(

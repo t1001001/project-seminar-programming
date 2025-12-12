@@ -59,10 +59,10 @@ export interface ExerciseExecutionUpdate {
 
 @Injectable({ providedIn: 'root' })
 export class SessionProviderService {
-  private http = inject(HttpClient);
-  private sessionsApiUrl = 'http://localhost:8080/api/v1/sessions';
-  private plansApiUrl = 'http://localhost:8080/api/v1/plans';
-  private exerciseExecutionsApiUrl = 'http://localhost:8080/api/v1/exercise-executions';
+  private readonly http = inject(HttpClient);
+  private readonly sessionsApiUrl = 'http://localhost:8080/api/v1/sessions';
+  private readonly plansApiUrl = 'http://localhost:8080/api/v1/plans';
+  private readonly exerciseExecutionsApiUrl = 'http://localhost:8080/api/v1/exercise-executions';
 
   getAllSessions(): Observable<Session[]> {
     return this.http.get<Session[]>(this.sessionsApiUrl);

@@ -48,7 +48,7 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.35rem 0.75rem;
-  border-radius: 999px;
+  border-radius: 12px;
   font-weight: 500;
   font-size: 0.85rem;
 }
@@ -104,40 +104,50 @@
 .stat-chip {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.65rem 0.85rem;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  padding: 0.35rem 0.75rem;
+  /* Closer to style guide padding */
+  box-sizing: border-box;
   background-color: var(--fitness-bg-chip);
   border-radius: 12px;
+  /* Consistent with plan-card */
   border: 1px solid var(--fitness-border);
-  min-width: 160px;
+  min-width: unset;
   flex: 1;
 }
 
 .stat-chip .mat-icon {
   color: var(--fitness-text-secondary);
+  transform: scale(0.85);
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
 }
 
 .stat-text {
   display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+  flex-direction: row;
   align-items: center;
-  text-align: center;
+  gap: 0.4rem;
+  width: 100%;
 }
 
 .stat-text .label {
   font-size: 0.75rem;
   color: var(--fitness-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
+  /* Compliant with style guide */
+  font-weight: 600;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .stat-text .value {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: var(--fitness-dark);
-  line-height: 1.2;
 }
 
 .stat-chip.highlight {
@@ -210,6 +220,16 @@
   .side-section {
     align-items: flex-start;
     width: 100%;
+  }
+
+  .stats-section {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .stat-chip {
+    width: 100%;
+    min-width: unset;
   }
 
   .actions-section {

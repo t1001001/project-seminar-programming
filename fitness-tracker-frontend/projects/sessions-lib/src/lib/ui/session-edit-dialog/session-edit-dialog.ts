@@ -27,7 +27,6 @@ export interface SessionEditDialogData {
 
 @Component({
   selector: 'lib-session-edit-dialog',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatFormFieldModule,
