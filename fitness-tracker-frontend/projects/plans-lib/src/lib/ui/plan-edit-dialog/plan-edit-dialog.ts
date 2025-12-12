@@ -12,7 +12,7 @@ import { forkJoin, of, switchMap, Observable } from 'rxjs';
 
 import { PlanLogicService } from '../../logic-services/plan-logic.service';
 import { TrainingPlan, TrainingPlanUpdate, Session } from '../../provider-services/plan-provider.service';
-import { SessionProviderService } from 'sessions-lib';
+import { SessionLogicService } from 'sessions-lib';
 
 export interface PlanEditDialogData {
   plan: TrainingPlan;
@@ -40,7 +40,7 @@ export class PlanEditDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly planService = inject(PlanLogicService);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly sessionProvider = inject(SessionProviderService);
+  private readonly sessionService = inject(SessionLogicService);
 
   readonly form: FormGroup = this.fb.group({
     name: [this.dialogData.plan?.name ?? '', [Validators.required, Validators.minLength(2)]],
@@ -106,7 +106,7 @@ export class PlanEditDialogComponent implements OnInit {
 
     const moveToTemp$: Observable<unknown> = orderUpdates.length
       ? forkJoin(orderUpdates.map((update, idx) =>
-        this.sessionProvider.updateSession(update.id, {
+        this.sessionService.updateSession(update.id, {
           name: update.name,
           planId: update.planId,
           orderID: bufferBase + idx,
@@ -118,7 +118,7 @@ export class PlanEditDialogComponent implements OnInit {
 
     const applyFinal$: Observable<unknown> = orderUpdates.length
       ? forkJoin(orderUpdates.map(update =>
-        this.sessionProvider.updateSession(update.id, {
+        this.sessionService.updateSession(update.id, {
           name: update.name,
           planId: update.planId,
           orderID: update.orderID,

@@ -158,6 +158,26 @@ export class SessionLogicService {
     );
   }
 
+  updateSession(id: string, session: SessionUpdate): Observable<Session> {
+    return this.sessionProvider.updateSession(id, session).pipe(
+      catchError((err) => {
+        let errorMessage = 'Failed to update session';
+
+        if (err.status === 404) {
+          errorMessage = 'Session not found. It may have been deleted.';
+        } else if (err.status === 409) {
+          errorMessage = err.error || 'A session with this position already exists in this plan.';
+        } else if (err.status === 400) {
+          errorMessage = 'Invalid session data. Please check all fields.';
+        } else if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        }
+
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
   createSession(payload: SessionCreate): Observable<Session> {
     const name = payload.name?.trim();
     if (!name) {
