@@ -141,6 +141,10 @@ export class SessionEditDialogComponent {
     return this.exercises.filter(exercise => !selectedIds.has(exercise.id));
   }
 
+  hasAvailableExercises(): boolean {
+    return this.availableExercises().length > 0;
+  }
+
   private findExercise(exerciseId: string | null | undefined): Exercise | undefined {
     return this.exercises.find(ex => ex.id === exerciseId);
   }
@@ -325,14 +329,6 @@ export class SessionEditDialogComponent {
   onSave(): void {
     if (this.sessionForm.invalid) {
       this.sessionForm.markAllAsTouched();
-      return;
-    }
-
-    if (!this.exercisesArray.length) {
-      this.snackBar.open('Please add at least one exercise to the session', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
       return;
     }
 

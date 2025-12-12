@@ -41,8 +41,12 @@
         @if (exerciseControls.length > 1) {
         <span class="hint">Drag the cards to rearrange.</span>
         }
+        @if (exerciseControls.length) {
+        <span class="hint required-hint">Fields marked with * must be filled in.</span>
+        }
       </div>
 
+      @if (exerciseControls.length) {
       <div class="timeline-wrapper" cdkDropList cdkDropListOrientation="vertical"
         (cdkDropListDropped)="onReorder($event)" [cdkDropListDisabled]="exerciseControls.length <= 1">
         @for (exerciseGroup of exerciseControls; track exerciseGroup.value.exerciseId; let i = $index) {
@@ -52,14 +56,19 @@
           <div class="exercise-card" cdkDragHandle>
             <div class="exercise-header">
               <div class="left">
+                <div class="exercise-icon">
+                  <mat-icon>fitness_center</mat-icon>
+                </div>
+                <div class="exercise-title">
+                  <h4>{{ getExerciseName(exerciseGroup.value.exerciseId) }}</h4>
+                </div>
+              </div>
+              <div class="right">
                 <div class="order-chip">
                   <mat-icon>format_list_numbered</mat-icon>
                   <span class="order-value">{{ i + 1 }}</span>
                 </div>
-                <div class="exercise-title">
-                  <h4>{{ getExerciseName(exerciseGroup.value.exerciseId) }}</h4>
-                  <span class="category-chip">{{ getExerciseCategory(exerciseGroup.value.exerciseId) }}</span>
-                </div>
+                <span class="category-chip">{{ getExerciseCategory(exerciseGroup.value.exerciseId) }}</span>
               </div>
               <div class="actions">
                 <button mat-icon-button type="button" (click)="removeExercise(i)">
@@ -92,16 +101,29 @@
         </div>
         }
       </div>
+      } @else {
+      <div class="empty-exercises">
+        <mat-icon class="empty-icon">event_busy</mat-icon>
+        <p>No exercises added to this session yet</p>
+      </div>
+      }
     </section>
 
     @if (showAddForm) {
     <section #addFormRef class="add-form" [formGroup]="addExerciseForm">
+      <div class="add-hint">
+        <span class="hint">Fields marked with * must be filled in.</span>
+      </div>
       <div class="add-top">
         <mat-form-field appearance="outline">
-          <mat-label>Select exercise</mat-label>
-          <mat-select formControlName="exerciseId" required>
+          <mat-label>{{ hasAvailableExercises() ? 'Select exercise' : 'No exercises available' }}</mat-label>
+          <mat-select formControlName="exerciseId" required [disabled]="!hasAvailableExercises()">
             <mat-select-trigger>
-              {{ getExerciseName(addExerciseForm.get('exerciseId')?.value) || 'Select exercise' }}
+              @if (hasAvailableExercises()) {
+                {{ getExerciseName(addExerciseForm.get('exerciseId')?.value) || 'Select exercise' }}
+              } @else {
+                No more exercises available to add
+              }
             </mat-select-trigger>
             @for (exercise of availableExercises(); track exercise.id) {
             <mat-option [value]="exercise.id">
@@ -113,7 +135,7 @@
             }
           </mat-select>
           @if (addExerciseForm.get('exerciseId')?.invalid && addExerciseForm.get('exerciseId')?.touched) {
-          <mat-error>Select an exercise</mat-error>
+          <mat-error>{{ hasAvailableExercises() ? 'Select an exercise' : 'No exercises available to add' }}</mat-error>
           }
         </mat-form-field>
       </div>
@@ -161,7 +183,7 @@
     <span class="actions-spacer"></span>
     <button mat-button class="cancel-btn" type="button" (click)="onCancel()">Cancel</button>
     <button mat-raised-button [class.update-btn]="isEditMode()" [class.create-btn]="!isEditMode()" type="submit"
-      [disabled]="isSaving || sessionForm.invalid || !exercisesArray.length || (isEditMode() && !sessionForm.dirty && !exercisesArray.dirty)">
+      [disabled]="isSaving || sessionForm.invalid || (isEditMode() && !sessionForm.dirty && !exercisesArray.dirty)">
       {{ isEditMode() ? 'Update' : 'Create session' }}
     </button>
   </mat-dialog-actions>
