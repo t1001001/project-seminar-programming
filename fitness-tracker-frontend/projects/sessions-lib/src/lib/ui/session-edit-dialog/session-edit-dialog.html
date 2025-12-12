@@ -46,8 +46,8 @@
       <div class="timeline-wrapper" cdkDropList cdkDropListOrientation="vertical"
         (cdkDropListDropped)="onReorder($event)" [cdkDropListDisabled]="exerciseControls.length <= 1">
         @for (exerciseGroup of exerciseControls; track exerciseGroup.value.exerciseId; let i = $index) {
-        <div class="timeline-item" cdkDrag cdkDragLockAxis="y" [cdkDragStartDelay]="80"
-          [formGroup]="exerciseGroup" [cdkDragDisabled]="exerciseControls.length <= 1">
+        <div class="timeline-item" cdkDrag cdkDragLockAxis="y" [cdkDragStartDelay]="80" [formGroup]="exerciseGroup"
+          [cdkDragDisabled]="exerciseControls.length <= 1">
           <div class="timeline-marker" aria-hidden="true"></div>
           <div class="exercise-card" cdkDragHandle>
             <div class="exercise-header">
@@ -62,7 +62,7 @@
                 </div>
               </div>
               <div class="actions">
-                <button mat-icon-button color="warn" type="button" (click)="removeExercise(i)">
+                <button mat-icon-button type="button" (click)="removeExercise(i)">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -161,7 +161,7 @@
     <span class="actions-spacer"></span>
     <button mat-button class="cancel-btn" type="button" (click)="onCancel()">Cancel</button>
     <button mat-raised-button [class.update-btn]="isEditMode()" [class.create-btn]="!isEditMode()" type="submit"
-      [disabled]="isSaving || sessionForm.invalid || !exercisesArray.length || (isEditMode() && !sessionForm.dirty)">
+      [disabled]="isSaving || sessionForm.invalid || !exercisesArray.length || (isEditMode() && !sessionForm.dirty && !exercisesArray.dirty)">
       {{ isEditMode() ? 'Update' : 'Create session' }}
     </button>
   </mat-dialog-actions>

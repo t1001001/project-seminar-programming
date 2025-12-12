@@ -14,7 +14,6 @@ import { PlanSummary, SessionProviderService } from '../../provider-services/ses
 
 @Component({
   selector: 'lib-session-create-dialog',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatFormFieldModule,

@@ -8,7 +8,6 @@ import { SessionOverview } from '../../logic-services/session-logic.service';
 
 @Component({
   selector: 'lib-session-card',
-  standalone: true,
   imports: [MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './session-card.html',
   styleUrl: './session-card.scss',

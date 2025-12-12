@@ -14,7 +14,6 @@ import { SessionCreateDialogComponent } from '../../ui/session-create-dialog/ses
 
 @Component({
   selector: 'lib-sessions-overview',
-  standalone: true,
   imports: [
     MatIconModule,
     MatButtonModule,

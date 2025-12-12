@@ -9,7 +9,6 @@ export interface SessionDeleteDialogData {
 
 @Component({
   selector: 'lib-session-delete-dialog',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './session-delete-dialog.html',
   styleUrl: './session-delete-dialog.scss',

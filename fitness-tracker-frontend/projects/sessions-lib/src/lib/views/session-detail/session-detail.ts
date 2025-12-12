@@ -13,7 +13,6 @@ import { SessionEditDialogComponent } from '../../ui/session-edit-dialog/session
 
 @Component({
   selector: 'lib-session-detail',
-  standalone: true,
   imports: [
     MatButtonModule,
     MatIconModule,
