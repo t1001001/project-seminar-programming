@@ -63,9 +63,9 @@ export interface TrainingPlanUpdate {
 
 @Injectable({ providedIn: 'root' })
 export class PlanProviderService {
-  private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/v1/plans';
-  private sessionsApiUrl = 'http://localhost:8080/api/v1/sessions';
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost:8080/api/v1/plans';
+  private readonly sessionsApiUrl = 'http://localhost:8080/api/v1/sessions';
 
   getAllPlans(): Observable<TrainingPlan[]> {
     return this.http.get<TrainingPlan[]>(this.apiUrl);

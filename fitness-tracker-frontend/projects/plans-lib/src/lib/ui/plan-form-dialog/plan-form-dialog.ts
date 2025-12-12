@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -29,7 +29,7 @@ export class PlanFormDialogComponent {
         description: [this.data?.description || ''],
     });
 
-    readonly isEditMode = computed(() => !!this.data);
+    readonly isEditMode = !!this.data;
 
     onSave(): void {
         if (this.form.valid) {

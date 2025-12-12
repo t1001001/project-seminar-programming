@@ -4,7 +4,7 @@ import { PlanProviderService, TrainingPlan, TrainingPlanCreate, TrainingPlanUpda
 
 @Injectable({ providedIn: 'root' })
 export class PlanLogicService {
-  private planProviderService = inject(PlanProviderService);
+  private readonly planProviderService = inject(PlanProviderService);
 
   private createdPlanSubject = new Subject<TrainingPlan>();
   createdPlan$ = this.createdPlanSubject.asObservable();

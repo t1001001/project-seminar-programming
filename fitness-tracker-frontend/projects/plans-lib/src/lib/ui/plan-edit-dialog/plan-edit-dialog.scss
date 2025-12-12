@@ -160,24 +160,10 @@ h2 {
 
 .drag-card {
   flex: 1;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: grab;
 }
 
-.session-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.65rem;
-  margin-bottom: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.left {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
 
 mat-card.session-card {
   position: relative;
@@ -212,12 +198,7 @@ mat-card.session-card {
   }
 }
 
-.session-exercises {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding-top: 0.25rem;
-}
+
 
 .session-card mat-card-header {
   padding: 1rem 1rem 0.5rem 1rem !important;
@@ -347,6 +328,12 @@ mat-card-title {
   padding: 0.5rem 1rem !important;
   font-weight: 500 !important;
   text-transform: none !important;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: transparent !important;
+  color: var(--fitness-primary) !important;
 }
 
 .update-btn {
@@ -355,13 +342,15 @@ mat-card-title {
   box-shadow: none !important;
   border-radius: 8px !important;
   padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
   text-transform: none !important;
+  transition: all 0.2s ease;
 }
 
 .update-btn:hover:not(:disabled) {
   background-color: var(--fitness-action-update-hover) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--fitness-action-update-rgb), 0.3) !important;
+  box-shadow: var(--fitness-shadow-glow-update) !important;
 }
 
 .update-btn:disabled {
@@ -377,10 +366,6 @@ mat-card-title {
 
   .timeline-wrapper {
     --timeline-line-x: 0.9rem;
-    --timeline-left-space: 1.4rem;
-  }
-
-  .timeline-marker {
-    left: -1.8rem;
+    --timeline-left-space: 1.85rem;
   }
 }

@@ -20,7 +20,6 @@ export interface PlanEditDialogData {
 
 @Component({
   selector: 'lib-plan-edit-dialog',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatFormFieldModule,
@@ -107,26 +106,26 @@ export class PlanEditDialogComponent implements OnInit {
 
     const moveToTemp$: Observable<unknown> = orderUpdates.length
       ? forkJoin(orderUpdates.map((update, idx) =>
-          this.sessionProvider.updateSession(update.id, {
-            name: update.name,
-            planId: update.planId,
-            orderID: bufferBase + idx,
-            scheduledDate: update.scheduledDate,
-            status: update.status
-          } as any)
-        ))
+        this.sessionProvider.updateSession(update.id, {
+          name: update.name,
+          planId: update.planId,
+          orderID: bufferBase + idx,
+          scheduledDate: update.scheduledDate,
+          status: update.status
+        } as any)
+      ))
       : of(null);
 
     const applyFinal$: Observable<unknown> = orderUpdates.length
       ? forkJoin(orderUpdates.map(update =>
-          this.sessionProvider.updateSession(update.id, {
-            name: update.name,
-            planId: update.planId,
-            orderID: update.orderID,
-            scheduledDate: update.scheduledDate,
-            status: update.status
-          } as any)
-        ))
+        this.sessionProvider.updateSession(update.id, {
+          name: update.name,
+          planId: update.planId,
+          orderID: update.orderID,
+          scheduledDate: update.scheduledDate,
+          status: update.status
+        } as any)
+      ))
       : of(null);
 
     moveToTemp$
