@@ -14,9 +14,9 @@
     </div>
     <nav class="app-nav" [class.open]="menuOpen()">
       <a mat-button routerLink="/home" routerLinkActive="active-link" (click)="closeMenu()">Home</a>
-      <a mat-button routerLink="/exercises" routerLinkActive="active-link" (click)="closeMenu()">Exercises</a>
       <a mat-button routerLink="/plans" routerLinkActive="active-link" (click)="closeMenu()">Plans</a>
       <a mat-button routerLink="/sessions" routerLinkActive="active-link" (click)="closeMenu()">Sessions</a>
+      <a mat-button routerLink="/exercises" routerLinkActive="active-link" (click)="closeMenu()">Exercises</a>
     </nav>
     <div class="header-actions">
       <button mat-icon-button (click)="toggleTheme()" class="theme-toggle-btn">
