@@ -51,7 +51,8 @@ public class SessionLogsService {
         sessionLog.setSessionPlan(session.getPlan() != null ? session.getPlan().getDescription() : "");
         sessionLog.setStartedAt(LocalDateTime.now());
         sessionLog.setStatus(SessionLogs.LogStatus.InProgress);
-        sessionLog.setSession(session);
+        // Store original session ID for reference (not a foreign key - allows deletion of original)
+        sessionLog.setOriginalSessionId(session.getId());
         // Save session log first to get ID
         SessionLogs savedLog = sessionLogsRepository.save(sessionLog);
         // Get all exercise executions for this session and create execution logs
@@ -124,7 +125,7 @@ public class SessionLogsService {
     }
 
     public List<SessionLogsResponseDto> getSessionLogsBySessionId(UUID sessionId) {
-        return sessionLogsRepository.findBySessionId(sessionId).stream()
+        return sessionLogsRepository.findByOriginalSessionId(sessionId).stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -157,9 +158,15 @@ public class SessionLogsService {
         SessionLogs sessionLog = sessionLogsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SessionLog not found"));
 
+        // Only InProgress sessions can be deleted
+        // Completed sessions are permanent records
         if (sessionLog.getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException(
-                    "Cannot delete a completed training. Use cancel instead for in-progress trainings.");
+                    "Cannot delete a completed workout. Completed sessions are permanent records.");
+        }
+        if (sessionLog.getStatus() == SessionLogs.LogStatus.Cancelled) {
+            throw new IllegalArgumentException(
+                    "Cannot delete a cancelled training.");
         }
 
         sessionLogsRepository.deleteById(id);
@@ -176,7 +183,7 @@ public class SessionLogsService {
         dto.setCompletedAt(sessionLog.getCompletedAt());
         dto.setStatus(sessionLog.getStatus());
         dto.setNotes(sessionLog.getNotes());
-        dto.setOriginalSessionId(sessionLog.getSession().getId());
+        dto.setOriginalSessionId(sessionLog.getOriginalSessionId());
         dto.setExecutionLogCount(sessionLog.getExecutionLogs().size());
         return dto;
     }

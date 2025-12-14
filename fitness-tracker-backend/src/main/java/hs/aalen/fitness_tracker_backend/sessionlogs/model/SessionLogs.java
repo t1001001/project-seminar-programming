@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
-import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 
 @Entity
 @Getter
@@ -18,6 +17,7 @@ public class SessionLogs {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     @Column(nullable = false)
     private Integer sessionID;
     @Column(nullable = false)
@@ -26,17 +26,21 @@ public class SessionLogs {
     private String sessionPlanName;
     @Column(length = 1000)
     private String sessionPlan;
+
+    @Column(nullable = false)
+    private UUID originalSessionId;
+
     @Column(nullable = false)
     private LocalDateTime startedAt;
     private LocalDateTime completedAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SessionLogs.LogStatus status = SessionLogs.LogStatus.InProgress;
+
     @Column(length = 1000)
     private String notes;
-    @ManyToOne
-    @JoinColumn(name = "session_id", nullable = false)
-    private Sessions session;
+
     @OneToMany(mappedBy = "sessionLog", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ExecutionLogs> executionLogs = new ArrayList<>();
