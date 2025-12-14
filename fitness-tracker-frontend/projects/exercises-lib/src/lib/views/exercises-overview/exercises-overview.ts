@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, debounceTime, shareReplay, startWith, switchMap } from 'rxjs';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
@@ -13,7 +14,7 @@ import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exerc
 
 @Component({
   selector: 'ex-exercises-overview',
-  imports: [ExerciseCardComponent, MatButtonModule, ReactiveFormsModule],
+  imports: [ExerciseCardComponent, MatButtonModule, MatIconModule, ReactiveFormsModule],
   templateUrl: './exercises-overview.html',
   styleUrl: './exercises-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
