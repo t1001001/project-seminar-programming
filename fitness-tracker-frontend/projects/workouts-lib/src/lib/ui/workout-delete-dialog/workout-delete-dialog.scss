@@ -1,66 +1,49 @@
-h2[mat-dialog-title] {
-  margin: 0;
-  padding: 1.5rem 1.5rem 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--fitness-text-primary);
-}
-
 mat-dialog-content {
-  padding: 0.5rem 1.5rem;
-
-  p {
-    margin: 0 0 0.75rem;
-    color: var(--fitness-text-secondary);
-    font-size: 1rem;
-    line-height: 1.5;
-
-    strong {
-      color: var(--fitness-text-primary);
-    }
-  }
-
-  .warning-text {
-    color: var(--fitness-action-delete);
-    font-size: 0.875rem;
-    margin-bottom: 0;
-  }
+  padding: 1rem 0;
 }
 
-mat-dialog-actions {
-  padding: 1rem 1.5rem 1.5rem;
-  gap: 0.75rem;
+p {
+  margin: 0.5rem 0;
+  color: var(--fitness-dark);
 }
 
-.cancel-btn {
-  color: var(--fitness-text-primary) !important;
+.warning {
+  font-size: 0.875rem;
+  color: var(--fitness-text-secondary);
+}
+
+strong {
+  color: var(--fitness-primary);
+}
+
+mat-dialog-actions button {
   font-weight: 500 !important;
   text-transform: none !important;
   transition: all 0.2s ease;
+}
 
-  &:hover {
-    color: var(--fitness-primary) !important;
-  }
+mat-dialog-actions button[mat-button] {
+  color: var(--fitness-dark) !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 1rem !important;
+}
+
+mat-dialog-actions button[mat-button]:hover {
+  background-color: transparent !important;
+  color: var(--fitness-primary) !important;
 }
 
 .delete-btn {
   background-color: var(--fitness-action-delete) !important;
-  color: white !important;
+  color: var(--fitness-dark) !important;
+  box-shadow: none !important;
   border-radius: 8px !important;
   padding: 0.5rem 1.5rem !important;
-  font-weight: 500 !important;
-  text-transform: none !important;
-  box-shadow: none !important;
-  transition: all 0.2s ease;
-
-  mat-icon {
-    margin-right: 0.25rem;
-  }
-
-  &:hover {
-    background-color: var(--fitness-action-delete-hover) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3) !important;
-  }
 }
 
+.delete-btn:hover {
+  background-color: var(--fitness-action-delete-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3) !important;
+}
