@@ -41,6 +41,7 @@ export class HomeHeroComponent implements AfterViewInit, OnDestroy {
   private readonly wrapper = viewChild.required<ElementRef<HTMLElement>>('wrapper');
   private readonly dialLogo = viewChild.required<ElementRef<SVGElement>>('dialLogo');
   private readonly slogan = viewChild.required<ElementRef<HTMLElement>>('slogan');
+  private readonly scrollIndicator = viewChild.required<ElementRef<HTMLElement>>('scrollIndicator');
   private readonly dialContainer = viewChild.required<ElementRef<HTMLElement>>('dialContainer');
 
   // SVG path elements
@@ -63,7 +64,7 @@ export class HomeHeroComponent implements AfterViewInit, OnDestroy {
 
     const tl = this.createTimeline(elements.wrapper);
 
-    this.animateSlogan(tl, elements.slogan);
+    this.animateSlogan(tl, elements.slogan, elements.scrollIndicator);
     this.animateDialContainer(tl, elements.dialContainer);
     this.animatePieChart(tl, elements.clipPath);
     this.animateBuzzwords(tl, elements.words);
@@ -79,6 +80,7 @@ export class HomeHeroComponent implements AfterViewInit, OnDestroy {
       wrapper: this.wrapper().nativeElement,
       logo: this.dialLogo().nativeElement,
       slogan: this.slogan().nativeElement,
+      scrollIndicator: this.scrollIndicator().nativeElement,
       dialContainer: this.dialContainer().nativeElement,
       clipPath: this.clipPath().nativeElement,
       words: [
@@ -108,7 +110,7 @@ export class HomeHeroComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private animateSlogan(tl: gsap.core.Timeline, slogan: HTMLElement): void {
+  private animateSlogan(tl: gsap.core.Timeline, slogan: HTMLElement, scrollIndicator: HTMLElement): void {
     tl.to(slogan, {
       y: -100,
       autoAlpha: 0,
@@ -116,7 +118,13 @@ export class HomeHeroComponent implements AfterViewInit, OnDestroy {
       duration: this.ANIMATION_DURATION_SLOGAN,
       ease: 'none',
       immediateRender: false
-    });
+    })
+      .to(scrollIndicator, {
+        y: -50,
+        autoAlpha: 0,
+        duration: this.ANIMATION_DURATION_SLOGAN / 2, // Fade out faster
+        ease: 'power1.out'
+      }, '<'); // Start at the same time as slogan animation
   }
 
   private animateDialContainer(tl: gsap.core.Timeline, container: HTMLElement): void {

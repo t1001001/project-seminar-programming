@@ -31,6 +31,77 @@
     pointer-events: none;
 }
 
+.scroll-indicator {
+    grid-area: 1 / 1;
+    position: relative;
+    z-index: 10;
+    margin-top: 15vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.8;
+    align-self: end;
+    margin-bottom: 2rem;
+
+    .mouse {
+        width: 26px;
+        height: 42px;
+        border: 2px solid var(--fitness-text-secondary);
+        border-radius: 20px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        padding-top: 6px;
+    }
+
+    .wheel {
+        width: 4px;
+        height: 8px;
+        background-color: var(--fitness-primary);
+        border-radius: 2px;
+        animation: scrollWheel 1.5s infinite;
+    }
+
+    .arrow {
+        width: 10px;
+        height: 10px;
+        border-right: 2px solid var(--fitness-text-secondary);
+        border-bottom: 2px solid var(--fitness-text-secondary);
+        transform: rotate(45deg);
+        animation: scrollArrow 1.5s infinite;
+        animation-delay: 0.2s;
+    }
+}
+
+@keyframes scrollWheel {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+}
+
+@keyframes scrollArrow {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) translate(-2px, -2px);
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(45deg) translate(2px, 2px);
+    }
+}
+
 .dial-container {
     grid-area: 1 / 1;
     width: 80vmin;
