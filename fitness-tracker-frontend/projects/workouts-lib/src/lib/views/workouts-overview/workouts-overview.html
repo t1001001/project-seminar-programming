@@ -1,0 +1,33 @@
+<section class="workouts-overview page-container">
+  <header class="view-header">
+    <div class="header-content">
+      <h1>Workouts</h1>
+      <p class="subtitle">Your workout sessions and history</p>
+    </div>
+
+    <div class="header-decoration">
+      <mat-icon>history</mat-icon>
+    </div>
+  </header>
+
+  @if (workoutLogs$ | async; as logs) {
+    @if (logs.length) {
+    <div class="workout-logs-list">
+      @for (log of logs; track log.id) {
+      <lib-workout-card [workout]="log" (delete)="onDelete(log.id, log.sessionName)" (edit)="onEdit($event)" />
+      }
+    </div>
+    } @else {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">fitness_center</mat-icon>
+      <h3>No Workouts yet</h3>
+      <p>Start a Session from your Session page to track your progress!</p>
+    </div>
+    }
+  } @else {
+  <div class="loading-state">
+    <p>Loading your workout history...</p>
+  </div>
+  }
+</section>
+
