@@ -36,7 +36,7 @@ mat-dialog-actions button[mat-button]:hover {
 
 .create-btn {
   background-color: var(--fitness-primary) !important;
-  color: #0d0f0e !important;
+  color: var(--fitness-dark) !important;
   box-shadow: none !important;
   border-radius: 8px !important;
   padding: 0.5rem 1.5rem !important;
