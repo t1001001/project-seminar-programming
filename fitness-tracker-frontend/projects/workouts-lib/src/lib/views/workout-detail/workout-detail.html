@@ -1,0 +1,160 @@
+<section class="workout-detail page-container">
+  <button mat-button class="back-btn" type="button" (click)="onBack()">
+    <mat-icon>arrow_back</mat-icon>
+    Back to Workouts
+  </button>
+
+  @if (workoutLog$ | async; as log) {
+  <mat-card class="detail-card" [class.in-progress]="log.status === 'InProgress'">
+    <mat-card-content>
+      <div class="header">
+        <div class="header-content header-content-inner">
+          <h1>{{ log.sessionName }}</h1>
+        </div>
+        @if (log.status === 'InProgress') {
+        <div class="header-actions">
+          <button mat-raised-button class="continue-btn" type="button" (click)="onEdit()">
+            <mat-icon>play_arrow</mat-icon>
+            Edit
+          </button>
+        </div>
+        }
+      </div>
+
+      <div class="detail-view">
+        <div class="detail-grid plan-status-row">
+          <div class="detail-item">
+            <span class="detail-label">Plan</span>
+            <span class="detail-value">{{ log.sessionPlanName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            @if (log.status === 'InProgress') {
+            <span class="status-chip in-progress">
+              <mat-icon>pending</mat-icon>
+              In Progress
+            </span>
+            } @else {
+            <span class="status-chip completed">
+              <mat-icon>check_circle</mat-icon>
+              Completed
+            </span>
+            }
+          </div>
+        </div>
+
+        <hr class="detail-divider" />
+
+        <div class="detail-grid times-row">
+          <div class="detail-item">
+            <span class="detail-label">Started At</span>
+            <span class="detail-value">{{ formatDateTime(log.startedAt) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Completed At</span>
+            <span class="detail-value">{{ log.completedAt ? formatDateTime(log.completedAt) : '-' }}</span>
+          </div>
+        </div>
+
+        <hr class="detail-divider" />
+
+        <div class="notes-section">
+          <span class="detail-label">Session Notes</span>
+          <p class="notes-text">{{ log.notes || '-' }}</p>
+        </div>
+
+        <hr class="detail-divider" />
+
+        <div class="exercises-section">
+          <div class="section-header">
+            <h3>Exercises: <span class="count-chip">{{ log.executions.length }}</span></h3>
+          </div>
+
+          @if (log.executions.length) {
+          <div class="executions-list">
+            @for (execution of log.executions; track execution.id; let last = $last) {
+            <div class="execution-card" [class.last-item]="last" [class.completed]="execution.completed">
+              <div class="execution-header">
+                <div class="exercise-info">
+                  <h4>{{ execution.exerciseName }}</h4>
+                  <span class="category-chip">{{ execution.exerciseCategory }}</span>
+                </div>
+                @if (execution.completed) {
+                <span class="exercise-status completed">
+                  <mat-icon>check</mat-icon>
+                  Done
+                </span>
+                } @else {
+                <span class="exercise-status not-finished">
+                  <mat-icon>close</mat-icon>
+                  Not Finished
+                </span>
+                }
+              </div>
+
+              <hr class="exercise-divider" />
+
+              <div class="stats-comparison">
+                <div class="stats-row planned">
+                  <span class="stats-label">Planned</span>
+                  <div class="stats-values">
+                    <span class="stat-item">
+                      <mat-icon>dynamic_form</mat-icon>
+                      {{ execution.exerciseExecutionPlannedSets }} sets
+                    </span>
+                    <span class="stat-item">
+                      <mat-icon>repeat</mat-icon>
+                      {{ execution.exerciseExecutionPlannedReps }} reps
+                    </span>
+                    <span class="stat-item">
+                      <mat-icon>fitness_center</mat-icon>
+                      {{ execution.exerciseExecutionPlannedWeight }} kg
+                    </span>
+                  </div>
+                </div>
+
+                <div class="stats-row actual">
+                  <span class="stats-label">Actual</span>
+                  <div class="stats-values">
+                    <span class="stat-item" 
+                      [class.better]="execution.completed && execution.actualSets != null && execution.actualSets >= execution.exerciseExecutionPlannedSets"
+                      [class.worse]="execution.completed && execution.actualSets != null && execution.actualSets < execution.exerciseExecutionPlannedSets">
+                      <mat-icon>dynamic_form</mat-icon>
+                      {{ execution.actualSets ?? '-' }} sets
+                    </span>
+                    <span class="stat-item"
+                      [class.better]="execution.completed && execution.actualReps != null && execution.actualReps >= execution.exerciseExecutionPlannedReps"
+                      [class.worse]="execution.completed && execution.actualReps != null && execution.actualReps < execution.exerciseExecutionPlannedReps">
+                      <mat-icon>repeat</mat-icon>
+                      {{ execution.actualReps ?? '-' }} reps
+                    </span>
+                    <span class="stat-item"
+                      [class.better]="execution.completed && execution.actualWeight != null && execution.actualWeight >= execution.exerciseExecutionPlannedWeight"
+                      [class.worse]="execution.completed && execution.actualWeight != null && execution.actualWeight < execution.exerciseExecutionPlannedWeight">
+                      <mat-icon>fitness_center</mat-icon>
+                      {{ execution.actualWeight ?? '-' }} kg
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              @if (execution.notes) {
+              <p class="execution-notes">{{ execution.notes }}</p>
+              }
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="empty-executions">
+            <mat-icon>event_busy</mat-icon>
+            <p>No exercises were logged for this session</p>
+          </div>
+          }
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  } @else {
+  <p class="loading-state">Loading workout log...</p>
+  }
+</section>
