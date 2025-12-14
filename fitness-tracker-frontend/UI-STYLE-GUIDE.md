@@ -149,6 +149,25 @@ const theme = this.themeService.currentTheme();
 }
 ```
 
+**Nested Card Pattern:**
+```scss
+// Parent card uses standard background
+.parent-card {
+  background-color: var(--fitness-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fitness-border);
+  padding: 1.5rem;
+}
+
+// Nested cards use slightly different background for visual distinction
+.nested-card {
+  background-color: var(--fitness-bg-card-nested);
+  border-radius: 12px;
+  border: 1px solid var(--fitness-border);
+  padding: 1rem;
+}
+```
+
 ---
 
 ### Buttons
@@ -156,7 +175,9 @@ const theme = this.themeService.currentTheme();
 | Type | Variable | Usage |
 |------|----------|-------|
 | **Primary** | `--fitness-primary` | Create, Add, Confirm |
-| **Update** | `--fitness-action-update` | Edit, Update |
+| **Edit** | `--fitness-primary` | Edit (opens edit mode) |
+| **Start** | `--fitness-primary` | Start, Play, Begin |
+| **Update** | `--fitness-action-update` | Update (submit form changes) |
 | **Delete** | `--fitness-action-delete` | Delete, Remove |
 | **Text** | transparent | Cancel, Back |
 
@@ -168,6 +189,46 @@ const theme = this.themeService.currentTheme();
   border-radius: 8px;
   padding: 0.5rem 1.5rem;
   font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--fitness-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow);
+  }
+}
+```
+
+**Edit Button:**
+```scss
+.edit-btn {
+  background-color: var(--fitness-primary);
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--fitness-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow);
+  }
+}
+```
+
+**Start Button:**
+```scss
+.start-btn {
+  background-color: var(--fitness-primary);
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.3rem;
+  font-weight: 600;
   text-transform: none;
   box-shadow: none;
   transition: all 0.2s ease;
