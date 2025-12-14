@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 public interface SessionLogsRepository extends JpaRepository<SessionLogs, UUID> {
 
-    List<SessionLogs> findBySessionId(UUID sessionId);
+    List<SessionLogs> findByOriginalSessionId(UUID originalSessionId);
 
     List<SessionLogs> findByStatus(SessionLogs.LogStatus status);
 
