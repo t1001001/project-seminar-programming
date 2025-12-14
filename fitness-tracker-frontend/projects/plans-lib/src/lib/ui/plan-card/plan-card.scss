@@ -57,7 +57,7 @@
 
 .detail-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
 }
 
@@ -75,25 +75,46 @@
 .stat-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.85rem;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  padding: 0.35rem 0.75rem;
   background-color: var(--fitness-bg-chip);
   border-radius: 12px;
   border: 1px solid var(--fitness-border);
-  font-size: 0.875rem;
   box-sizing: border-box;
+  min-width: unset;
+  flex: 1;
+
+  mat-icon {
+    color: var(--fitness-text-secondary);
+    transform: scale(0.85);
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.stat-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
 
   .label {
-    color: var(--fitness-text-secondary);
-    font-weight: 500;
-    text-transform: uppercase;
     font-size: 0.75rem;
+    color: var(--fitness-text-secondary);
+    text-transform: uppercase;
     letter-spacing: 0.05em;
+    font-weight: 600;
+    white-space: nowrap;
+    flex: 1;
   }
 
   .value {
+    font-size: 0.95rem;
+    font-weight: 700;
     color: var(--fitness-dark);
-    font-weight: 600;
   }
 }
 
@@ -163,6 +184,7 @@
 
   .stat-chip {
     width: 100%;
+    min-width: unset;
   }
 
   .details-actions {
