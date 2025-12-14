@@ -2,7 +2,7 @@
 
 This document defines the standard architecture pattern for Angular feature libraries in this project. All new libraries **must** follow these patterns to ensure consistency, maintainability, and scalability.
 
-> **Reference Implementations:** See `exercises-lib`, `sessions-lib`, and `plans-lib` for working examples.
+> **Reference Implementations:** See `exercises-lib`, `sessions-lib`, `plans-lib`, and `workouts-lib` for working examples.
 
 ---
 
@@ -265,6 +265,179 @@ export class [Entity]LogicService {
   }
 }
 ```
+
+#### Pattern: Multiple Event Subjects
+
+When a service manages different state transitions that components need to react to separately:
+
+```typescript
+@Injectable({ providedIn: 'root' })\nexport class WorkoutLogicService {
+  private readonly provider = inject(WorkoutProviderService);
+  
+  // Separate event streams for different state transitions
+  private readonly workoutCompletedSubject = new Subject<WorkoutLog>();
+  readonly workoutCompleted$ = this.workoutCompletedSubject.asObservable();
+
+  private readonly workoutSavedSubject = new Subject<WorkoutLog>();
+  readonly workoutSaved$ = this.workoutSavedSubject.asObservable();
+
+  private readonly workoutCancelledSubject = new Subject<WorkoutLog>();
+  readonly workoutCancelled$ = this.workoutCancelledSubject.asObservable();
+
+  // Emit to appropriate subject based on outcome
+  saveWorkout(id: string, data: UpdateData): Observable<WorkoutLog> {
+    return this.provider.update(id, data).pipe(
+      tap((workout) => {
+        if (workout.status === 'Completed') {
+          this.workoutCompletedSubject.next(workout);
+        } else {
+          this.workoutSavedSubject.next(workout);
+        }
+      }),
+      catchError((err) => this.handleError(err, 'save'))
+    );
+  }
+}
+```
+
+**Benefits:**
+- Components can subscribe to specific events they care about
+- Clearer intent than a single event stream with status checking
+- Enables different UI responses for different state transitions
+
+#### Pattern: Conditional Workflow with Parallel Updates
+
+When updating multiple related entities and conditionally triggering a state change:
+
+```typescript
+saveWorkout(
+  workoutLogId: string,
+  executionUpdates: ExecutionInput[],
+  notes?: string
+): Observable<WorkoutLog> {
+  // Update all execution logs in parallel
+  const executionCalls = executionUpdates.map((update) =>
+    this.provider.updateExecution(update.id, update)
+  );
+
+  // Update parent notes if provided
+  const notesCall = notes !== undefined
+    ? this.provider.updateWorkoutLog(workoutLogId, { notes })
+    : of(null);
+
+  // Check if all items are completed
+  const allCompleted = executionUpdates.every((u) => u.completed);
+
+  return forkJoin([notesCall, ...executionCalls]).pipe(
+    switchMap(() => {
+      if (allCompleted) {
+        // Conditionally complete the workflow
+        return this.provider.completeWorkout(workoutLogId);
+      } else {
+        // Just return updated state
+        return this.provider.getWorkoutLogById(workoutLogId);
+      }
+    }),
+    tap((workout) => {
+      if (workout.status === 'Completed') {
+        this.workoutCompletedSubject.next(workout);
+      } else {
+        this.workoutSavedSubject.next(workout);
+      }
+    }),
+    catchError((err) => this.handleError(err, 'save'))
+  );
+}
+```
+
+**Benefits:**
+- Parallel updates for performance (`forkJoin`)
+- Conditional state transitions based on data
+- Single API call for complex multi-step operations
+- Proper event emission based on outcome
+
+#### Pattern: CRUD Synchronization
+
+When updating a parent entity with a collection of child entities (create new, update existing, delete removed):
+
+```typescript
+updateSessionWithExercises(
+  sessionId: string,
+  payload: SessionUpdatePayload
+): Observable<Session> {
+  // Update parent entity
+  const sessionUpdate: SessionUpdate = {
+    name: payload.name,
+    planId: payload.planId,
+    orderID: payload.orderID
+  };
+
+  return this.provider.updateSession(sessionId, sessionUpdate).pipe(
+    switchMap((updatedSession) =>
+      // Fetch existing children
+      this.provider.getExerciseExecutionsBySession(sessionId).pipe(
+        switchMap((existingExecutions) => {
+          const desiredIds = new Set<string>();
+          const updateCalls: Observable<ExerciseExecution>[] = [];
+          const createCalls: Observable<ExerciseExecution>[] = [];
+
+          // Process each child in the payload
+          payload.exercises.forEach((exercise, idx) => {
+            const execId = exercise.id;
+            const request = {
+              exerciseId: exercise.exerciseId,
+              plannedSets: exercise.plannedSets,
+              plannedReps: exercise.plannedReps,
+              plannedWeight: exercise.plannedWeight,
+              orderID: exercise.orderID ?? idx + 1,
+            };
+
+            if (execId) {
+              // Existing child - update it
+              desiredIds.add(execId);
+              updateCalls.push(
+                this.provider.updateExerciseExecution(execId, request)
+              );
+            } else {
+              // New child - create it
+              createCalls.push(
+                this.provider.createExerciseExecution({
+                  ...request,
+                  sessionId
+                })
+              );
+            }
+          });
+
+          // Delete children not in the desired set
+          const deleteCalls = existingExecutions
+            .filter(exec => !desiredIds.has(exec.id))
+            .map(exec => this.provider.deleteExerciseExecution(exec.id));
+
+          // Execute all operations in parallel
+          const allCalls = [...updateCalls, ...createCalls, ...deleteCalls];
+          if (!allCalls.length) {
+            return of(updatedSession);
+          }
+          return forkJoin(allCalls).pipe(map(() => updatedSession));
+        })
+      )
+    ),
+    catchError((err) => this.handleError(err, 'update'))
+  );
+}
+```
+
+**Benefits:**
+- Single operation synchronizes parent and all children
+- Automatically handles create/update/delete based on presence of ID
+- Parallel execution for performance
+- Atomic-like behavior (all or nothing)
+
+**Use Cases:**
+- Updating a session with its exercise list
+- Updating a plan with its session list
+- Any parent-child relationship where children can be added/removed/modified
 
 #### Pattern: Two-Phase Reorder
 
@@ -792,4 +965,4 @@ The architecture is **repeatable and predictable** across all feature libraries.
 ---
 
 **Last Updated:** December 2025  
-**Reference Implementations:** `exercises-lib`, `sessions-lib`, `plans-lib`
+**Reference Implementations:** `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`
