@@ -1,0 +1,52 @@
+mat-dialog-content {
+  padding: 1rem 0;
+}
+
+p {
+  margin: 0.5rem 0;
+  color: var(--fitness-text-primary);
+}
+
+.warning {
+  font-size: 0.875rem;
+  color: var(--fitness-text-secondary);
+}
+
+strong {
+  color: var(--fitness-primary);
+}
+
+mat-dialog-actions button {
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease;
+}
+
+mat-dialog-actions button[mat-button] {
+  color: var(--fitness-text-secondary) !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 1rem !important;
+}
+
+mat-dialog-actions button[mat-button]:hover {
+  background-color: transparent !important;
+  color: var(--fitness-primary) !important;
+}
+
+.create-btn {
+  background-color: var(--fitness-primary) !important;
+  color: #0d0f0e !important;
+  box-shadow: none !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.5rem !important;
+
+  mat-icon {
+    margin-right: 6px;
+  }
+}
+
+.create-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--fitness-shadow-glow-sm);
+}
