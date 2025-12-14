@@ -95,6 +95,7 @@
 }
 
 @media (max-width: 640px) {
+
   .header,
   .header-content,
   .header-content-inner {
@@ -107,6 +108,7 @@
     justify-content: flex-end;
   }
 }
+
 .status-chip {
   display: inline-flex;
   align-items: center;
@@ -135,7 +137,8 @@
 }
 
 .detail-card.in-progress {
-  border-color: rgba(var(--fitness-status-warning-rgb), 0.4) !important;
+  border: 2px solid rgba(var(--fitness-status-warning-rgb), 0.6) !important;
+  box-shadow: 0 0 20px rgba(var(--fitness-status-warning-rgb), 0.15) !important;
 }
 
 .detail-view {
@@ -394,11 +397,11 @@
 .stats-row.actual .stat-item {
   color: var(--fitness-text-primary);
   font-weight: 500;
-  
+
   &.better {
     color: var(--fitness-status-success);
   }
-  
+
   &.worse {
     color: var(--fitness-action-delete);
   }
@@ -408,7 +411,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  
+
   .stats-row.planned {
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--fitness-border);

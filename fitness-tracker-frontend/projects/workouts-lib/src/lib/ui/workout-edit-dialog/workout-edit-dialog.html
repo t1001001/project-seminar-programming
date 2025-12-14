@@ -26,7 +26,8 @@
         <mat-form-field appearance="outline" class="session-notes-field">
           <mat-icon matPrefix class="field-icon">notes</mat-icon>
           <mat-label>Session Notes (optional)</mat-label>
-          <textarea matInput formControlName="notes" rows="1" placeholder="Add notes for the entire session..."></textarea>
+          <textarea matInput formControlName="notes" rows="1"
+            placeholder="Add notes for the entire session..."></textarea>
         </mat-form-field>
       </section>
 
@@ -35,6 +36,7 @@
       <section class="exercises-section">
         <div class="section-header">
           <h3>Exercises: <span class="count-chip">{{ executionsArray.length }}</span></h3>
+          <span class="required-hint">* Required fields</span>
           @if (allCompleted()) {
           <span class="all-complete-badge">
             <mat-icon>check_circle</mat-icon>
@@ -51,7 +53,8 @@
                 <h4>{{ execution.get('exerciseName')?.value }}</h4>
                 <span class="category-chip">{{ execution.get('exerciseCategory')?.value }}</span>
               </div>
-              <mat-checkbox formControlName="completed" class="complete-checkbox" [class.is-completed]="execution.get('completed')?.value">
+              <mat-checkbox formControlName="completed" class="complete-checkbox"
+                [class.is-completed]="execution.get('completed')?.value">
                 Completed
               </mat-checkbox>
             </div>
@@ -63,12 +66,17 @@
                 <mat-form-field appearance="outline" class="compact-field readonly-field" floatLabel="always">
                   <mat-icon matPrefix class="field-icon">dynamic_form</mat-icon>
                   <mat-label>Planned Sets</mat-label>
-                  <input matInput type="number" [value]="execution.get('plannedSets')?.value" readonly class="readonly-input" tabindex="-1" />
+                  <input matInput type="number" [value]="execution.get('plannedSets')?.value" readonly
+                    class="readonly-input" tabindex="-1" />
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="compact-field" [class.readonly-field]="execution.get('completed')?.value" [floatLabel]="execution.get('completed')?.value ? 'always' : 'auto'">
+                <mat-form-field appearance="outline" class="compact-field"
+                  [class.readonly-field]="execution.get('completed')?.value"
+                  [floatLabel]="execution.get('completed')?.value ? 'always' : 'auto'">
                   <mat-icon matPrefix class="field-icon">dynamic_form</mat-icon>
                   <mat-label>Actual Sets</mat-label>
-                  <input matInput type="number" formControlName="actualSets" min="0" [readonly]="execution.get('completed')?.value" [class.readonly-input]="execution.get('completed')?.value" />
+                  <input matInput type="number" formControlName="actualSets" min="0"
+                    [readonly]="execution.get('completed')?.value"
+                    [class.readonly-input]="execution.get('completed')?.value" />
                   @if (execution.get('actualSets')?.hasError('min')) {
                   <mat-error>Value cannot be negative</mat-error>
                   }
@@ -79,12 +87,17 @@
                 <mat-form-field appearance="outline" class="compact-field readonly-field" floatLabel="always">
                   <mat-icon matPrefix class="field-icon">repeat</mat-icon>
                   <mat-label>Planned Reps</mat-label>
-                  <input matInput type="number" [value]="execution.get('plannedReps')?.value" readonly class="readonly-input" tabindex="-1" />
+                  <input matInput type="number" [value]="execution.get('plannedReps')?.value" readonly
+                    class="readonly-input" tabindex="-1" />
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="compact-field" [class.readonly-field]="execution.get('completed')?.value" [floatLabel]="execution.get('completed')?.value ? 'always' : 'auto'">
+                <mat-form-field appearance="outline" class="compact-field"
+                  [class.readonly-field]="execution.get('completed')?.value"
+                  [floatLabel]="execution.get('completed')?.value ? 'always' : 'auto'">
                   <mat-icon matPrefix class="field-icon">repeat</mat-icon>
                   <mat-label>Actual Reps</mat-label>
-                  <input matInput type="number" formControlName="actualReps" min="0" [readonly]="execution.get('completed')?.value" [class.readonly-input]="execution.get('completed')?.value" />
+                  <input matInput type="number" formControlName="actualReps" min="0"
+                    [readonly]="execution.get('completed')?.value"
+                    [class.readonly-input]="execution.get('completed')?.value" />
                   @if (execution.get('actualReps')?.hasError('min')) {
                   <mat-error>Value cannot be negative</mat-error>
                   }
@@ -95,12 +108,17 @@
                 <mat-form-field appearance="outline" class="compact-field readonly-field" floatLabel="always">
                   <mat-icon matPrefix class="field-icon">fitness_center</mat-icon>
                   <mat-label>Planned Weight (kg)</mat-label>
-                  <input matInput type="number" [value]="execution.get('plannedWeight')?.value" readonly class="readonly-input" tabindex="-1" />
+                  <input matInput type="number" [value]="execution.get('plannedWeight')?.value" readonly
+                    class="readonly-input" tabindex="-1" />
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="compact-field" [class.readonly-field]="execution.get('completed')?.value" [floatLabel]="execution.get('completed')?.value ? 'always' : 'auto'">
+                <mat-form-field appearance="outline" class="compact-field"
+                  [class.readonly-field]="execution.get('completed')?.value"
+                  [floatLabel]="execution.get('completed')?.value ? 'always' : 'auto'">
                   <mat-icon matPrefix class="field-icon">fitness_center</mat-icon>
                   <mat-label>Actual Weight (kg)</mat-label>
-                  <input matInput type="number" formControlName="actualWeight" min="0" [readonly]="execution.get('completed')?.value" [class.readonly-input]="execution.get('completed')?.value" />
+                  <input matInput type="number" formControlName="actualWeight" min="0"
+                    [readonly]="execution.get('completed')?.value"
+                    [class.readonly-input]="execution.get('completed')?.value" />
                   @if (execution.get('actualWeight')?.hasError('min')) {
                   <mat-error>Value cannot be negative</mat-error>
                   }
@@ -110,10 +128,14 @@
 
             <div class="card-divider"></div>
 
-            <mat-form-field appearance="outline" class="notes-field" [class.readonly-field]="execution.get('completed')?.value" [floatLabel]="execution.get('completed')?.value ? 'always' : 'auto'">
+            <mat-form-field appearance="outline" class="notes-field"
+              [class.readonly-field]="execution.get('completed')?.value"
+              [floatLabel]="execution.get('completed')?.value ? 'always' : 'auto'">
               <mat-icon matPrefix class="field-icon">notes</mat-icon>
               <mat-label>Notes (optional)</mat-label>
-              <textarea matInput formControlName="notes" rows="1" placeholder="Add notes for this exercise..." [readonly]="execution.get('completed')?.value" [class.readonly-input]="execution.get('completed')?.value"></textarea>
+              <textarea matInput formControlName="notes" rows="1" placeholder="Add notes for this exercise..."
+                [readonly]="execution.get('completed')?.value"
+                [class.readonly-input]="execution.get('completed')?.value"></textarea>
             </mat-form-field>
           </div>
           }
@@ -134,7 +156,8 @@
     <button mat-button class="cancel-btn" (click)="onCancel()" [disabled]="isSaving()">
       Cancel
     </button>
-    <button mat-raised-button class="update-btn" (click)="onSave()" [disabled]="isLoading() || isSaving() || form.invalid || !hasChanges()">
+    <button mat-raised-button class="update-btn" (click)="onSave()"
+      [disabled]="isLoading() || isSaving() || form.invalid || !hasChanges()">
       @if (isSaving()) {
       <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
       }

@@ -12,8 +12,11 @@
           }
 
           <div class="stat-chip">
-            <span class="label">Sessions</span>
-            <span class="value">{{ plan().sessions?.length || 0 }}</span>
+            <mat-icon>directions_run</mat-icon>
+            <div class="stat-text">
+              <span class="label">Sessions</span>
+              <span class="value">{{ plan().sessions?.length || 0 }}</span>
+            </div>
           </div>
         </div>
         <button mat-raised-button class="delete-btn" (click)="onDelete($event)">
@@ -23,10 +26,10 @@
       </div>
     </div>
   </div>
-    <div class="card-footer">
-        <span class="click-hint">
-            View details
-            <span class="material-icons">arrow_forward</span>
-        </span>
-    </div>
+  <div class="card-footer">
+    <span class="click-hint">
+      View details
+      <span class="material-icons">arrow_forward</span>
+    </span>
+  </div>
 </mat-card>
