@@ -34,6 +34,7 @@ This document defines the styling rules and patterns for all components in this 
    ═══════════════════════════════════════════════════════════════ */
 --fitness-bg-page              // Page background
 --fitness-bg-card              // Card surfaces
+--fitness-bg-card-nested       // Nested cards (cards within cards)
 --fitness-bg-elevated          // Dialogs, menus
 --fitness-bg-chip              // Chips, badges, tags
 --fitness-bg-input             // Form inputs
