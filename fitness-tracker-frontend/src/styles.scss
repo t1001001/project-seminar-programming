@@ -100,6 +100,7 @@ body {
   // Light theme colors
   --fitness-bg-page: #F5F8F6;
   --fitness-bg-card: #FFFFFF;
+  --fitness-bg-card-nested: #f8faf9;
   --fitness-bg-elevated: #FFFFFF;
   --fitness-bg-chip: #f1f5f9;
   --fitness-bg-input: #FFFFFF;
@@ -140,6 +141,7 @@ body {
 [data-theme="dark"] {
   --fitness-bg-page: #0f1511;
   --fitness-bg-card: #1a1f1c;
+  --fitness-bg-card-nested: #222723;
   --fitness-bg-elevated: #242a27;
   --fitness-bg-chip: #242a27;
   --fitness-bg-input: #1e2421;
