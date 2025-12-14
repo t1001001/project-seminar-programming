@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { AsyncPipe } from '@angular/common';
-import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, debounceTime, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
 
 import { WorkoutLogicService } from '../../logic-services/workout-logic.service';
 import { WorkoutLog } from '../../provider-services/workout-provider.service';
@@ -20,7 +21,7 @@ const SNACKBAR_ERROR_DURATION = 5000;
     MatDialogModule,
     MatSnackBarModule,
     MatIconModule,
-    AsyncPipe,
+    ReactiveFormsModule,
     WorkoutCardComponent,
   ],
   templateUrl: './workouts-overview.html',
@@ -32,18 +33,43 @@ export class WorkoutsOverviewComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
+  readonly searchControl = new FormControl('');
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
-  workoutLogs$: Observable<WorkoutLog[]> = this.refreshTrigger$.pipe(
-    switchMap(() => this.workoutService.getActiveWorkoutLogs()),
-    catchError((err) => {
-      this.snackBar.open(err.message, 'Close', {
-        duration: SNACKBAR_ERROR_DURATION,
-        panelClass: ['error-snackbar']
-      });
-      return of([]);
-    })
+  private readonly workoutLogs = toSignal(
+    this.refreshTrigger$.pipe(
+      switchMap(() => this.workoutService.getActiveWorkoutLogs().pipe(
+        catchError((err) => {
+          this.snackBar.open(err.message, 'Close', {
+            duration: SNACKBAR_ERROR_DURATION,
+            panelClass: ['error-snackbar']
+          });
+          return of([] as WorkoutLog[]);
+        })
+      )),
+      tap(() => { }),
+      shareReplay(1)
+    ),
+    { initialValue: [] as WorkoutLog[] }
   );
+
+  private readonly searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(startWith(''), debounceTime(200)),
+    { initialValue: '' }
+  );
+
+  readonly filteredWorkouts = computed(() => {
+    const workouts = this.workoutLogs();
+    if (!workouts) return undefined;
+
+    const term = (this.searchTerm() || '').toLowerCase();
+    return workouts.filter(workout =>
+      workout.sessionName.toLowerCase().includes(term) ||
+      (workout.sessionPlanName?.toLowerCase() || '').includes(term)
+    );
+  });
+
+  readonly totalWorkoutsCount = computed(() => this.workoutLogs()?.length ?? 0);
 
   ngOnInit(): void {
     // Subscribe to workout session events to auto-refresh

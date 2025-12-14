@@ -1,16 +1,30 @@
 <section class="workouts-overview page-container">
-  <header class="view-header">
+  <header class="overview-header">
     <div class="header-content">
       <h1>Workouts</h1>
       <p class="subtitle">Your workout sessions and history</p>
     </div>
 
+    <div class="header-actions">
+      <div class="search-bar">
+        <span class="material-icons">search</span>
+        <input type="text" [formControl]="searchControl" placeholder="Search workouts ...">
+      </div>
+
+      @if (totalWorkoutsCount(); as count) {
+      <div class="header-stat">
+        <span class="stat-value">{{ count }}</span>
+        <span class="stat-label">Workouts</span>
+      </div>
+      }
+    </div>
+
     <div class="header-decoration">
-      <mat-icon>history</mat-icon>
+      <span class="material-icons">history</span>
     </div>
   </header>
 
-  @if (workoutLogs$ | async; as logs) {
+  @if (filteredWorkouts(); as logs) {
     @if (logs.length) {
     <div class="workout-logs-list">
       @for (log of logs; track log.id) {
@@ -19,8 +33,8 @@
     </div>
     } @else {
     <div class="empty-state">
-      <mat-icon class="empty-icon">fitness_center</mat-icon>
-      <h3>No Workouts yet</h3>
+      <mat-icon class="empty-icon">history</mat-icon>
+      <h3>No Workouts found</h3>
       <p>Start a Session from your Session page to track your progress!</p>
     </div>
     }
