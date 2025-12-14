@@ -31,17 +31,21 @@
         }
       </div>
 
-      <div class="details-row">
-        <div class="detail-chips">
-          <span class="detail-chip">
-            <mat-icon>folder</mat-icon>
-            {{ workout().sessionPlanName }}
-          </span>
-          <span class="detail-chip">
-            <mat-icon>fitness_center</mat-icon>
-            {{ workout().executionLogCount ?? 0 }} exercises
-          </span>
-        </div>
+    </div>
+
+    <div class="side-section">
+      <div class="stats-section">
+        <span class="detail-chip">
+          <mat-icon>calendar_today</mat-icon>
+          {{ workout().sessionPlanName }}
+        </span>
+        <span class="detail-chip">
+          <mat-icon>fitness_center</mat-icon>
+          {{ workout().executionLogCount ?? 0 }} exercises
+        </span>
+      </div>
+
+      <div class="actions-section">
         @if (isInProgress()) {
         <button mat-raised-button type="button" class="delete-btn" (click)="onDelete($event)">
           <mat-icon>delete</mat-icon>
@@ -49,7 +53,6 @@
         </button>
         }
       </div>
-
     </div>
   </div>
 

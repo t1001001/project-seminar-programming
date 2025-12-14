@@ -137,8 +137,6 @@
     <button mat-raised-button class="update-btn" (click)="onSave()" [disabled]="isLoading() || isSaving() || form.invalid || !hasChanges()">
       @if (isSaving()) {
       <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
-      } @else {
-      <mat-icon>{{ allCompleted() ? 'check_circle' : 'save' }}</mat-icon>
       }
       {{ allCompleted() ? 'Complete Session' : 'Update' }}
     </button>
