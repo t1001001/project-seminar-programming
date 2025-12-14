@@ -1,0 +1,116 @@
+.workouts-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.view-header {
+  background-color: transparent;
+  padding: 1rem 0 1rem 1.5rem;
+  border-left: 5px solid var(--fitness-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: visible;
+}
+
+.header-content {
+  z-index: 1;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--fitness-text-primary);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .subtitle {
+    color: var(--fitness-text-secondary);
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0.25rem 0 0;
+  }
+}
+
+.header-decoration {
+  position: absolute;
+  right: 0;
+  bottom: -1rem;
+  opacity: 0.03;
+  transform: rotate(-15deg);
+  pointer-events: none;
+
+  mat-icon {
+    font-size: 10rem;
+    width: 10rem;
+    height: 10rem;
+    color: var(--fitness-text-primary);
+  }
+}
+
+.workout-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--fitness-text-tertiary);
+  background-color: var(--fitness-bg-card);
+  border-radius: 12px;
+  border: 2px dashed var(--fitness-border);
+  text-align: center;
+
+  .empty-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+    color: var(--fitness-primary);
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--fitness-text-secondary);
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+    max-width: 350px;
+  }
+}
+
+.loading-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--fitness-text-secondary);
+  font-size: 1.125rem;
+}
+
+@media (max-width: 768px) {
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-content h1 {
+    font-size: 1.75rem;
+  }
+
+  .header-decoration {
+    opacity: 0.05;
+  }
+}
+
