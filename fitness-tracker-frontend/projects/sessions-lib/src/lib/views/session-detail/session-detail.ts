@@ -10,6 +10,10 @@ import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
 
 import { SessionDetail, SessionLogicService } from '../../logic-services/session-logic.service';
 import { SessionEditDialogComponent } from '../../ui/session-edit-dialog/session-edit-dialog';
+import { WorkoutLogicService, WorkoutStartDialogComponent } from 'workouts-lib';
+
+const SNACKBAR_SUCCESS_DURATION = 3000;
+const SNACKBAR_ERROR_DURATION = 5000;
 
 @Component({
   selector: 'lib-session-detail',
@@ -28,6 +32,7 @@ export class SessionDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sessionService = inject(SessionLogicService);
+  private readonly workoutService = inject(WorkoutLogicService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
 
@@ -41,7 +46,7 @@ export class SessionDetailComponent implements OnInit {
         switchMap(() => this.sessionService.getSessionDetail(id)),
         catchError((err) => {
           this.snackBar.open(err.message, 'Close', {
-            duration: 5000,
+            duration: SNACKBAR_ERROR_DURATION,
             panelClass: ['error-snackbar']
           });
           this.router.navigate(['/sessions']);
@@ -69,10 +74,40 @@ export class SessionDetailComponent implements OnInit {
       if (updated) {
         this.refresh();
         this.snackBar.open('Session updated successfully!', 'Close', {
-          duration: 3000,
+          duration: SNACKBAR_SUCCESS_DURATION,
           panelClass: ['success-snackbar']
         });
       }
+    });
+  }
+
+  onStart(session: SessionDetail): void {
+    const confirmRef = this.dialog.open(WorkoutStartDialogComponent, {
+      width: '420px',
+      panelClass: 'custom-dialog-container',
+      data: { sessionName: session.name }
+    });
+
+    confirmRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.workoutService.startWorkout(session.id).subscribe({
+        next: (workoutLog) => {
+          this.snackBar.open('Workout created successfully. Redirecting...', 'Close', {
+            duration: SNACKBAR_SUCCESS_DURATION,
+            panelClass: ['success-snackbar']
+          });
+          this.router.navigate(['/workouts', workoutLog.id]);
+        },
+        error: (err) => {
+          this.snackBar.open(err.message, 'Close', {
+            duration: SNACKBAR_ERROR_DURATION,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
     });
   }
 
