@@ -15,6 +15,9 @@
       ],
       "sessions-lib": [
         "./projects/sessions-lib/src/public-api"
+      ],
+      "workouts-lib": [
+        "./projects/workouts-lib/src/public-api"
       ]
     },
     "strict": true,
@@ -67,6 +70,12 @@
     },
     {
       "path": "./projects/home-lib/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/workouts-lib/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/workouts-lib/tsconfig.spec.json"
     }
   ]
 }
