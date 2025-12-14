@@ -38,18 +38,31 @@ The application uses a standard Spring Boot layered architecture:
 - **Plans** (1) ↔ (N) **Sessions**
 - **Sessions** (1) ↔ (N) **ExerciseExecutions**
 - **ExerciseExecutions** (N) ↔ (1) **Exercises**
-- **Sessions** (1) ↔ (N) **SessionLogs**
 - **SessionLogs** (1) ↔ (N) **ExecutionLogs**
+
+**Note:** SessionLogs does NOT have a foreign key relationship to Sessions. It stores the `originalSessionId` as a simple UUID field (not a JPA relationship) to allow logs to persist even if the original Session is deleted.
 
 ### Key Design Decisions
 
 #### ID Types
 - **UUID**: Used for primary keys of all main entities (`Plans`, `Sessions`, `Exercises`, etc.) to ensure global uniqueness.
-- **Integer**: Used for foreign key references in Log entities (`SessionLogs.sessionID`, `ExecutionLogs.exerciseExecutionId`).
-    - *Rationale*: Logs serve as a historical snapshot. Using simple Integers allows for lightweight lookup or decoupling from the live entity lifecycle, effectively "copying" the reference ID.
+- **Integer**: Used for reference IDs in Log entities (`SessionLogs.sessionID`, `ExecutionLogs.exerciseExecutionId`).
+    - *Rationale*: These are display counters (e.g., "Session #3"), not foreign keys.
 
-#### Denormalization in Logs
-The `SessionLogs` and `ExecutionLogs` entities are designed to be **snapshots** of the state at the time of execution. They duplicate certain data (like names and planned values) to preserve history even if the original Plan or Session is modified or deleted.
+#### Denormalization in Logs (CRITICAL)
+The `SessionLogs` and `ExecutionLogs` entities are **static copies/snapshots** of the state at execution time:
+
+1. **SessionLogs copies from Session:**
+   - `sessionName` (copied from Session.name)
+   - `sessionPlanName` (copied from Plan.name)
+   - `sessionPlan` (copied from Plan.description)
+   - `originalSessionId` (stored as UUID, NOT a foreign key)
+
+2. **ExecutionLogs copies from ExerciseExecution + Exercise:**
+   - `exerciseExecutionId` (orderID), `plannedSets`, `plannedReps`, `plannedWeight`
+   - `exerciseId`, `exerciseName`, `exerciseCategory`, `exerciseMuscleGroup`, `exerciseDescription`
+
+**Purpose:** Logs persist as permanent historical records even if the original Session, Plan, or Exercise templates are modified or deleted.
 
 ### Entity Definitions
 
@@ -83,15 +96,31 @@ Represents the planned sets/reps for an exercise in a session. This entity links
 - `plannedSets`, `plannedReps`, `plannedWeight`: Integer
 
 #### `SessionLogs`
-Records the actual performance of a session.
+Records the actual performance of a session. This is a **static copy** that persists independently.
 - `id`: UUID
-- `sessionID`: Integer (Reference to Session)
+- `sessionID`: Integer (display counter, e.g., "Session #3")
+- `sessionName`: String (copied from Session)
+- `sessionPlanName`: String (copied from Plan)
+- `sessionPlan`: String (copied from Plan description)
+- `originalSessionId`: UUID (for reference only, NOT a foreign key)
 - `startedAt`, `completedAt`: LocalDateTime
-- `status`: Enum (IN_PROGRESS, COMPLETED)
+- `status`: Enum (InProgress, Completed, Cancelled)
+- `notes`: String
+- `executionLogs`: List<ExecutionLogs>
 
 #### `ExecutionLogs`
-Records the actual performance of an exercise execution.
+Records the actual performance of an exercise execution. This is a **static copy** of ExerciseExecution + Exercise data.
 - `id`: UUID
-- `exerciseExecutionId`: Integer (Reference to ExerciseExecution)
-- `actualSets`, `actualReps`, `actualWeight`: Integer
-- `completed`: Boolean
+- Copied from ExerciseExecution:
+  - `exerciseExecutionId`: Integer (orderID)
+  - `exerciseExecutionPlannedSets`, `exerciseExecutionPlannedReps`, `exerciseExecutionPlannedWeight`: Integer
+- Copied from Exercise:
+  - `exerciseId`: UUID
+  - `exerciseName`: String
+  - `exerciseCategory`: Enum
+  - `exerciseMuscleGroup`: List<String>
+  - `exerciseDescription`: String
+- Actual execution data:
+  - `actualSets`, `actualReps`, `actualWeight`: Integer
+  - `completed`: Boolean
+  - `notes`: String
