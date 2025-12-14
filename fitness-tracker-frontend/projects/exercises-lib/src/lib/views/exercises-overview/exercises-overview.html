@@ -25,20 +25,23 @@
   </header>
 
   @if (filteredExercises(); as exercises) {
-  @if (!exercises.length) {
-  <p class="empty-state">
-    No exercises found.
-  </p>
-  }
   @if (exercises.length) {
   <div class="exercises-list">
     @for (exercise of exercises; track exercise.id) {
     <ex-exercise-card [exercise]="exercise" (delete)="onDelete($event, exercise.name)" />
     }
   </div>
+  } @else {
+  <div class="empty-state">
+    <mat-icon class="empty-icon">fitness_center</mat-icon>
+    <h3>No Exercises found</h3>
+    <p>Create your first exercise to start building your workout library!</p>
+  </div>
   }
   } @else {
-  <p>Loading exercises…</p>
+  <div class="loading-state">
+    <p>Loading exercises...</p>
+  </div>
   }
 
   <button mat-fab extended class="create-fab" (click)="openCreateDialog()">

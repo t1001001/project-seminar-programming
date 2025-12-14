@@ -25,20 +25,23 @@
   </header>
 
   @if (filteredSessions(); as sessions) {
-  @if (!sessions.length) {
-  <p class="empty-state">
-    No sessions found.
-  </p>
-  }
   @if (sessions.length) {
   <div class="sessions-list">
     @for (session of sessions; track session.id) {
     <lib-session-card [session]="session" (delete)="onDelete($event)" />
     }
   </div>
+  } @else {
+  <div class="empty-state">
+    <mat-icon class="empty-icon">directions_run</mat-icon>
+    <h3>No Sessions found</h3>
+    <p>Create your first session to start tracking your workouts!</p>
+  </div>
   }
   } @else {
-  <p class="empty-state">Loading sessions...</p>
+  <div class="loading-state">
+    <p>Loading sessions...</p>
+  </div>
   }
 
   <button mat-fab extended class="create-fab" type="button" (click)="onCreate()">
