@@ -1,0 +1,51 @@
+<section class="sessions-overview page-container">
+  <header class="overview-header">
+    <div class="header-content">
+      <h1>Sessions</h1>
+      <p class="subtitle">Overview of all session templates</p>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-bar">
+        <span class="material-icons">search</span>
+        <input type="text" [formControl]="searchControl" placeholder="Search sessions ...">
+      </div>
+
+      @if (totalSessionsCount(); as count) {
+      <div class="header-stat">
+        <span class="stat-value">{{ count }}</span>
+        <span class="stat-label">Sessions</span>
+      </div>
+      }
+    </div>
+
+    <div class="header-decoration">
+      <span class="material-icons">directions_run</span>
+    </div>
+  </header>
+
+  @if (filteredSessions(); as sessions) {
+  @if (sessions.length) {
+  <div class="sessions-list">
+    @for (session of sessions; track session.id) {
+    <lib-session-card [session]="session" (delete)="onDelete($event)" />
+    }
+  </div>
+  } @else {
+  <div class="empty-state">
+    <mat-icon class="empty-icon">directions_run</mat-icon>
+    <h3>No Sessions found</h3>
+    <p>Create your first session to start tracking your workouts!</p>
+  </div>
+  }
+  } @else {
+  <div class="loading-state">
+    <p>Loading sessions...</p>
+  </div>
+  }
+
+  <button mat-fab extended class="create-fab" type="button" (click)="onCreate()">
+    <span class="material-icons">add</span>
+    Create
+  </button>
+</section>

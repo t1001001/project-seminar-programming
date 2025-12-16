@@ -1,0 +1,472 @@
+.workout-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  align-self: flex-start;
+  color: var(--fitness-text-primary) !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease;
+
+  mat-icon {
+    margin-right: 0.5rem;
+  }
+
+  &:hover {
+    color: var(--fitness-primary) !important;
+  }
+}
+
+.detail-card {
+  background-color: var(--fitness-bg-card) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--fitness-border) !important;
+  box-shadow: none !important;
+  width: 100%;
+}
+
+.detail-card mat-card-content {
+  padding: 2rem !important;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.continue-btn {
+  background-color: var(--fitness-primary) !important;
+  color: var(--fitness-dark) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+
+  mat-icon {
+    margin-right: 0.25rem;
+  }
+
+  &:hover {
+    background-color: var(--fitness-primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow) !important;
+  }
+}
+
+.header-content-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--fitness-text-primary);
+  }
+}
+
+.header-actions {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+
+  .header,
+  .header-content,
+  .header-content-inner {
+    flex-wrap: wrap;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: fit-content;
+
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &.completed {
+    background-color: rgba(var(--fitness-primary-rgb), 0.15);
+    color: var(--fitness-primary);
+  }
+
+  &.in-progress {
+    background-color: rgba(var(--fitness-status-warning-rgb), 0.15);
+    color: var(--fitness-status-warning);
+  }
+}
+
+.detail-card.in-progress {
+  border: 2px solid rgba(var(--fitness-status-warning-rgb), 0.6) !important;
+  box-shadow: 0 0 20px rgba(var(--fitness-status-warning-rgb), 0.15) !important;
+}
+
+.detail-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fitness-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--fitness-text-primary);
+}
+
+.notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notes-text {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--fitness-text-primary);
+  line-height: 1.6;
+}
+
+.detail-divider {
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid var(--fitness-border);
+}
+
+.exercises-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--fitness-text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.count-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.4rem;
+  min-width: 1.4rem;
+  padding: 0 0.45rem;
+  background-color: var(--fitness-bg-chip);
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fitness-text-secondary);
+  border: 1px solid var(--fitness-border);
+}
+
+.executions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.execution-card {
+  background-color: var(--fitness-bg-card-nested);
+  border: 1px solid var(--fitness-border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s ease;
+
+  &.completed {
+    border-left: 3px solid var(--fitness-primary);
+  }
+
+  &:not(.completed) {
+    border-left: 3px solid var(--fitness-action-delete);
+    opacity: 0.9;
+  }
+}
+
+.execution-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.exercise-divider {
+  border: none;
+  height: 1px;
+  background-color: var(--fitness-border);
+  margin: 1.75rem 0 0.75rem 0;
+}
+
+.exercise-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--fitness-text-primary);
+  }
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--fitness-bg-chip);
+  border: 1px solid var(--fitness-border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--fitness-text-secondary);
+  font-weight: 500;
+  text-transform: capitalize;
+  width: fit-content;
+}
+
+.exercise-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 0.9rem;
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  &.completed {
+    color: var(--fitness-primary);
+  }
+
+  &.not-finished {
+    color: var(--fitness-action-delete);
+  }
+}
+
+.stats-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stats-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--fitness-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 70px;
+}
+
+.stats-values {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--fitness-text-secondary);
+  padding: 0.5rem 0.8rem;
+  background-color: var(--fitness-bg-card);
+  border-radius: 10px;
+  border: 1px solid var(--fitness-border);
+  font-weight: 500;
+  min-width: 90px;
+
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--fitness-text-secondary);
+  }
+
+  &.better {
+    background-color: rgba(var(--fitness-status-success-rgb), 0.15);
+    border-color: rgba(var(--fitness-status-success-rgb), 0.4);
+    color: var(--fitness-status-success);
+    font-weight: 600;
+
+    mat-icon {
+      color: var(--fitness-status-success);
+    }
+  }
+
+  &.worse {
+    background-color: rgba(var(--fitness-action-delete-rgb), 0.15);
+    border-color: rgba(var(--fitness-action-delete-rgb), 0.4);
+    color: var(--fitness-action-delete);
+    font-weight: 600;
+
+    mat-icon {
+      color: var(--fitness-action-delete);
+    }
+  }
+
+  &.different {
+    color: var(--fitness-primary);
+    font-weight: 600;
+
+    mat-icon {
+      color: var(--fitness-primary);
+    }
+  }
+}
+
+.stats-row.actual .stat-item {
+  color: var(--fitness-text-primary);
+  font-weight: 500;
+
+  &.better {
+    color: var(--fitness-status-success);
+  }
+
+  &.worse {
+    color: var(--fitness-action-delete);
+  }
+}
+
+.stats-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  .stats-row.planned {
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--fitness-border);
+    margin-bottom: 0.75rem;
+  }
+}
+
+.execution-notes {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--fitness-text-secondary);
+  font-style: italic;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--fitness-border);
+}
+
+.empty-executions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--fitness-text-tertiary);
+  background-color: var(--fitness-bg-chip);
+  border-radius: 12px;
+  border: 2px dashed var(--fitness-border);
+
+  mat-icon {
+    font-size: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.loading-state {
+  color: var(--fitness-text-secondary);
+  font-size: 1.125rem;
+  text-align: center;
+  padding: 3rem;
+}
+
+@media (max-width: 768px) {
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .detail-card mat-card-content {
+    padding: 1.5rem !important;
+  }
+
+}

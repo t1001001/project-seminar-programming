@@ -4,136 +4,102 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { AsyncPipe, DatePipe, LowerCasePipe, TitleCasePipe } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable, catchError, of, switchMap, tap } from 'rxjs';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { AsyncPipe } from '@angular/common';
+import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 
 import { PlanLogicService } from '../../logic-services/plan-logic.service';
-import { TrainingPlan, TrainingPlanUpdate, Session } from '../../provider-services/plan-provider.service';
+import { TrainingPlan, Session } from '../../provider-services/plan-provider.service';
+import { PlanEditDialogComponent } from '../../ui/plan-edit-dialog/plan-edit-dialog';
 
 @Component({
-    selector: 'lib-plan-detail',
+  selector: 'lib-plan-detail',
 
-    imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        ReactiveFormsModule,
-        DatePipe,
-        AsyncPipe,
-        LowerCasePipe,
-        TitleCasePipe
-    ],
-    templateUrl: './plan-detail.html',
-    styleUrl: './plan-detail.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatDialogModule,
+    AsyncPipe
+  ],
+  templateUrl: './plan-detail.html',
+  styleUrl: './plan-detail.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanDetailComponent implements OnInit {
-    private readonly route = inject(ActivatedRoute);
-    private readonly router = inject(Router);
-    private readonly planService = inject(PlanLogicService);
-    private readonly snackBar = inject(MatSnackBar);
-    private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly planService = inject(PlanLogicService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
-    private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
-    plan$: Observable<TrainingPlan | null> | null = null;
-    currentPlan: TrainingPlan | null = null;
+  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  plan$: Observable<TrainingPlan | null> | null = null;
+  currentPlan: TrainingPlan | null = null;
 
-    isEditMode = false;
-    form: FormGroup;
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.plan$ = this.refreshTrigger$.pipe(
+        switchMap(() => this.planService.getPlanById(id)),
+        map(plan => ({
+          ...plan,
+          sessions: this.normalizeSessions(plan.sessions)
+        })),
+        tap(plan => {
+          this.currentPlan = plan;
+        }),
+        catchError((err) => {
+          this.snackBar.open(err.message, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+          this.router.navigate(['/plans']);
+          return of(null);
+        })
+      );
+    }
+  }
 
-    constructor() {
-        this.form = this.fb.group({
-            name: ['', [Validators.required, Validators.minLength(2)]],
-            description: ['']
+  onBack(): void {
+    this.router.navigate(['/plans']);
+  }
+
+  openEditDialog(plan: TrainingPlan): void {
+    const dialogRef = this.dialog.open(PlanEditDialogComponent, {
+      width: '820px',
+      maxWidth: '96vw',
+      panelClass: 'custom-dialog-container',
+      data: { plan }
+    });
+
+    dialogRef.afterClosed().subscribe((updated: boolean) => {
+      if (updated) {
+        this.refreshTrigger$.next();
+        this.snackBar.open('Training plan updated successfully!', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
         });
+      }
+    });
+  }
+
+  private normalizeSessions(sessions?: Session[] | null): Session[] {
+    if (!sessions?.length) {
+      return [];
     }
 
-    ngOnInit(): void {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.plan$ = this.refreshTrigger$.pipe(
-                switchMap(() => this.planService.getPlanById(id)),
-                tap(plan => {
-                    this.currentPlan = plan;
-                    if (plan && !this.isEditMode) {
-                        this.updateForm(plan);
-                    }
-                }),
-                catchError((err) => {
-                    this.snackBar.open(err.message, 'Close', {
-                        duration: 5000,
-                        panelClass: ['error-snackbar']
-                    });
-                    this.router.navigate(['/plans']);
-                    return of(null);
-                })
-            );
-        }
+    return [...sessions]
+      .sort((a, b) => (a.orderID ?? 0) - (b.orderID ?? 0))
+      .map((session, idx) => ({
+        ...session,
+        orderID: session.orderID ?? idx + 1,
+      }));
+  }
+
+  navigateToSession(session: Session): void {
+    if (session.id) {
+      this.router.navigate(['/sessions', String(session.id)]);
     }
-
-    private updateForm(plan: TrainingPlan): void {
-        this.form.patchValue({
-            name: plan.name,
-            description: plan.description
-        });
-    }
-
-    onBack(): void {
-        this.router.navigate(['/plans']);
-    }
-
-    enableEditMode(): void {
-        this.isEditMode = true;
-    }
-
-    cancelEdit(): void {
-        this.isEditMode = false;
-        if (this.currentPlan) {
-            this.updateForm(this.currentPlan);
-        }
-        this.form.markAsPristine();
-        this.form.markAsUntouched();
-        this.refreshTrigger$.next(); // Re-fetch to reset form
-    }
-
-    saveChanges(currentPlanId: string): void {
-        if (this.form.invalid) return;
-
-        const formValue = this.form.value;
-        const updateData: TrainingPlanUpdate = {
-            name: formValue.name,
-            description: formValue.description,
-            sessions: this.currentPlan?.sessions?.map(s => s.id!).filter(id => !!id) || []
-        };
-
-        this.planService.updatePlan(currentPlanId, updateData).subscribe({
-            next: (updatedPlan) => {
-                this.isEditMode = false;
-                this.currentPlan = updatedPlan;
-                this.updateForm(updatedPlan);
-                this.form.markAsPristine();
-                this.form.markAsUntouched();
-                this.refreshTrigger$.next(); // Reload data
-                this.snackBar.open('Training plan updated successfully!', 'Close', {
-                    duration: 3000,
-                    panelClass: ['success-snackbar']
-                });
-            },
-            error: (err) => {
-                this.snackBar.open(err.message, 'Close', {
-                    duration: 5000,
-                    panelClass: ['error-snackbar']
-                });
-            }
-        });
-    }
-
-    getSessionStatus(session: Session): string {
-        return session.status || 'Scheduled';
-    }
+  }
 }

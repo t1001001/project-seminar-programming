@@ -1,842 +1,120 @@
-# Fitness Tracker UI Style Guide
+# UI Style Guide
 
-This document defines the consistent styling rules for all components in the Fitness Tracker application.
+This document defines the styling rules and patterns for all components in this application. **All new components must follow these guidelines** to ensure visual consistency and dark mode compatibility.
 
-## 🎨 Color Palette
+> **Reference Implementations:** See `exercises-lib`, `sessions-lib`, and `plans-lib` for working examples.
 
-### Theme System
+---
 
-The application supports **light and dark modes** with automatic theme switching and persistence.
+## 🎨 Theme System
 
-#### CSS Theme Variables
+### Core Principle
 
-All components use CSS custom properties for theming. **Always use these variables instead of hardcoded colors.**
+**All components MUST use CSS custom properties for theming.** Never use hardcoded colors.
 
-**Core Variables (Light Mode Default):**
-```css
-/* Brand Colors (consistent across themes) */
---fitness-primary: #0DF259;           /* Bright Green - Primary actions, accents */
---fitness-primary-hover: #0BE84D;     /* Hover state for primary buttons */
+### Theme Variables
 
-/* Background Colors */
---fitness-bg-page: #F5F8F6;           /* Page background */
---fitness-bg-card: #FFFFFF;           /* Card backgrounds */
---fitness-bg-elevated: #FFFFFF;       /* Elevated surfaces */
---fitness-bg-chip: #f1f5f9;           /* Chips, badges, tags */
---fitness-bg-input: #FFFFFF;          /* Input field backgrounds */
-
-/* Text Colors */
---fitness-text-primary: #111813;      /* Main text */
---fitness-text-secondary: #64748b;    /* Secondary text, labels */
---fitness-text-tertiary: #94a3b8;     /* Muted text, placeholders */
-
-/* Borders & Shadows */
---fitness-border: rgba(17, 24, 19, 0.1);        /* Standard borders */
---fitness-border-strong: rgba(17, 24, 19, 0.2); /* Emphasized borders */
---fitness-shadow: rgba(0, 0, 0, 0.05);          /* Subtle shadows */
---fitness-shadow-strong: rgba(0, 0, 0, 0.1);    /* Emphasized shadows */
-
-/* Shadow Glows (using primary/action colors) */
---fitness-shadow-glow-sm: 0 2px 8px rgba(13, 242, 89, 0.3);     /* Small glow */
---fitness-shadow-glow: 0 4px 12px rgba(13, 242, 89, 0.3);       /* Standard glow */
---fitness-shadow-glow-lg: 0 6px 16px rgba(13, 242, 89, 0.4);    /* Large glow */
---fitness-shadow-glow-update: 0 4px 12px rgba(116, 196, 252, 0.3); /* Update glow */
-
-/* Specific Shadows */
---fitness-shadow-logo: 0 2px 4px var(--fitness-shadow);
---fitness-shadow-dropdown: 0 10px 40px -10px var(--fitness-shadow-strong);
-
-/* Legacy Variables (for backward compatibility) */
---fitness-light-gray: #F5F8F6;
---fitness-white: #FFFFFF;
---fitness-dark: #111813;
-```
-
-**Dark Mode Overrides (`[data-theme="dark"]`):**
-```css
---fitness-bg-page: #0f1511;           /* Very dark gray-green */
---fitness-bg-card: #1a1f1c;           /* Dark card surface */
---fitness-bg-elevated: #242a27;       /* Elevated surfaces */
---fitness-bg-chip: #242a27;           /* Chips, badges */
---fitness-bg-input: #1e2421;          /* Input backgrounds */
-
---fitness-text-primary: #e8eae9;      /* Light text */
---fitness-text-secondary: #9ca3a0;    /* Muted light text */
---fitness-text-tertiary: #6b7270;     /* Very muted text */
-
---fitness-border: rgba(255, 255, 255, 0.1);
---fitness-border-strong: rgba(255, 255, 255, 0.2);
---fitness-shadow: rgba(0, 0, 0, 0.4);
---fitness-shadow-strong: rgba(0, 0, 0, 0.6);
-```
-
-#### Usage Guidelines
-
-**✅ DO:**
 ```scss
-.my-component {
-  background-color: var(--fitness-bg-card);
-  color: var(--fitness-text-primary);
-  border: 1px solid var(--fitness-border);
-  box-shadow: 0 2px 8px var(--fitness-shadow);
-}
+/* ═══════════════════════════════════════════════════════════════
+   BRAND COLORS (consistent across light/dark modes)
+   ═══════════════════════════════════════════════════════════════ */
+--fitness-primary              // Main brand color (green)
+--fitness-primary-hover        // Hover state for primary
+
+/* ═══════════════════════════════════════════════════════════════
+   ACTION COLORS (intentional, consistent across themes)
+   ═══════════════════════════════════════════════════════════════ */
+--fitness-action-update        // Light blue for edit/update
+--fitness-action-update-hover  // Hover state
+--fitness-action-delete        // Coral red for destructive actions
+--fitness-action-delete-hover  // Hover state
+
+/* ═══════════════════════════════════════════════════════════════
+   BACKGROUNDS (adapt to light/dark mode)
+   ═══════════════════════════════════════════════════════════════ */
+--fitness-bg-page              // Page background
+--fitness-bg-card              // Card surfaces
+--fitness-bg-card-nested       // Nested cards (cards within cards)
+--fitness-bg-elevated          // Dialogs, menus
+--fitness-bg-chip              // Chips, badges, tags
+--fitness-bg-input             // Form inputs
+
+/* ═══════════════════════════════════════════════════════════════
+   TEXT COLORS (adapt to light/dark mode)
+   ═══════════════════════════════════════════════════════════════ */
+--fitness-text-primary         // Main content
+--fitness-text-secondary       // Labels, secondary info
+--fitness-text-tertiary        // Placeholders, disabled
+--fitness-dark                 // High contrast text
+
+/* ═══════════════════════════════════════════════════════════════
+   BORDERS & SHADOWS (adapt to light/dark mode)
+   ═══════════════════════════════════════════════════════════════ */
+--fitness-border               // Subtle borders
+--fitness-border-strong        // Focus/active borders
+--fitness-shadow               // Base shadow
+--fitness-shadow-strong        // Elevated shadow
+--fitness-shadow-glow          // Primary color glow effect
+--fitness-shadow-glow-update   // Update action glow
+--fitness-shadow-dropdown      // Dropdown/menu shadow
+
+/* ═══════════════════════════════════════════════════════════════
+   STATUS COLORS (semantic states)
+   ═══════════════════════════════════════════════════════════════ */
+--fitness-status-success       // Green - positive metrics
+--fitness-status-info          // Blue - neutral insights
+--fitness-status-warning       // Yellow - cautions
 ```
 
-**❌ DON'T:**
-```scss
-.my-component {
-  background-color: #FFFFFF;  // Hardcoded - won't adapt to dark mode
-  color: #111813;             // Hardcoded - won't adapt to dark mode
-  border: 1px solid rgba(0, 0, 0, 0.1);  // Hardcoded
-}
-```
+### Usage Rules
+
+| ✅ DO | ❌ DON'T |
+|-------|----------|
+| `background-color: var(--fitness-bg-card);` | `background-color: #FFFFFF;` |
+| `color: var(--fitness-text-primary);` | `color: #111813;` |
+| `border: 1px solid var(--fitness-border);` | `border: 1px solid rgba(0,0,0,0.1);` |
 
 ### Theme Toggle
 
-Users can switch between light and dark modes using the theme toggle button in the app header (moon/sun icon). The preference is automatically saved to localStorage.
-
-**For Developers:**
 ```typescript
 import { ThemeService } from './services/theme.service';
 
-// Inject the service
 private readonly themeService = inject(ThemeService);
 
-// Toggle theme
+// Toggle between light/dark
 this.themeService.toggleTheme();
 
 // Set specific theme
 this.themeService.setTheme('dark');
 
 // Read current theme
-const currentTheme = this.themeService.currentTheme();
+const theme = this.themeService.currentTheme();
 ```
-
-### Global Styles (`src/styles.scss`)
-
-The application uses a global stylesheet at `src/styles.scss` that defines:
-
-1. **Material Theme Configuration**
-   - Custom color palettes for primary (green) and accent (dark) colors
-   - Typography using Poppins font
-   - Density settings
-
-2. **Page Background**
-   - `background-color: #F5F8F6` applied to `html` and `body`
-   - Light gray background for the entire application
-
-3. **Dialog Styling**
-   ```scss
-   .custom-dialog-container .mat-mdc-dialog-container {
-     background-color: #FFF !important;
-     border-radius: 12px !important;
-   }
-   ```
-   - **CRITICAL**: All dialogs must use `panelClass: 'custom-dialog-container'` to get white background
-   - This class is defined globally and applies to all Material dialogs
-
-4. **Snackbar Styling**
-   - `.success-snackbar` for success messages (green background)
-   - Default snackbar styling with dark background
-
-**Important**: When opening any Material dialog, always include:
-```typescript
-this.dialog.open(ComponentName, {
-  panelClass: 'custom-dialog-container',  // Required for white background
-  // ... other config
-});
-```
-
-### Semantic Colors
-- **Primary Green**: `#0DF259` - Main brand color, active states, primary buttons
-- **Light Green Hover**: `#0BE84D` - Hover state for green buttons
-- **Coral Red**: `#FF6B6B` - Delete buttons, destructive actions
-- **Dark Red Hover**: `#FF5252` - Hover state for delete buttons
-- **Text Gray**: `#64748b` - Secondary text, labels
-- **Light Gray Background**: `#f1f5f9` - Chips, tags
-
-### Semantic Status Colors
-Use the shared status variables for any widgets, alerts, stats, or pills that need success/info/warning states. These live in `src/styles.scss` and adapt to theme changes automatically. **Never hardcode these colors; always reference the CSS variables.**
-
-| Status  | Purpose                                  | Light Mode Token                        | Dark Mode Token                         |
-|---------|-------------------------------------------|-----------------------------------------|-----------------------------------------|
-| Success | Positive metrics, completed goals, gains | `var(--fitness-status-success)`          | `var(--fitness-status-success)` (dark)  |
-| Info    | Neutral insights, analytics, hints       | `var(--fitness-status-info)`             | `var(--fitness-status-info)` (dark)     |
-| Warning | Upcoming deadlines, cautions, reminders  | `var(--fitness-status-warning)`          | `var(--fitness-status-warning)` (dark)  |
-
-Each token also has an `*-rgb` counterpart (e.g., `--fitness-status-success-rgb`) for transparent overlays or glows. Pair text colors with the standard theme text variables to maintain contrast.
 
 ---
 
-## ⚠️ CRITICAL: Theme Variable Usage Rules
+## 📦 Components
 
-**ALL new SCSS files MUST use CSS custom properties from `src/styles.scss`.**
+### Cards
 
-### Mandatory Rules
-
-1. **NEVER use hardcoded colors** for backgrounds, text, borders, or shadows
-2. **ALWAYS use theme variables** to ensure dark mode compatibility
-3. **Only exception**: Intentional action colors (red delete, blue update buttons)
-
-### Required Theme Variables
-
-**Use these variables in ALL component SCSS files:**
-
-```scss
-/* Backgrounds - REQUIRED */
-background-color: var(--fitness-bg-card);    // NOT #FFFFFF
-background-color: var(--fitness-bg-page);    // NOT #F5F8F6
-background-color: var(--fitness-bg-chip);    // NOT #f1f5f9
-
-/* Text - REQUIRED */
-color: var(--fitness-text-primary);          // NOT #111813
-color: var(--fitness-text-secondary);        // NOT #64748b
-color: var(--fitness-text-tertiary);         // NOT #94a3b8
-
-/* Borders - REQUIRED */
-border: 1px solid var(--fitness-border);     // NOT rgba(17, 24, 19, 0.1)
-border-color: var(--fitness-border-strong);  // NOT rgba(17, 24, 19, 0.2)
-
-/* Shadows - REQUIRED */
-box-shadow: var(--fitness-shadow);             // Standard shadow
-box-shadow: var(--fitness-shadow-glow);        // Glow effect for primary actions
-box-shadow: var(--fitness-shadow-glow-update); // Glow effect for update actions
-box-shadow: var(--fitness-shadow-dropdown);    // Dropdown/Menu shadow
-
-/* Brand Colors - REQUIRED */
-background-color: var(--fitness-primary);       // Primary green
-background-color: var(--fitness-primary-hover); // Primary green hover
-color: var(--fitness-dark);                     // Adapts to theme
-```
-
-### Allowed Hardcoded Colors (Exceptions Only)
-
-These are the ONLY hardcoded colors allowed:
-
-```scss
-/* Delete buttons - Consistent red across themes */
-background-color: #FF6B6B;  // Delete button
-background-color: #FF5252;  // Delete button hover
-
-/* Update/Add buttons - Specific blue for secondary actions */
-background-color: #74C4FC;  // Update button
-background-color: #5AB8FA;  // Update button hover
-```
-
-### ❌ Common Mistakes to Avoid
-
-```scss
-/* ❌ WRONG - Hardcoded colors */
-.my-component {
-  background-color: #FFFFFF;
-  color: #111813;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* ✅ CORRECT - Theme variables */
-.my-component {
-  background-color: var(--fitness-bg-card);
-  color: var(--fitness-text-primary);
-  border: 1px solid var(--fitness-border);
-}
-```
-
-### Verification Checklist
-
-Before committing any new SCSS file, verify:
-
-- [ ] No hardcoded `#` color values (except approved action buttons)
-- [ ] All backgrounds use `var(--fitness-bg-*)`
-- [ ] All text uses `var(--fitness-text-*)`
-- [ ] All borders use `var(--fitness-border*)`
-- [ ] All shadows use `var(--fitness-shadow*)`
-- [ ] Tested in both light AND dark modes
-
----
-
-## 📦 Cards
-
-### Base Card Styling
-
-**CRITICAL: Always use CSS variables for theming support!**
-
+**Base Pattern:**
 ```scss
 .card {
   background-color: var(--fitness-bg-card);
   border-radius: 12px;
   border: 1px solid var(--fitness-border);
   box-shadow: none;
+  padding: 1.5rem;
   transition: transform 0.2s ease;
-  cursor: pointer; /* For clickable cards */
-}
-```
+  cursor: pointer;
 
-### Card Hover Effect
-```scss
-.card:hover {
-  transform: translateY(-2px);
-}
-```
-
-**Important:** 
-- Cards should NOT change border color on hover. Only apply the lift effect (translateY).
-- **NEVER use hardcoded colors** like `#FFF` or `rgba(17, 24, 19, 0.1)` - always use theme variables.
-
-## 🔘 Buttons
-
-### Primary Button (Green)
-
-**Use theme variables for all colors:**
-
-```scss
-.primary-btn {
-  background-color: var(--fitness-primary);
-  color: var(--fitness-dark);
-  border-radius: 8px;
-  padding: 0.5rem 1.5rem;
-  font-weight: 500;
-  text-transform: none;
-  box-shadow: none;
-  transition: all 0.2s ease;
-}
-```
-
-**Hover State:**
-```scss
-.primary-btn:hover {
-  background-color: var(--fitness-primary-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--fitness-shadow-glow);
-}
-```
-
-**Usage:**
-- Use for create/add actions
-- For edit actions specifically, include an `edit` icon (pen) before the button text
-- Edit button example: `<mat-icon>edit</mat-icon> Edit`
-
-### Update Button (Light Blue)
-
-**Intentional color - consistent across themes:**
-
-```scss
-.update-btn {
-  background-color: #74C4FC;  /* Intentional - specific action color */
-  color: var(--fitness-dark);
-  border-radius: 8px;
-  padding: 0.5rem 1.5rem;
-  font-weight: 500;
-  text-transform: none;
-box-shadow: none;
-transition: all 0.2s ease;
-```
-
-**Hover State:**
-```css
-background-color: #5AB8FA;
-transform: translateY(-2px);
-box-shadow: var(--fitness-shadow-glow-update);
-```
-
-**Usage:**
-- Use for update/edit actions that modify existing data
-- Always use this specific blue color (#74C4FC) for consistency
-- Pairs with Cancel (text button) and Delete (coral red) buttons
-
-### Delete Button (Coral Red)
-```css
-background-color: #FF6B6B;
-color: white;
-border-radius: 8px;
-padding: 0.5rem 1.5rem;
-font-weight: 500;
-text-transform: none;
-box-shadow: none;
-transition: all 0.2s ease;
-```
-
-**Hover State:**
-```css
-background-color: #FF5252;
-transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-```
-
-**Icon:**
-- Always include a `delete` icon (trash can) before the button text
-- Example: `<mat-icon>delete</mat-icon> Delete`
-
-### Text Button (Cancel, Secondary Actions)
-```css
-color: var(--fitness-dark);
-background-color: transparent;
-border-radius: 0;
-padding: 0.5rem 1rem;
-font-weight: 500;
-text-transform: none;
-transition: all 0.2s ease;
-```
-
-**Hover State:**
-```css
-background-color: transparent;
-color: var(--fitness-primary);
-/* No lift effect - text only changes color */
-```
-
-### FAB (Floating Action Button)
-```css
-position: fixed;
-bottom: 2rem;
-left: 2rem;
-background-color: var(--fitness-primary);
-color: var(--fitness-dark);
-border-radius: 28px;
-padding: 0 1.5rem;
-height: 56px;
-font-weight: 600;
-text-transform: none;
-box-shadow: var(--fitness-shadow-glow);
-z-index: 100;
-transition: all 0.2s ease;
-```
-
-**Hover State:**
-```css
-background-color: #0BE84D;
-transform: translateY(-2px);
-box-shadow: var(--fitness-shadow-glow-lg);
-```
-
-**Icon:**
-- Always include an `add` icon (plus sign) before the button text
-- Icon size: `24px`
-- Icon margin-right: `0.5rem`
-- Example: `<span class="material-icons">add</span> Create`
-
-**Usage:**
-- Use for primary create/add actions on overview/list pages
-- Always use extended FAB (with text) rather than icon-only
-- Fixed position at bottom-left of the page
-- Stays visible while scrolling
-
-**Responsive:**
-```css
-@media (max-width: 768px) {
-  bottom: 1rem;
-  left: 1rem;
-}
-```
-
-### Button Usage Guidelines
-
-**Action Type → Button Style:**
-- **Create/Add**: Primary Button (Green `#0DF259`)
-- **Update/Edit**: Update Button (Light Blue `#74C4FC`)
-- **Delete/Remove**: Delete Button (Coral Red `#FF6B6B`)
-- **Cancel/Back**: Text Button (Transparent, no background)
-- **Main Page Action**: FAB (Green, floating)
-
-**Important Rules:**
-- ✅ Always use Light Blue (`#74C4FC`) for update/edit actions
-- ✅ Always use Coral Red (`#FF6B6B`) for delete/remove actions
-- ✅ Always use Green (`#0DF259`) for create/add actions
-- ✅ Never mix button colors - each action type has one designated color
-- ✅ Update buttons should always have dark text (`var(--fitness-dark)`)
-- ✅ Delete buttons should always have white text
-- ✅ Delete buttons must include a `delete` icon (trash can) before the text
-- ✅ Edit buttons must include an `edit` icon (pen) before the text
-- ✅ FAB buttons for create actions must include an `add` icon (plus sign) before the text
-
-## 🏷️ Tags & Chips
-
-### Muscle Group Chips
-```css
-display: inline-block;
-padding: 0.25rem 0.75rem;
-background-color: #f1f5f9;
-border-radius: 16px;
-font-size: 0.875rem;
-color: var(--fitness-dark);
-```
-
-## 📝 Typography
-
-### Font Family
-```css
-font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-```
-
-### Headings
-- **H1**: `2.5rem`, `font-weight: 700`, `color: var(--fitness-dark)`
-- **H2**: `1.5rem`, `font-weight: 600`, `color: var(--fitness-dark)`
-- **H3**: `1.25rem`, `font-weight: 600`, `color: var(--fitness-dark)`
-
-### Body Text
-- **Primary**: `1rem`, `color: var(--fitness-dark)`
-- **Secondary**: `0.875rem`, `color: #64748b`
-
-### Labels
-```css
-font-size: 0.875rem;
-font-weight: 600;
-color: #64748b;
-text-transform: uppercase;
-letter-spacing: 0.05em;
-```
-
-## 🎭 Icons
-
-### Material Icons
-- Use `<span class="material-icons">icon_name</span>`
-- **Size**: `3rem` for large icons (cards, stats)
-- **Size**: `24px` for buttons
-- **Color**: `var(--fitness-primary)` for primary icons
-- **Color**: `var(--fitness-dark)` for standard icons
-
-## 🗨️ Dialogs
-
-### Dialog Container
-```css
-background-color: #FFF;
-border-radius: 12px;
-```
-
-**Usage:**
-```typescript
-this.dialog.open(Component, {
-  width: '500px',
-  panelClass: 'custom-dialog-container',
-});
-```
-
-### Dialog Buttons
-- **Primary Action**: Use primary button style (green)
-- **Destructive Action**: Use delete button style (coral red)
-- **Cancel**: Use text button style (no background, green on hover)
-
-## 📢 Snackbar (Notifications)
-
-### Configuration
-
-```typescript
-this.snackBar.open(message, action, {
-  duration: 3000,
-  horizontalPosition: 'center',
-  verticalPosition: 'bottom',
-  panelClass: ['custom-snackbar-class'], // Optional
-});
-```
-
-### Styling
-
-**Default Snackbar:**
-```scss
-.mat-mdc-snack-bar-container {
-  --mdc-snackbar-container-color: var(--fitness-dark);
-  --mat-snack-bar-button-color: var(--fitness-primary);
-}
-```
-
-**Error Variant:**
-```scss
-.error-snackbar {
-  --mdc-snackbar-container-color: #FF6B6B;
-  --mat-snack-bar-button-color: #FFFFFF;
-}
-```
-
-### Guidelines
-
-- **Duration**: 3-5 seconds
-- **Position**: `horizontalPosition: 'center'`, `verticalPosition: 'bottom'`
-- **Action Button Color**: Use `var(--fitness-primary)` for default, white for errors
-- **Background**: Dark (`var(--fitness-dark)`) for default, coral red (`#FF6B6B`) for errors
-- **Message**: Keep concise and clear
-- **Panel Classes**: Use custom classes for variants (error, warning, info)
-
-## � Layout Patterns
-
-### Page Container
-
-For pages that require a constrained, centered layout (e.g., Exercises, Plans, Details pages), use the `.page-container` class:
-
-```scss
-.page-container {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 2.5rem;
-  box-sizing: border-box;
-}
-```
-
-**Usage:**
-```html
-<section class="exercises-overview page-container">
-  <!-- Page content -->
-</section>
-```
-
-**When to Use:**
-- ✅ Overview pages (Exercises, Plans)
-- ✅ Detail pages (Exercise Detail, Plan Detail)
-- ✅ Any page that should have a maximum width and centered layout
-
-**When NOT to Use:**
-- ❌ Full-width pages (e.g., Home Hero with animations)
-- ❌ Components that should span the entire viewport width
-
-### Full-Width Pages
-
-For pages that need to span the entire viewport width (e.g., Home Hero), do NOT apply `.page-container`:
-
-```html
-<section class="home-hero">
-  <!-- Full-width content -->
-</section>
-```
-
-### App Content Container
-
-The global `.app-content` container provides the base layout for all pages:
-
-```scss
-.app-content {
-  flex: 1;
-  width: 100%;
-  box-sizing: border-box;
-}
-```
-
-This container does NOT impose any max-width or padding constraints, allowing child pages to control their own layout using `.page-container` or remaining full-width.
-
-## �📱 Responsive Breakpoints
-
-```css
-/* Tablet */
-@media (max-width: 1024px) { }
-
-/* Small Tablet */
-@media (max-width: 900px) { }
-
-/* Mobile */
-@media (max-width: 768px) { }
-
-/* Small Mobile */
-@media (max-width: 480px) { }
-```
-
-## 🎯 Navigation
-
-### Header Navigation Links
-```css
-color: var(--fitness-dark);
-font-weight: 500;
-font-size: 1rem;
-transition: all 0.2s ease;
-border-radius: 6px;
-padding: 0.75rem 1.5rem;
-background-color: transparent;
-```
-
-**Hover State:**
-```css
-color: var(--fitness-primary);
-background-color: transparent;
-```
-
-**Active State:**
-```css
-background-color: var(--fitness-primary);
-color: var(--fitness-dark);
-```
-
-## ✨ Animations & Transitions
-
-### Standard Transition
-```css
-transition: all 0.2s ease;
-```
-
-### Hover Lift Effect
-```css
-transform: translateY(-2px);
-```
-
-### Shadow Transitions
-- **Green**: `box-shadow: var(--fitness-shadow-glow);`
-- **Red**: `box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);`
-
-## 📐 Spacing
-
-### Standard Gaps
-- **Small**: `0.5rem` (8px)
-- **Medium**: `1rem` (16px)
-- **Large**: `1.5rem` (24px)
-- **Extra Large**: `2.5rem` (40px)
-
-### Padding
-- **Card Content**: `1.5rem`
-- **Button**: `0.5rem 1.5rem`
-- **Text Button**: `0.5rem 1rem`
-- **Page Content**: `2rem`
-
-## 📋 Layout Patterns
-
-### Horizontal Card Layout
-
-For cards that need to display multiple pieces of information efficiently:
-
-```scss
-.card-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.content-section {
-  flex: 1; /* Takes available space */
-}
-
-.actions-section {
-  flex-shrink: 0; /* Fixed width, doesn't shrink */
-  align-self: flex-start; /* or flex-end */
-}
-```
-
-**Key Principles:**
-- Use `display: flex` with `justify-content: space-between` for main wrapper
-- Content section uses `flex: 1` to take available space
-- Actions section uses `flex-shrink: 0` to maintain fixed width
-- Add `gap: 2rem` for consistent spacing
-- Use `flex-wrap: wrap` on inner rows for responsive behavior
-- Stack vertically on mobile with media queries
-
-**When to Use:**
-- List items with actions (edit, delete)
-- Cards with multiple data fields
-- Dashboard widgets with controls
-- Any component where horizontal space utilization is important
-
-### View Header Layout
-
-Standard header pattern for main view pages (e.g., Plans Overview, Exercises Overview).
-
-**HTML Structure:**
-```html
-<header class="view-header">
-  <div class="header-content">
-    <h1>Page Title</h1>
-    <p class="subtitle">Descriptive subtitle for the page</p>
-  </div>
-
-  <div class="header-actions">
-    <!-- Search Bar -->
-    <div class="search-bar">
-      <span class="material-icons">search</span>
-      <input type="text" placeholder="Search...">
-    </div>
-
-    <!-- Stat Chip (Optional) -->
-    <div class="header-stat">
-      <span class="stat-value">12</span>
-      <span class="stat-label">Items</span>
-    </div>
-  </div>
-
-  <!-- Decorative Background Icon -->
-  <div class="header-decoration">
-    <span class="material-icons">icon_name</span>
-  </div>
-</header>
-```
-
-**SCSS Pattern:**
-```scss
-.view-header {
-  background-color: transparent;
-  padding: 1rem 0 1rem 1.5rem;
-  border-left: 5px solid var(--fitness-primary); // Vertical accent
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  position: relative;
-  overflow: visible;
-}
-
-.header-content {
-  z-index: 1;
-  
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--fitness-dark);
-    line-height: 1.2;
-    margin: 0;
-  }
-
-  .subtitle {
-    color: #64748b;
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin: 0;
-  }
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  z-index: 2;
-}
-
-.search-bar {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-
-  &:focus-within {
-    box-shadow: var(--fitness-shadow-strong);
-    border-color: rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
-  }
-}
-
-.header-decoration {
-  position: absolute;
-  right: 0;
-  bottom: -1rem;
-  opacity: 0.03;
-  transform: rotate(-15deg);
-  pointer-events: none;
-  
-  .material-icons {
-    font-size: 10rem;
-    color: var(--fitness-dark);
+  &:hover {
+    transform: translateY(-2px);
   }
 }
 ```
 
-**Responsive Behavior:**
-- On mobile (< 768px):
-  - `flex-direction: column`
-  - `align-items: flex-start`
-  - Search bar expands to full width
-  - Decoration opacity reduced to 0.05
-
-## 🎨 Component Examples
-
-### Exercise Card
-
-**Layout Structure:**
+**Layout Pattern:**
 ```scss
 .card-content-wrapper {
   display: flex;
@@ -845,277 +123,330 @@ Standard header pattern for main view pages (e.g., Plans Overview, Exercises Ove
   gap: 2rem;
 }
 
-.card-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgba(17, 24, 19, 0.05);
-}
-
 .info-section {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.details-row {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .actions-section {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
-  flex-shrink: 0;
 }
 ```
 
-**Styling:**
-- White background (`#FFF`)
-- 12px border radius
-- 1.5rem padding
-- Horizontal layout with flexbox
-- Info section (left): Exercise name, category, muscle groups, description
-- Actions section (right): Delete button and view details hint
-- Details row: Category and Muscle Groups displayed horizontally with 2rem gap
-- Hover: Lift 2px (no shadow on card, only on buttons)
-- Delete button anchored to the right
-
-**Responsive:**
-- On mobile (< 768px): Stack vertically
-- Actions section becomes horizontal row at bottom
-
-### Timeline Component
-
-Used for displaying sequential events like training sessions.
-
-**HTML Structure:**
-```html
-<div class="timeline">
-  <!-- Loop for items -->
-  <div class="timeline-item" [class.last-item]="last">
-    <div class="timeline-marker"></div>
-    <div class="timeline-content">
-      <mat-card class="session-card">
-        <!-- Card Content -->
-      </mat-card>
-    </div>
-  </div>
-</div>
-```
-
-**SCSS Pattern:**
+**Card Footer:**
 ```scss
-.timeline {
-  position: relative;
-  padding: 1rem 0 1rem 2rem;
-  margin-left: 1rem;
-  border-left: 2px solid rgba(13, 242, 89, 0.3); // Primary with opacity
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--fitness-border);
+}
+```
+
+**Nested Card Pattern:**
+```scss
+// Parent card uses standard background
+.parent-card {
+  background-color: var(--fitness-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fitness-border);
+  padding: 1.5rem;
 }
 
-.timeline-item {
-  position: relative;
-  margin-bottom: 2rem;
-
-  &.last-item {
-    margin-bottom: 0;
-  }
+// Nested cards use slightly different background for visual distinction
+.nested-card {
+  background-color: var(--fitness-bg-card-nested);
+  border-radius: 12px;
+  border: 1px solid var(--fitness-border);
+  padding: 1rem;
 }
+```
 
-.timeline-marker {
-  position: absolute;
-  left: -2.6rem;
-  top: 1.5rem;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
+---
+
+### Buttons
+
+| Type | Variable | Usage |
+|------|----------|-------|
+| **Primary** | `--fitness-primary` | Create, Add, Confirm |
+| **Edit** | `--fitness-primary` | Edit (opens edit mode) |
+| **Start** | `--fitness-primary` | Start, Play, Begin |
+| **Update** | `--fitness-action-update` | Update (submit form changes) |
+| **Delete** | `--fitness-action-delete` | Delete, Remove |
+| **Text** | transparent | Cancel, Back |
+
+**Primary Button:**
+```scss
+.primary-btn, .create-btn {
   background-color: var(--fitness-primary);
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
-  z-index: 1;
-}
-
-.timeline-content {
-  transition: transform 0.2s ease;
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px); // Vertical lift
+    background-color: var(--fitness-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow);
   }
 }
 ```
 
-### Dialog
-- White background
-- 12px border radius
-- Cancel button: Text-only, green on hover
-- Primary button: Green background, lift on hover
-- Delete button: Coral red, lift on hover
+**Edit Button:**
+```scss
+.edit-btn {
+  background-color: var(--fitness-primary);
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
 
-### FAB Button
-- Fixed position: `bottom: 2rem; left: 2rem`
-- Green background
-- Extended with icon + text
-- Shadow by default
-- Lift and enhanced shadow on hover
-
-## 🚫 Don'ts
-
-- ❌ Don't use shadows on cards by default
-- ❌ Don't use uppercase text transformation (except labels)
-- ❌ Don't use emojis (use Material Icons instead)
-- ❌ Don't use blue colors (replaced with green)
-- ❌ Don't add background to text buttons on hover
-- ❌ Don't use different border radius values (stick to 6px, 8px, 12px, 16px, 28px)
-
-## ✅ Do's
-
-- ✅ Use Material Icons for all icons
-- ✅ Use CSS variables for colors
-- ✅ Add transition to all interactive elements
-- ✅ Use consistent hover effects (lift + shadow for buttons, color change for text)
-- ✅ Keep card backgrounds white
-- ✅ Keep page background light gray
-- ✅ Use Poppins font throughout
-- ✅ Add proper spacing between elements
-- ✅ Make all components responsive
-
-## 📚 Library Development Patterns
-
-This section documents the consistent patterns used across all feature libraries (e.g., `exercises-lib`, `plans-lib`) to ensure uniformity and ease of development.
-
-### Library Structure
-
-All feature libraries follow this directory structure:
-
-```
-projects/[feature]-lib/src/lib/
-├── provider-services/     # HTTP/API layer
-├── logic-services/        # Business logic layer
-├── ui/                    # Reusable UI components
-└── views/                 # Smart container components (pages)
+  &:hover {
+    background-color: var(--fitness-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow);
+  }
+}
 ```
 
-**Key Principles:**
-- **Provider Services**: Handle all HTTP requests, define interfaces for data models
-- **Logic Services**: Wrap provider services, add error handling, emit events for cross-component communication
-- **UI Components**: Dumb/presentational components, receive data via `@Input()`, emit events via `@Output()`
-- **Views**: Smart components that inject services, handle routing, manage state
+**Start Button:**
+```scss
+.start-btn {
+  background-color: var(--fitness-primary);
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.3rem;
+  font-weight: 600;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
 
-### Component Configuration
+  &:hover {
+    background-color: var(--fitness-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow);
+  }
+}
+```
 
-#### Angular Component Decorator
+**Update Button:**
+```scss
+.update-btn {
+  background-color: var(--fitness-action-update);
+  color: var(--fitness-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
 
-**Standard Pattern:**
+  &:hover:not(:disabled) {
+    background-color: var(--fitness-action-update-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow-update);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+```
+
+**Delete Button:**
+```scss
+.delete-btn {
+  background-color: var(--fitness-action-delete);
+  color: white;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--fitness-action-delete-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3);
+  }
+}
+```
+
+**Text/Cancel Button:**
+```scss
+.cancel-btn {
+  color: var(--fitness-dark);
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  text-transform: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: transparent;
+    color: var(--fitness-primary);
+  }
+}
+```
+
+**FAB (Floating Action Button):**
+```scss
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  background-color: var(--fitness-primary);
+  color: var(--fitness-dark);
+  border-radius: 28px;
+  padding: 0 1.5rem;
+  height: 56px;
+  font-weight: 600;
+  text-transform: none;
+  box-shadow: var(--fitness-shadow-glow);
+  z-index: 100;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--fitness-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow-lg);
+  }
+
+  @media (max-width: 768px) {
+    bottom: 1rem;
+    left: 1rem;
+  }
+}
+```
+
+**Button Icon Rules:**
+- Delete buttons: Include `delete` icon
+- Edit buttons: Include `edit` icon  
+- Create/Add buttons: Include `add` icon
+
+---
+
+### Chips & Tags
+
+**Stat Chip:**
+```scss
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.8rem;
+  background-color: var(--fitness-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fitness-border);
+  font-weight: 500;
+  color: var(--fitness-dark);
+  min-width: 90px;
+
+  .stat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--fitness-text-secondary);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--fitness-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .stat-value {
+    font-size: 0.85rem;
+    color: var(--fitness-dark);
+    font-weight: 600;
+  }
+}
+```
+
+**Category/Tag Chip:**
+```scss
+.tag-chip {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: var(--fitness-bg-chip);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--fitness-dark);
+}
+```
+
+**Order Chip:**
+```scss
+.order-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  background: var(--fitness-bg-chip);
+  border: 1px solid var(--fitness-border);
+  color: var(--fitness-text-secondary);
+  font-weight: 500;
+  font-size: 0.85rem;
+  height: 1.25rem;
+
+  .order-value {
+    color: var(--fitness-dark);
+    font-weight: 600;
+  }
+}
+```
+
+**Count Chip:**
+```scss
+.count-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.4rem;
+  min-width: 1.4rem;
+  padding: 0 0.45rem;
+  background-color: var(--fitness-bg-chip);
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fitness-text-secondary);
+  border: 1px solid var(--fitness-border);
+}
+```
+
+---
+
+### Dialogs
+
+**Opening Dialogs:**
 ```typescript
-@Component({
-  selector: 'lib-component-name',  // or 'ex-component-name' for exercises
-  imports: [
-    MatDialogModule,      // Order: Material modules first
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    ReactiveFormsModule,  // Then Angular modules
-    AsyncPipe,           // Then pipes
-  ],
-  templateUrl: './component-name.html',
-  styleUrl: './component-name.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-```
-
-**Important:**
-- ❌ Do NOT use `standalone: true` - it's redundant in modern Angular
-- ✅ Always use `ChangeDetectionStrategy.OnPush` for performance
-- ✅ Order imports: Material modules → Angular modules → Pipes → Custom components
-- ✅ Use `styleUrl` (singular) not `styleUrls`
-
-### Dialog Configuration
-
-#### Opening Dialogs
-
-**Required Pattern:**
-```typescript
-const dialogRef = this.dialog.open(ComponentName, {
-  width: '500px',
-  panelClass: 'custom-dialog-container',  // CRITICAL: Required for white background
+this.dialog.open(ComponentName, {
+  width: '500px',                          // 500px for forms, 400px for confirmations
+  maxWidth: '96vw',                        // Responsive max
+  panelClass: 'custom-dialog-container',   // REQUIRED for white background
+  data: { /* ... */ }
 });
 ```
 
-**Critical Rules:**
-- ✅ **ALWAYS** include `panelClass: 'custom-dialog-container'` - this applies the white background from global styles
-- ✅ Standard width: `500px` for forms, `400px` for confirmations
-- ✅ For delete dialogs, pass data: `data: { itemName: name }`
-
-#### Form Dialog Component Structure
-
-**TypeScript Pattern:**
-```typescript
-export class ItemFormDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<ItemFormDialogComponent>);
-  private readonly fb = inject(FormBuilder);
-  readonly data = inject<ItemData | null>(MAT_DIALOG_DATA, { optional: true });
-
-  readonly form: FormGroup = this.fb.group({
-    name: [this.data?.name || '', [Validators.required, Validators.minLength(2)]],
-    description: [this.data?.description || ''],
-  });
-
-  get isEditMode(): boolean {
-    return !!this.data;
-  }
-
-  onSave(): void {
-    if (this.form.valid) {
-      this.dialogRef.close(this.form.value);
-    }
-  }
-
-  onCancel(): void {
-    this.dialogRef.close();
-  }
-}
-```
-
-**HTML Pattern:**
-```html
-<h2 mat-dialog-title>{{ isEditMode ? 'Edit Item' : 'Create Item' }}</h2>
-
-<mat-dialog-content>
-  <p class="required-hint">* Required fields</p>
-  <form [formGroup]="form" class="item-form">
-    <mat-form-field appearance="outline">
-      <mat-label>Name *</mat-label>
-      <input matInput formControlName="name" placeholder="Enter name" required />
-      @if (form.get('name')?.invalid && form.get('name')?.touched) {
-        <mat-error>Name is required (min 2 characters)</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Description</mat-label>
-      <textarea matInput formControlName="description" rows="3"
-        placeholder="Enter description"></textarea>
-    </mat-form-field>
-  </form>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button 
-    [class.update-btn]="isEditMode" 
-    [class.create-btn]="!isEditMode" 
-    (click)="onSave()"
-    [disabled]="form.invalid">
-    {{ isEditMode ? 'Update' : 'Create' }}
-  </button>
-</mat-dialog-actions>
-```
-
-**SCSS Pattern:**
+**Dialog Content Styling:**
 ```scss
 mat-dialog-content {
   display: flex;
@@ -1130,10 +461,10 @@ mat-dialog-content {
   margin: 0 0 1rem 0;
   padding: 0.5rem 0;
   font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--fitness-text-secondary);
 }
 
-.item-form {
+.dialog-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -1142,109 +473,72 @@ mat-dialog-content {
 mat-form-field {
   width: 100%;
 }
-
-// Button styles - see Buttons section for complete styles
 ```
 
-### Card Components
-
-#### Card Layout Pattern
-
-**Wrapper Structure:**
+**Dialog Actions:**
 ```scss
-.card-content-wrapper {
-  background-color: #FFF;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 24, 19, 0.1);
-  padding: 1.5rem;
+.dialog-actions, mat-dialog-actions {
+  padding: 1rem 1.4rem 1.1rem;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-  transition: transform 0.2s ease;
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-}
-```
-
-**Info Section:**
-```scss
-.info-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--fitness-dark);
-  }
-
-  .description {
-    margin: 0;
-    color: #64748b;
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
-}
-```
-
-**Actions Section:**
-```scss
-.actions-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-```
-
-**Stat Chips:**
-```scss
-.stat-chip {
-  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #f1f5f9;
-  border-radius: 16px;
-  font-size: 0.875rem;
-
-  .label {
-    color: #64748b;
-    font-weight: 500;
-  }
-
-  .value {
-    color: var(--fitness-dark);
-    font-weight: 600;
-  }
+  gap: 0.6rem;
 }
 ```
 
-### Overview/List Pages
+**Scrollable Dialogs:**
+```scss
+.dialog-content {
+  max-height: 74vh;
+  overflow-y: auto;
+  overflow-x: visible;
+}
+```
 
-#### Page Structure
+---
 
-**Container:**
+### Snackbars
+
+**Configuration:**
+```typescript
+this.snackBar.open(message, 'Close', {
+  duration: 3000,                    // 3-5 seconds
+  horizontalPosition: 'center',
+  verticalPosition: 'bottom',
+  panelClass: ['success-snackbar'],  // or 'error-snackbar'
+});
+```
+
+**Success Snackbar:** Green background (uses primary color)  
+**Error Snackbar:** Red background (hardcoded for visibility)
+
+---
+
+## 📐 Layout
+
+### Page Container
+
 ```scss
 .page-container {
-  padding: 2rem;
-  position: relative;
-  min-height: 100%;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem;
+  box-sizing: border-box;
 }
 ```
 
-**Header:**
+### View Header
+
 ```scss
-.page-header {
+.view-header {
+  background-color: transparent;
+  padding: 1rem 0 1rem 1.5rem;
+  border-left: 5px solid var(--fitness-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
+  position: relative;
 
   h1 {
     font-size: 2.5rem;
@@ -1252,10 +546,24 @@ mat-form-field {
     color: var(--fitness-dark);
     margin: 0;
   }
+
+  .subtitle {
+    color: var(--fitness-text-secondary);
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 ```
 
-**Grid Layout (for cards):**
+### Grid Layout
+
 ```scss
 .items-grid {
   display: grid;
@@ -1264,7 +572,8 @@ mat-form-field {
 }
 ```
 
-**List Layout (for rows):**
+### List Layout
+
 ```scss
 .items-list {
   display: flex;
@@ -1273,44 +582,293 @@ mat-form-field {
 }
 ```
 
-**Empty State:**
+### Empty State
+
 ```scss
 .empty-state {
-  grid-column: 1 / -1;  // For grid layouts
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 4rem;
-  color: #64748b;
-  background-color: #FFF;
+  padding: 2.5rem;
+  color: var(--fitness-text-tertiary);
+  background-color: var(--fitness-bg-chip);
   border-radius: 12px;
-  border: 1px dashed rgba(17, 24, 19, 0.2);
+  border: 2px dashed var(--fitness-border);
+
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
 }
 ```
 
-### Critical Checklist for New Libraries
+---
 
-When creating a new feature library, ensure:
+## 🎯 Timeline Component
 
-- [ ] Library structure follows `provider-services/`, `logic-services/`, `ui/`, `views/` pattern
-- [ ] All components use `ChangeDetectionStrategy.OnPush`
-- [ ] Components do NOT use `standalone: true`
-- [ ] Dialog opens include `panelClass: 'custom-dialog-container'`
-- [ ] Form dialogs support both create and edit modes via `MAT_DIALOG_DATA`
-- [ ] Form dialogs include "* Required fields" hint
-- [ ] Form validation uses `invalid && touched` pattern
-- [ ] Cards use white background, 12px border radius, 1.5rem padding
-- [ ] Cards have hover lift effect (`translateY(-2px)`)
-- [ ] FAB positioned at `bottom: 2rem; left: 2rem` with green background
-- [ ] Delete buttons use coral red (`#FF6B6B`) with delete icon
-- [ ] Update buttons use light blue (`#74C4FC`)
-- [ ] Create buttons use green (`#0DF259`)
-- [ ] Cancel buttons are text-only (transparent background)
-- [ ] All services use `inject()` instead of constructor injection
-- [ ] Logic services include error handling and event subjects
-- [ ] Detail pages use in-place editing pattern (not dialogs)
-- [ ] Overview pages use either grid or list layout
-- [ ] Responsive styles for mobile (`@media (max-width: 768px)`)
+For displaying sequential items (sessions, events, etc.):
+
+**Basic Timeline:**
+```scss
+.timeline {
+  position: relative;
+  padding: 1rem 0 1rem 2rem;
+  margin-left: 1rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -0.1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(var(--fitness-primary-rgb), 0.35);
+    border-radius: 4px;
+  }
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+
+  &.last-item {
+    margin-bottom: 0;
+  }
+
+  &:has(.timeline-content:hover) .timeline-marker {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 3px rgba(var(--fitness-primary-rgb), 0.4);
+  }
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2.735rem;
+  top: 1.5rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: var(--fitness-primary);
+  border: 3px solid var(--fitness-bg-page);
+  box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
+  z-index: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-content {
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+```
+
+**Drag-Drop Timeline:**
+```scss
+.timeline-wrapper {
+  --timeline-line-x: 1rem;
+  --timeline-left-space: 2.735rem;
+  position: relative;
+  padding-left: var(--timeline-left-space);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: var(--timeline-line-x);
+    top: -0.75rem;
+    bottom: -0.75rem;
+    width: 2px;
+    background: rgba(var(--fitness-primary-rgb), 0.4);
+    border-radius: 4px;
+  }
+}
+
+// Drag states
+.timeline-item.cdk-drag-preview .drag-card {
+  box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.35), var(--fitness-shadow-glow);
+  transform: scale(1.01);
+  background: rgba(var(--fitness-primary-rgb), 0.12);
+}
+
+.timeline-item.cdk-drag-placeholder .drag-card {
+  border: 2px dashed rgba(var(--fitness-primary-rgb), 0.8);
+  background: var(--fitness-bg-card);
+  box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
+}
+
+.timeline-item.cdk-drag-animating {
+  transition: transform 180ms cubic-bezier(0.2, 0, 0, 1);
+}
+```
 
 ---
 
-**Last Updated**: November 20, 2025
-**Version**: 2.0
+## 📝 Typography
+
+**Font Family:**
+```scss
+font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+```
+
+**Headings:**
+| Level | Size | Weight |
+|-------|------|--------|
+| H1 | 2.5rem | 700 |
+| H2 | 1.5rem | 600 |
+| H3 | 1.25rem | 600 |
+
+**Labels:**
+```scss
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fitness-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+```
+
+---
+
+## 📱 Responsive Breakpoints
+
+```scss
+// Tablet
+@media (max-width: 1024px) { }
+
+// Small Tablet
+@media (max-width: 900px) { }
+
+// Mobile
+@media (max-width: 768px) { }
+
+// Small Mobile
+@media (max-width: 480px) { }
+```
+
+**Common Responsive Patterns:**
+```scss
+@media (max-width: 768px) {
+  .card-content-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+```
+
+---
+
+## ✨ Animations
+
+**Standard Transition:**
+```scss
+transition: all 0.2s ease;
+```
+
+**Hover Lift:**
+```scss
+&:hover {
+  transform: translateY(-2px);
+}
+```
+
+**Glow Effects:**
+```scss
+box-shadow: var(--fitness-shadow-glow);        // Primary (green)
+box-shadow: var(--fitness-shadow-glow-update); // Update (blue)
+```
+
+---
+
+## 📐 Spacing
+
+| Size | Value |
+|------|-------|
+| Small | 0.5rem (8px) |
+| Medium | 1rem (16px) |
+| Large | 1.5rem (24px) |
+| Extra Large | 2.5rem (40px) |
+
+**Common Paddings:**
+- Card content: `1.5rem`
+- Button: `0.5rem 1.5rem`
+- Text button: `0.5rem 1rem`
+- Page content: `2rem` - `2.5rem`
+
+---
+
+## ✅ Checklist for New Components
+
+Before committing any new SCSS file:
+
+### Theme Compliance
+- [ ] No hardcoded `#` color values
+- [ ] All backgrounds use `var(--fitness-bg-*)`
+- [ ] All text uses `var(--fitness-text-*)`
+- [ ] All borders use `var(--fitness-border*)`
+- [ ] All shadows use `var(--fitness-shadow*)`
+- [ ] Tested in both light AND dark modes
+
+### Component Standards
+- [ ] Cards: 12px border radius, 1.5rem padding
+- [ ] Cards: Hover lift effect (translateY)
+- [ ] Buttons: Correct color for action type
+- [ ] Buttons: Include appropriate icon
+- [ ] Dialogs: Include `panelClass: 'custom-dialog-container'`
+- [ ] Forms: Include "* Required fields" hint
+
+### Layout
+- [ ] Responsive styles for mobile (`@media (max-width: 768px)`)
+- [ ] Proper flex/grid layout
+- [ ] Empty state handling
+
+---
+
+## 🚫 Don'ts
+
+- ❌ Hardcoded colors (breaks dark mode)
+- ❌ Shadows on cards by default
+- ❌ Uppercase text (except labels)
+- ❌ Emojis (use Material Icons)
+- ❌ Background on text button hover
+- ❌ Non-standard border radius (use 6/8/12/16/28px)
+
+## ✅ Do's
+
+- ✅ CSS variables for all colors
+- ✅ Material Icons for all icons
+- ✅ Transitions on interactive elements
+- ✅ Consistent hover effects
+- ✅ Poppins font family
+- ✅ Proper spacing
+- ✅ Responsive design
+
+---
+
+**Last Updated:** December 2025  
+**Version:** 3.0  
+**Reference Implementations:** `exercises-lib`, `sessions-lib`, `plans-lib`

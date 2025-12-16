@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Create New Exercise</h2>
+<h2 mat-dialog-title>Create Exercise</h2>
 <mat-dialog-content>
   <p class="required-hint">* Required fields</p>
   <form [formGroup]="form" class="exercise-form">
@@ -12,7 +12,11 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Category</mat-label>
-      <input matInput formControlName="category" placeholder="e.g., Strength, Cardio" required />
+      <mat-select formControlName="category" placeholder="Select a category" required>
+        @for (category of categories; track category) {
+        <mat-option [value]="category">{{ category }}</mat-option>
+        }
+      </mat-select>
       @if (form.get('category')?.invalid && form.get('category')?.touched) {
       <mat-error>Category is required</mat-error>
       }

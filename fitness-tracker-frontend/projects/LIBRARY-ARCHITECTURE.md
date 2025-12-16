@@ -1,8 +1,14 @@
 # Angular Library Architecture Guide
 
-This document describes the standard architecture pattern for Angular feature libraries in this project, using `exercises-lib` as the reference implementation.
+This document defines the standard architecture pattern for Angular feature libraries in this project. All new libraries **must** follow these patterns to ensure consistency, maintainability, and scalability.
+
+> **Reference Implementations:** See `exercises-lib`, `sessions-lib`, `plans-lib`, and `workouts-lib` for working examples.
+
+---
 
 ## 📁 Directory Structure
+
+Every feature library follows this structure:
 
 ```
 projects/
@@ -16,266 +22,532 @@ projects/
             └── [feature]-lib.ts       # Barrel file for API exports
 ```
 
+### Barrel File Template (`[feature]-lib.ts`)
+
+```typescript
+// Services
+export * from './logic-services/[entity]-logic.service';
+export * from './provider-services/[entity]-provider.service';
+
+// UI Components
+export * from './ui/[entity]-card/[entity]-card';
+export * from './ui/[entity]-form-dialog/[entity]-form-dialog';
+export * from './ui/[entity]-delete-dialog/[entity]-delete-dialog';
+
+// View Components
+export * from './views/[entity]-overview/[entity]-overview';
+export * from './views/[entity]-detail/[entity]-detail';
+```
+
 ---
 
 ## 🏗️ Architecture Layers
 
-### **1. Provider Services Layer** (`provider-services/`)
+### 1. Provider Services Layer (`provider-services/`)
 
 **Purpose:** Pure HTTP communication with backend APIs. This is the **data access layer**.
 
-#### **Responsibilities:**
-- ✅ Make HTTP requests (`GET`, `POST`, `PUT`, `DELETE`)
-- ✅ Define TypeScript interfaces for domain models
-- ✅ Handle API endpoint URLs
-- ✅ Return raw `Observable` streams
-- ❌ **NO** error handling (let errors propagate)
-- ❌ **NO** business logic
-- ❌ **NO** state management
+#### Responsibilities
 
-#### **File Naming Convention:**
-```
-[entity]-provider.service.ts
-```
+| ✅ DO | ❌ DON'T |
+|-------|----------|
+| Make HTTP requests (GET, POST, PUT, DELETE) | Handle errors |
+| Define TypeScript interfaces for domain models | Add business logic |
+| Handle API endpoint URLs | Manage state |
+| Return raw `Observable` streams | Transform data |
 
-#### **Example Structure:**
+#### File Naming: `[entity]-provider.service.ts`
+
+#### Template: Single-Entity Provider
+
 ```typescript
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// Domain Models
-export interface Exercise {
+// Domain Models - Define all interfaces here
+export interface [Entity] {
   id: string;
   name: string;
-  category: string;
-  muscleGroups: string[];
-  description?: string;
+  // ... other fields
 }
 
-export interface ExerciseCreate {
+export interface [Entity]Create {
   name: string;
-  category: string;
-  muscleGroups: string[];
-  description?: string;
+  // ... fields for creation (no id)
+}
+
+export interface [Entity]Update {
+  name: string;
+  // ... fields for update
 }
 
 @Injectable({ providedIn: 'root' })
-export class ExerciseProviderService {
-  private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/v1/exercises';
+export class [Entity]ProviderService {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost:8080/api/v1/[entities]';
 
-  // CRUD Operations - Simple HTTP pass-through
-  getAllExercises(): Observable<Exercise[]> {
-    return this.http.get<Exercise[]>(this.apiUrl);
+  getAll(): Observable<[Entity][]> {
+    return this.http.get<[Entity][]>(this.apiUrl);
   }
 
-  createExercise(exercise: ExerciseCreate): Observable<Exercise> {
-    return this.http.post<Exercise>(this.apiUrl, exercise);
+  getById(id: string): Observable<[Entity]> {
+    return this.http.get<[Entity]>(`${this.apiUrl}/${id}`);
   }
 
-  getExerciseById(id: string): Observable<Exercise> {
-    return this.http.get<Exercise>(`${this.apiUrl}/${id}`);
+  create(entity: [Entity]Create): Observable<[Entity]> {
+    return this.http.post<[Entity]>(this.apiUrl, entity);
   }
 
-  updateExercise(id: string, exercise: ExerciseCreate): Observable<Exercise> {
-    return this.http.put<Exercise>(`${this.apiUrl}/${id}`, exercise);
+  update(id: string, entity: [Entity]Update): Observable<[Entity]> {
+    return this.http.put<[Entity]>(`${this.apiUrl}/${id}`, entity);
   }
 
-  deleteExercise(id: string): Observable<void> {
+  delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
 ```
 
-#### **Key Characteristics:**
-- Stateless - no `BehaviorSubject` or local caching
-- Direct HTTP calls without transformation
-- Returns typed observables
-- No error handling logic
+#### Template: Multi-Entity Provider
 
----
+When a feature manages multiple related entities:
 
-### **2. Logic Services Layer** (`logic-services/`)
-
-**Purpose:** Business logic, error handling, and side effects. This is the **business layer**.
-
-#### **Responsibilities:**
-- ✅ Wrap provider service calls
-- ✅ **Error handling** with `catchError` operator
-- ✅ Transform HTTP errors to user-friendly messages
-- ✅ Add logging with `tap` operator
-- ✅ Event emission with `Subject` for cross-component communication
-- ✅ Data validation and transformation
-- ✅ Business rules enforcement
-- ❌ **NO** direct HTTP calls
-- ❌ **NO** UI concerns (dialogs, routing, etc.)
-
-#### **File Naming Convention:**
-```
-[entity]-logic.service.ts
-```
-
-#### **Example Structure:**
 ```typescript
-import { Injectable, inject } from '@angular/core';
-import { Observable, Subject, tap, catchError, throwError } from 'rxjs';
-import { Exercise, ExerciseCreate, ExerciseProviderService } from '../provider-services/exercise-provider.service';
-
 @Injectable({ providedIn: 'root' })
-export class ExerciseLogicService {
-  private exerciseProviderService = inject(ExerciseProviderService);
+export class [Feature]ProviderService {
+  private readonly http = inject(HttpClient);
+  private readonly primaryApiUrl = 'http://localhost:8080/api/v1/[primary-entities]';
+  private readonly relatedApiUrl = 'http://localhost:8080/api/v1/[related-entities]';
+
+  // Primary entity CRUD
+  getAllPrimary(): Observable<[Primary][]> { /* ... */ }
+  createPrimary(entity: [Primary]Create): Observable<[Primary]> { /* ... */ }
   
-  // Event emission for cross-component communication
-  private createdExerciseSubject = new Subject<Exercise>();
-  createdExercise$ = this.createdExerciseSubject.asObservable();
-
-  createExercise(exercise: ExerciseCreate): Observable<Exercise> {
-    return this.exerciseProviderService.createExercise(exercise).pipe(
-      tap((createdExercise) => {
-        // Side effect: emit event
-        this.createdExerciseSubject.next(createdExercise);
-      }),
-      catchError((err) => {
-        // Error handling: transform HTTP errors
-        let errorMessage = 'Failed to create exercise';
-        
-        if (err.status === 409) {
-          errorMessage = err.error || 'Exercise with this name already exists';
-        } else if (err.status === 400) {
-          errorMessage = 'Invalid exercise data. Please check all required fields.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-        
-        return throwError(() => new Error(errorMessage));
-      })
-    );
-  }
-
-  getAllExercises(): Observable<Exercise[]> {
-    return this.exerciseProviderService.getAllExercises()
-      .pipe(
-        tap((exercises: Exercise[]) => {
-          // Side effect: logging
-          console.log(exercises);
-        }),
-        catchError((err) => {
-          let errorMessage = 'Failed to load exercises';
-          
-          if (err.status === 0) {
-            errorMessage = 'Cannot connect to server. Please check your connection.';
-          }
-          
-          return throwError(() => new Error(errorMessage));
-        })
-      );
-  }
-
-  // ... other methods with similar pattern
+  // Related entity CRUD  
+  getRelatedByPrimaryId(primaryId: string): Observable<[Related][]> { /* ... */ }
+  createRelated(entity: [Related]Create): Observable<[Related]> { /* ... */ }
 }
 ```
 
-#### **Error Handling Pattern:**
-1. Use `catchError` operator in every method
-2. Map HTTP status codes to user-friendly messages:
-   - `404` → "Not found" messages
-   - `409` → "Conflict/duplicate" messages
-   - `400` → "Validation error" messages
-   - `0` → "Network/connection error" messages
-3. Return `throwError(() => new Error(message))` with friendly message
-4. Components receive `err.message` directly
+---
 
-#### **Key Characteristics:**
-- Wraps all provider service calls
-- Centralized error handling
-- Logging and monitoring hooks
-- Event-driven communication
-- Business rule validation
+### 2. Logic Services Layer (`logic-services/`)
+
+**Purpose:** Business logic, error handling, and orchestration. This is the **business layer**.
+
+#### Responsibilities
+
+| ✅ DO | ❌ DON'T |
+|-------|----------|
+| Wrap all provider service calls | Make direct HTTP calls |
+| Handle errors with `catchError` | Handle UI concerns (dialogs, routing) |
+| Transform HTTP errors to user-friendly messages | Skip the provider layer |
+| Emit events via `Subject` for cross-component communication | |
+| Orchestrate multi-step operations | |
+| Validate and enforce business rules | |
+
+#### File Naming: `[entity]-logic.service.ts`
+
+#### Template: Standard Logic Service
+
+```typescript
+import { Injectable, inject } from '@angular/core';
+import { Observable, Subject, tap, catchError, throwError } from 'rxjs';
+import { [Entity], [Entity]Create, [Entity]ProviderService } from '../provider-services/[entity]-provider.service';
+
+@Injectable({ providedIn: 'root' })
+export class [Entity]LogicService {
+  private readonly provider = inject([Entity]ProviderService);
+  
+  // Event emission for cross-component communication
+  private readonly createdSubject = new Subject<[Entity]>();
+  readonly created$ = this.createdSubject.asObservable();
+
+  create(entity: [Entity]Create): Observable<[Entity]> {
+    return this.provider.create(entity).pipe(
+      tap((created) => this.createdSubject.next(created)),
+      catchError((err) => this.handleError(err, 'create'))
+    );
+  }
+
+  getAll(): Observable<[Entity][]> {
+    return this.provider.getAll().pipe(
+      catchError((err) => this.handleError(err, 'load'))
+    );
+  }
+
+  getById(id: string): Observable<[Entity]> {
+    return this.provider.getById(id).pipe(
+      catchError((err) => this.handleError(err, 'load'))
+    );
+  }
+
+  update(id: string, entity: [Entity]Update): Observable<[Entity]> {
+    return this.provider.update(id, entity).pipe(
+      catchError((err) => this.handleError(err, 'update'))
+    );
+  }
+
+  delete(id: string): Observable<void> {
+    return this.provider.delete(id).pipe(
+      catchError((err) => this.handleError(err, 'delete'))
+    );
+  }
+
+  private handleError(err: any, operation: string): Observable<never> {
+    let message = `Failed to ${operation} [entity]`;
+    
+    if (err.status === 404) {
+      message = '[Entity] not found. It may have been deleted.';
+    } else if (err.status === 409) {
+      message = err.error || '[Entity] with this name already exists.';
+    } else if (err.status === 400) {
+      message = 'Invalid data. Please check all required fields.';
+    } else if (err.status === 0) {
+      message = 'Cannot connect to server. Please check your connection.';
+    }
+    
+    return throwError(() => new Error(message));
+  }
+}
+```
+
+#### Pattern: Complex Orchestration
+
+When a single user action requires multiple API calls:
+
+```typescript
+createWithChildren(payload: [Entity]WithChildrenPayload): Observable<[Entity]> {
+  return this.provider.create({
+    name: payload.name,
+    // ... other fields
+  }).pipe(
+    switchMap((created) => {
+      if (payload.children.length === 0) {
+        return of(created);
+      }
+      // Create all children in parallel
+      const childCalls$ = payload.children.map((child, idx) =>
+        this.provider.createChild({
+          parentId: created.id,
+          ...child,
+          orderID: idx + 1,
+        })
+      );
+      return forkJoin(childCalls$).pipe(map(() => created));
+    }),
+    catchError((err) => this.handleError(err, 'create'))
+  );
+}
+```
+
+#### Pattern: Cross-Library Data Enrichment
+
+When enriching data with details from another library:
+
+```typescript
+import { OtherProviderService, OtherEntity } from 'other-lib';
+
+@Injectable({ providedIn: 'root' })
+export class [Entity]LogicService {
+  private readonly provider = inject([Entity]ProviderService);
+  private readonly otherProvider = inject(OtherProviderService);
+
+  getDetailWithEnrichment(id: string): Observable<[Entity]Detail> {
+    return combineLatest([
+      this.provider.getById(id),
+      this.otherProvider.getAll()
+    ]).pipe(
+      map(([entity, others]) => this.enrichEntity(entity, others)),
+      catchError((err) => this.handleError(err, 'load'))
+    );
+  }
+}
+```
+
+#### Pattern: Multiple Event Subjects
+
+When a service manages different state transitions that components need to react to separately:
+
+```typescript
+@Injectable({ providedIn: 'root' })\nexport class WorkoutLogicService {
+  private readonly provider = inject(WorkoutProviderService);
+  
+  // Separate event streams for different state transitions
+  private readonly workoutCompletedSubject = new Subject<WorkoutLog>();
+  readonly workoutCompleted$ = this.workoutCompletedSubject.asObservable();
+
+  private readonly workoutSavedSubject = new Subject<WorkoutLog>();
+  readonly workoutSaved$ = this.workoutSavedSubject.asObservable();
+
+  private readonly workoutCancelledSubject = new Subject<WorkoutLog>();
+  readonly workoutCancelled$ = this.workoutCancelledSubject.asObservable();
+
+  // Emit to appropriate subject based on outcome
+  saveWorkout(id: string, data: UpdateData): Observable<WorkoutLog> {
+    return this.provider.update(id, data).pipe(
+      tap((workout) => {
+        if (workout.status === 'Completed') {
+          this.workoutCompletedSubject.next(workout);
+        } else {
+          this.workoutSavedSubject.next(workout);
+        }
+      }),
+      catchError((err) => this.handleError(err, 'save'))
+    );
+  }
+}
+```
+
+**Benefits:**
+- Components can subscribe to specific events they care about
+- Clearer intent than a single event stream with status checking
+- Enables different UI responses for different state transitions
+
+#### Pattern: Conditional Workflow with Parallel Updates
+
+When updating multiple related entities and conditionally triggering a state change:
+
+```typescript
+saveWorkout(
+  workoutLogId: string,
+  executionUpdates: ExecutionInput[],
+  notes?: string
+): Observable<WorkoutLog> {
+  // Update all execution logs in parallel
+  const executionCalls = executionUpdates.map((update) =>
+    this.provider.updateExecution(update.id, update)
+  );
+
+  // Update parent notes if provided
+  const notesCall = notes !== undefined
+    ? this.provider.updateWorkoutLog(workoutLogId, { notes })
+    : of(null);
+
+  // Check if all items are completed
+  const allCompleted = executionUpdates.every((u) => u.completed);
+
+  return forkJoin([notesCall, ...executionCalls]).pipe(
+    switchMap(() => {
+      if (allCompleted) {
+        // Conditionally complete the workflow
+        return this.provider.completeWorkout(workoutLogId);
+      } else {
+        // Just return updated state
+        return this.provider.getWorkoutLogById(workoutLogId);
+      }
+    }),
+    tap((workout) => {
+      if (workout.status === 'Completed') {
+        this.workoutCompletedSubject.next(workout);
+      } else {
+        this.workoutSavedSubject.next(workout);
+      }
+    }),
+    catchError((err) => this.handleError(err, 'save'))
+  );
+}
+```
+
+**Benefits:**
+- Parallel updates for performance (`forkJoin`)
+- Conditional state transitions based on data
+- Single API call for complex multi-step operations
+- Proper event emission based on outcome
+
+#### Pattern: CRUD Synchronization
+
+When updating a parent entity with a collection of child entities (create new, update existing, delete removed):
+
+```typescript
+updateSessionWithExercises(
+  sessionId: string,
+  payload: SessionUpdatePayload
+): Observable<Session> {
+  // Update parent entity
+  const sessionUpdate: SessionUpdate = {
+    name: payload.name,
+    planId: payload.planId,
+    orderID: payload.orderID
+  };
+
+  return this.provider.updateSession(sessionId, sessionUpdate).pipe(
+    switchMap((updatedSession) =>
+      // Fetch existing children
+      this.provider.getExerciseExecutionsBySession(sessionId).pipe(
+        switchMap((existingExecutions) => {
+          const desiredIds = new Set<string>();
+          const updateCalls: Observable<ExerciseExecution>[] = [];
+          const createCalls: Observable<ExerciseExecution>[] = [];
+
+          // Process each child in the payload
+          payload.exercises.forEach((exercise, idx) => {
+            const execId = exercise.id;
+            const request = {
+              exerciseId: exercise.exerciseId,
+              plannedSets: exercise.plannedSets,
+              plannedReps: exercise.plannedReps,
+              plannedWeight: exercise.plannedWeight,
+              orderID: exercise.orderID ?? idx + 1,
+            };
+
+            if (execId) {
+              // Existing child - update it
+              desiredIds.add(execId);
+              updateCalls.push(
+                this.provider.updateExerciseExecution(execId, request)
+              );
+            } else {
+              // New child - create it
+              createCalls.push(
+                this.provider.createExerciseExecution({
+                  ...request,
+                  sessionId
+                })
+              );
+            }
+          });
+
+          // Delete children not in the desired set
+          const deleteCalls = existingExecutions
+            .filter(exec => !desiredIds.has(exec.id))
+            .map(exec => this.provider.deleteExerciseExecution(exec.id));
+
+          // Execute all operations in parallel
+          const allCalls = [...updateCalls, ...createCalls, ...deleteCalls];
+          if (!allCalls.length) {
+            return of(updatedSession);
+          }
+          return forkJoin(allCalls).pipe(map(() => updatedSession));
+        })
+      )
+    ),
+    catchError((err) => this.handleError(err, 'update'))
+  );
+}
+```
+
+**Benefits:**
+- Single operation synchronizes parent and all children
+- Automatically handles create/update/delete based on presence of ID
+- Parallel execution for performance
+- Atomic-like behavior (all or nothing)
+
+**Use Cases:**
+- Updating a session with its exercise list
+- Updating a plan with its session list
+- Any parent-child relationship where children can be added/removed/modified
+
+#### Pattern: Two-Phase Reorder
+
+When reordering items with database unique constraints:
+
+```typescript
+reorderItems(items: Item[], parentId: string): Observable<void> {
+  const updates = this.getChangedOrders(items);
+  if (!updates.length) return of(void 0);
+  
+  // Buffer to avoid unique constraint conflicts
+  const bufferBase = Math.max(...items.map(i => i.orderID ?? 0)) + updates.length + 5;
+
+  // Phase 1: Move to temporary positions
+  const moveToTemp$ = forkJoin(
+    updates.map((u, idx) => this.provider.update(u.id, { ...u, orderID: bufferBase + idx }))
+  );
+
+  // Phase 2: Apply final positions
+  const applyFinal$ = forkJoin(
+    updates.map(u => this.provider.update(u.id, { ...u, orderID: u.orderID }))
+  );
+
+  return moveToTemp$.pipe(
+    switchMap(() => applyFinal$),
+    map(() => void 0)
+  );
+}
+```
 
 ---
 
-### **3. UI Components Layer** (`ui/`)
+### 3. UI Components Layer (`ui/`)
 
-**Purpose:** Reusable, presentational (dumb) components. This is the **presentation layer**.
+**Purpose:** Reusable, presentational components. This is the **presentation layer**.
 
-#### **Responsibilities:**
-- ✅ Display data passed via `@Input()` or `input()`
-- ✅ Emit events via `@Output()` or `output()`
-- ✅ Handle user interactions (clicks, form inputs)
-- ✅ Contain component-specific styling
-- ✅ Use `OnPush` change detection
-- ❌ **NO** service injections (except Router for navigation)
-- ❌ **NO** business logic
-- ❌ **NO** HTTP calls
-- ❌ **NO** state management
+#### Responsibilities
 
-#### **Directory Structure:**
-```
-ui/
-├── [component-name]/
-│   ├── [component-name].ts
-│   ├── [component-name].html
-│   ├── [component-name].scss
-│   └── [component-name].spec.ts
-```
+| ✅ DO | ❌ DON'T |
+|-------|----------|
+| Display data via `input()` | Make HTTP calls |
+| Emit events via `output()` | Inject provider services directly |
+| Handle user interactions | Contain business logic |
+| Use `OnPush` change detection | |
+| Contain component-specific styling | |
 
-#### **Example: Card Component**
+#### Service Injection Rules
+
+| Component Type | Allowed Injections |
+|----------------|-------------------|
+| **Simple UI** (cards, chips) | `Router` only |
+| **Form Dialogs** (create) | `MatDialogRef`, `FormBuilder`, `MAT_DIALOG_DATA` |
+| **Confirmation Dialogs** | `MatDialogRef`, `MAT_DIALOG_DATA` |
+| **Edit Dialogs** (complex) | Logic services, `MatDialogRef`, `FormBuilder`, `MatSnackBar`, `MAT_DIALOG_DATA` |
+
+#### Template: Card Component
+
 ```typescript
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { Router } from '@angular/router';
-import { Exercise } from '../../provider-services/exercise-provider.service';
 
 @Component({
-  selector: 'ex-exercise-card',
+  selector: 'lib-[entity]-card',
   imports: [/* Material modules */],
-  templateUrl: './exercise-card.html',
-  styleUrl: './exercise-card.scss',
+  templateUrl: './[entity]-card.html',
+  styleUrl: './[entity]-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExerciseCardComponent {
+export class [Entity]CardComponent {
   private readonly router = inject(Router);
   
-  // Input: data from parent
-  exercise = input.required<Exercise>();
-  
-  // Output: events to parent
-  delete = output<string>();
+  entity = input.required<[Entity]>();
+  delete = output<[Entity]>();
 
   onCardClick(): void {
-    this.router.navigate(['/exercises', this.exercise().id]);
+    this.router.navigate(['/[entities]', this.entity().id]);
   }
 
   onDelete(event: Event): void {
     event.stopPropagation();
-    this.delete.emit(this.exercise().id);
+    this.delete.emit(this.entity());
   }
 }
 ```
 
-#### **Example: Dialog Component**
-```typescript
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+#### Template: Form Dialog
 
+```typescript
 @Component({
-  selector: 'ex-exercise-form-dialog',
+  selector: 'lib-[entity]-form-dialog',
   imports: [/* Form & Material modules */],
-  templateUrl: './exercise-form-dialog.html',
+  templateUrl: './[entity]-form-dialog.html',
+  styleUrl: './[entity]-form-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExerciseFormDialogComponent {
+export class [Entity]FormDialogComponent {
   private readonly dialogRef = inject(MatDialogRef);
   private readonly fb = inject(FormBuilder);
+  readonly data = inject<[Entity] | null>(MAT_DIALOG_DATA, { optional: true });
 
-  readonly form: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    category: ['', [Validators.required]],
-    muscleGroups: ['', [Validators.required]],
+  readonly form = this.fb.group({
+    name: [this.data?.name ?? '', [Validators.required, Validators.minLength(2)]],
+    // ... other fields
   });
 
-  onCreate(): void {
+  get isEditMode(): boolean {
+    return !!this.data;
+  }
+
+  onSave(): void {
     if (this.form.valid) {
       this.dialogRef.close(this.form.value);
     }
@@ -287,184 +559,206 @@ export class ExerciseFormDialogComponent {
 }
 ```
 
-#### **Key Characteristics:**
-- Stateless and reusable
-- Data flows in via inputs
-- Events flow out via outputs
-- No knowledge of services or backend
-- Focused on presentation only
+#### Pattern: Dirty Tracking (for Edit Dialogs)
+
+```typescript
+export class [Entity]EditDialogComponent implements OnInit {
+  private readonly initialSnapshot = JSON.stringify(this.data);
+  isDirty = false;
+
+  ngOnInit(): void {
+    this.form.valueChanges.subscribe(() => this.updateDirtyFlag());
+  }
+
+  private updateDirtyFlag(): void {
+    const current = JSON.stringify({ ...this.data, ...this.form.value });
+    this.isDirty = current !== this.initialSnapshot;
+  }
+}
+```
 
 ---
 
-### **4. Views Layer** (`views/`)
+### 4. Views Layer (`views/`)
 
-**Purpose:** Smart container components that orchestrate UI components and services. This is the **orchestration layer**.
+**Purpose:** Smart container components that orchestrate UI and services. This is the **orchestration layer**.
 
-#### **Responsibilities:**
-- ✅ Inject logic services (NOT provider services)
-- ✅ Manage component state and data flow
-- ✅ Coordinate multiple UI components
-- ✅ Handle routing and navigation
-- ✅ Display user notifications (snackbars, toasts)
-- ✅ Open dialogs and modals
-- ✅ Subscribe to observables
-- ✅ Trigger data refresh
-- ❌ **NO** HTTP status code handling (done in logic layer)
-- ❌ **NO** complex business logic (done in logic layer)
+#### Responsibilities
 
-#### **Directory Structure:**
-```
-views/
-├── [view-name]/
-│   ├── [view-name].ts
-│   ├── [view-name].html
-│   ├── [view-name].scss
-│   └── [view-name].spec.ts
-```
+| ✅ DO | ❌ DON'T |
+|-------|----------|
+| Inject logic services (NOT providers) | Handle HTTP status codes |
+| Manage component state | Contain complex business logic |
+| Coordinate UI components | |
+| Handle routing and navigation | |
+| Display notifications (snackbars) | |
+| Open dialogs and modals | |
 
-#### **Example: Overview Component**
+#### Template: Overview Component (Observable-based)
+
 ```typescript
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, Observable, switchMap } from 'rxjs';
-import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
-import { Exercise } from '../../provider-services/exercise-provider.service';
-
 @Component({
-  selector: 'ex-exercises-overview',
-  imports: [/* UI components */],
-  templateUrl: './exercises-overview.html',
+  selector: 'lib-[entities]-overview',
+  imports: [/* UI components, AsyncPipe */],
+  templateUrl: './[entities]-overview.html',
+  styleUrl: './[entities]-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExercisesOverviewComponent implements OnInit {
-  // Inject ONLY logic service (not provider)
-  private readonly exerciseService = inject(ExerciseLogicService);
+export class [Entities]OverviewComponent {
+  private readonly service = inject([Entity]LogicService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  // State management for refresh
-  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
-  readonly exercises$: Observable<Exercise[]> = this.refreshTrigger$.pipe(
-    switchMap(() => this.exerciseService.getAllExercises())
+  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  readonly entities$ = this.refreshTrigger$.pipe(
+    switchMap(() => this.service.getAll())
   );
 
-  ngOnInit(): void {
-    // Initial load happens automatically via exercises$ observable
-  }
-
-  private refreshExercises(): void {
-    this.refreshTrigger$.next();
-  }
-
-  openCreateDialog(): void {
-    const dialogRef = this.dialog.open(ExerciseFormDialogComponent, {
+  onCreate(): void {
+    const dialogRef = this.dialog.open([Entity]FormDialogComponent, {
       width: '500px',
+      panelClass: 'custom-dialog-container',
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.exerciseService.createExercise(result).subscribe({
+        this.service.create(result).subscribe({
           next: () => {
-            this.refreshExercises(); // Refresh list
-            this.snackBar.open('Exercise created successfully!', 'Close', {
-              duration: 3000,
-            });
+            this.refresh();
+            this.snackBar.open('[Entity] created successfully!', 'Close', { duration: 3000 });
           },
-          error: (err) => {
-            // Simple error display - message comes from logic service
-            this.snackBar.open(err.message, 'Close', {
-              duration: 5000,
-            });
-          }
+          error: (err) => this.snackBar.open(err.message, 'Close', { duration: 5000 }),
         });
       }
     });
   }
 
-  onDelete(id: string, name: string): void {
-    const dialogRef = this.dialog.open(ExerciseDeleteDialogComponent, {
-      data: { exerciseName: name },
+  onDelete(entity: [Entity]): void {
+    const dialogRef = this.dialog.open([Entity]DeleteDialogComponent, {
+      data: { name: entity.name },
+      panelClass: 'custom-dialog-container',
     });
 
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.exerciseService.removeExercise(id).subscribe({
+        this.service.delete(entity.id).subscribe({
           next: () => {
-            this.refreshExercises();
-            this.snackBar.open('Exercise deleted successfully!', 'Close');
+            this.refresh();
+            this.snackBar.open('[Entity] deleted successfully!', 'Close', { duration: 3000 });
           },
-          error: (err) => {
-            this.snackBar.open(err.message, 'Close');
-          }
+          error: (err) => this.snackBar.open(err.message, 'Close', { duration: 5000 }),
         });
       }
     });
   }
+
+  refresh(): void {
+    this.refreshTrigger$.next();
+  }
 }
 ```
 
-#### **Example: Detail Component**
-```typescript
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
+#### Template: Overview Component (Signal-based)
 
+```typescript
 @Component({
-  selector: 'ex-exercise-detail',
+  selector: 'lib-[entities]-overview',
   imports: [/* UI components */],
-  templateUrl: './exercise-detail.html',
+  templateUrl: './[entities]-overview.html',
+  styleUrl: './[entities]-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExerciseDetailComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly exerciseService = inject(ExerciseLogicService);
-  private readonly snackBar = inject(MatSnackBar);
+export class [Entities]OverviewComponent {
+  private readonly service = inject([Entity]LogicService);
+  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
-  exercise: Exercise | null = null;
+  private readonly entities = toSignal(
+    this.refreshTrigger$.pipe(
+      switchMap(() => this.service.getAll().pipe(
+        catchError((err) => {
+          this.snackBar.open(err.message, 'Close');
+          return of([] as [Entity][]);
+        })
+      )),
+      shareReplay(1)
+    ),
+    { initialValue: [] as [Entity][] }
+  );
+
+  // Derived state via computed signals
+  readonly searchControl = new FormControl('');
+  private readonly searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(startWith(''), debounceTime(200)),
+    { initialValue: '' }
+  );
+
+  readonly filteredEntities = computed(() => {
+    const term = (this.searchTerm() || '').toLowerCase();
+    return this.entities().filter(e => e.name.toLowerCase().includes(term));
+  });
+
+  readonly totalCount = computed(() => this.entities().length);
+
+  refresh(): void {
+    this.refreshTrigger$.next();
+  }
+}
+```
+
+#### Template: Detail Component
+
+```typescript
+@Component({
+  selector: 'lib-[entity]-detail',
+  imports: [/* UI components, AsyncPipe */],
+  templateUrl: './[entity]-detail.html',
+  styleUrl: './[entity]-detail.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class [Entity]DetailComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly service = inject([Entity]LogicService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+
+  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  entity$: Observable<[Entity] | null> | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.loadExercise(id);
+      this.entity$ = this.refreshTrigger$.pipe(
+        switchMap(() => this.service.getById(id)),
+        catchError((err) => {
+          this.snackBar.open(err.message, 'Close', { duration: 5000 });
+          this.router.navigate(['/[entities]']);
+          return of(null);
+        })
+      );
     }
   }
 
-  private loadExercise(id: string): void {
-    this.exerciseService.getExerciseById(id).subscribe({
-      next: (exercise) => {
-        this.exercise = exercise;
-      },
-      error: (err) => {
-        // Error message comes from logic service
-        this.snackBar.open(err.message, 'Close');
+  onBack(): void {
+    this.router.navigate(['/[entities]']);
+  }
+
+  onEdit(entity: [Entity]): void {
+    const dialogRef = this.dialog.open([Entity]EditDialogComponent, {
+      width: '600px',
+      panelClass: 'custom-dialog-container',
+      data: { entity }
+    });
+
+    dialogRef.afterClosed().subscribe((updated) => {
+      if (updated) {
+        this.refreshTrigger$.next();
+        this.snackBar.open('[Entity] updated successfully!', 'Close', { duration: 3000 });
       }
     });
   }
-
-  onUpdate(exerciseData: ExerciseCreate): void {
-    if (this.exercise) {
-      this.exerciseService.updateExercise(this.exercise.id, exerciseData).subscribe({
-        next: (updated) => {
-          this.exercise = updated;
-          this.snackBar.open('Exercise updated successfully!', 'Close');
-        },
-        error: (err) => {
-          this.snackBar.open(err.message, 'Close');
-        }
-      });
-    }
-  }
 }
 ```
-
-#### **Key Characteristics:**
-- Orchestrates UI components and services
-- Manages local component state
-- Handles user workflows
-- Simple error display (messages from logic layer)
-- No HTTP status code knowledge
 
 ---
 
@@ -513,135 +807,115 @@ export class ExerciseDetailComponent implements OnInit {
 
 ## 🎯 Key Principles
 
-### **Separation of Concerns**
-- **Provider**: "How to get data" (HTTP mechanics)
-- **Logic**: "What to do with data" (business rules, error handling)
-- **UI**: "How to display data" (presentation)
-- **View**: "How to coordinate" (orchestration)
+### Separation of Concerns
 
-### **Error Handling Strategy**
-1. **Provider Layer**: No error handling - let errors propagate
+| Layer | Responsibility |
+|-------|----------------|
+| **Provider** | "How to get data" (HTTP mechanics) |
+| **Logic** | "What to do with data" (business rules, error handling) |
+| **UI** | "How to display data" (presentation) |
+| **View** | "How to coordinate" (orchestration) |
+
+### Error Handling Strategy
+
+1. **Provider Layer**: No handling — let errors propagate
 2. **Logic Layer**: Catch all errors, transform to user-friendly messages
 3. **View Layer**: Display `err.message` from logic layer
 4. **Result**: Consistent error messages, no HTTP knowledge in components
 
-### **Dependency Rules**
-- Views → Logic Services ✅
-- Views → UI Components ✅
-- Logic Services → Provider Services ✅
-- UI Components → Nothing (except Router) ✅
-- Views → Provider Services ❌ (skip logic layer)
-- UI Components → Services ❌ (stay presentational)
+### Dependency Rules
 
-### **State Management**
-- **Provider**: Stateless (no BehaviorSubject)
-- **Logic**: Event emission via Subject for cross-component communication
-- **View**: Local state with BehaviorSubject + switchMap for refresh patterns
-- **UI**: Stateless, data via inputs
+| Allowed | Forbidden |
+|---------|-----------|
+| Views → Logic Services ✅ | Views → Provider Services ❌ |
+| Views → UI Components ✅ | UI Components → Provider Services ❌ |
+| Logic Services → Provider Services ✅ | |
+| Edit Dialogs → Logic Services ✅ | |
+
+### State Management
+
+| Layer | State Pattern |
+|-------|---------------|
+| **Provider** | Stateless (no caching) |
+| **Logic** | Event emission via `Subject` |
+| **View** | `BehaviorSubject` + `switchMap` or `toSignal` + `computed` |
+| **UI** | Stateless (data via inputs) |
 
 ---
 
 ## 📋 Checklist for New Libraries
 
-When creating a new feature library, ensure:
+When creating a new feature library `[feature]-lib`:
 
-- [ ] **Provider Service** created with:
-  - [ ] Domain model interfaces
-  - [ ] CRUD methods returning Observables
-  - [ ] No error handling
-  - [ ] Stateless implementation
+### Provider Service
+- [ ] File: `[entity]-provider.service.ts`
+- [ ] Domain model interfaces defined
+- [ ] CRUD methods returning `Observable`
+- [ ] No error handling
+- [ ] Stateless implementation
 
-- [ ] **Logic Service** created with:
-  - [ ] All provider methods wrapped
-  - [ ] `catchError` on every method
-  - [ ] User-friendly error messages
-  - [ ] Logging with `tap` operator
-  - [ ] Event Subjects for communication
+### Logic Service
+- [ ] File: `[entity]-logic.service.ts`
+- [ ] All provider methods wrapped
+- [ ] `catchError` on every method
+- [ ] User-friendly error messages
+- [ ] Event `Subject` for cross-component communication
 
-- [ ] **UI Components** created with:
-  - [ ] `input()` for data
-  - [ ] `output()` for events
-  - [ ] `OnPush` change detection
-  - [ ] No service injections (except Router)
+### UI Components
+- [ ] Directory: `ui/[component-name]/`
+- [ ] `input()` for data, `output()` for events
+- [ ] `ChangeDetectionStrategy.OnPush`
+- [ ] Service injections follow rules (see table above)
 
-- [ ] **View Components** created with:
-  - [ ] Logic service injection (not provider)
-  - [ ] Dialog/notification handling
-  - [ ] Simple error display (`err.message`)
-  - [ ] Refresh mechanisms where needed
+### View Components
+- [ ] Directory: `views/[view-name]/`
+- [ ] Inject logic service (not provider)
+- [ ] Dialog/notification handling
+- [ ] Refresh mechanism (`BehaviorSubject` or signals)
 
-- [ ] **Styling** implemented with:
-  - [ ] Separate `.scss` files (no inline styles)
-  - [ ] Theme variables for all colors
-  - [ ] No hardcoded colors
-  - [ ] Tested in both light and dark modes
+### Styling
+- [ ] Separate `.scss` files
+- [ ] Theme variables only (no hardcoded colors)
+- [ ] Tested in light and dark modes
+- [ ] Responsive breakpoints
+
+### Exports
+- [ ] Barrel file exports all public APIs
+- [ ] Verify library builds: `ng build [feature]-lib`
 
 ---
 
-## 🎨 Styling & Theme System
+## 🎨 Styling Requirements
 
-### Theme Variables
-
-All components **must** use CSS custom properties for theming to support light and dark modes.
-
-**Required Variables:**
+### Theme Variables (Required)
 
 ```scss
 // Backgrounds
---fitness-bg-page      // Page background
---fitness-bg-card      // Card backgrounds
---fitness-bg-chip      // Chips, badges, tags
+background-color: var(--fitness-bg-card);
+background-color: var(--fitness-bg-page);
+background-color: var(--fitness-bg-chip);
 
 // Text
---fitness-text-primary    // Main text
---fitness-text-secondary  // Secondary text, labels
---fitness-text-tertiary   // Muted text, placeholders
+color: var(--fitness-text-primary);
+color: var(--fitness-text-secondary);
+color: var(--fitness-text-tertiary);
 
 // Borders & Shadows
---fitness-border          // Standard borders
---fitness-shadow          // Subtle shadows
+border: 1px solid var(--fitness-border);
+box-shadow: var(--fitness-shadow);
 
 // Brand
---fitness-primary         // Primary green (consistent)
+background-color: var(--fitness-primary);
 ```
 
-### Styling Rules for Library Components
-
-**✅ DO:**
-```scss
-.component {
-  background-color: var(--fitness-bg-card);
-  color: var(--fitness-text-primary);
-  border: 1px solid var(--fitness-border);
-}
-```
-
-**❌ DON'T:**
-```scss
-.component {
-  background-color: #FFFFFF;  // Hardcoded - breaks dark mode
-  color: #111813;             // Hardcoded - breaks dark mode
-}
-```
-
-### Component Styling Checklist
-
-When creating UI or View components:
-
-1. **Use separate `.scss` files** - Never inline styles
-2. **Use theme variables** - No hardcoded colors
-3. **Test both themes** - Verify appearance in light and dark modes
-4. **Add transitions** - `transition: all 0.2s ease` for interactive elements
-5. **Responsive design** - Use `@media (max-width: 768px)` for mobile
-
-### Example Component SCSS
+### Component SCSS Template
 
 ```scss
 :host {
   display: block;
 }
 
-.my-card {
+.card {
   background-color: var(--fitness-bg-card);
   border: 1px solid var(--fitness-border);
   border-radius: 12px;
@@ -653,23 +927,25 @@ When creating UI or View components:
   }
 }
 
-.card-title {
+.title {
   color: var(--fitness-text-primary);
   font-size: 1.25rem;
   font-weight: 600;
 }
 
-.card-subtitle {
+.subtitle {
   color: var(--fitness-text-secondary);
   font-size: 0.875rem;
 }
 
 @media (max-width: 768px) {
-  .my-card {
+  .card {
     padding: 0.75rem;
   }
 }
 ```
+
+> **Full styling details:** See `UI-STYLE-GUIDE.md` for complete color palette, button styles, and component patterns.
 
 ---
 
@@ -684,10 +960,9 @@ When creating UI or View components:
 
 ---
 
-
 The architecture is **repeatable and predictable** across all feature libraries.
 
 ---
 
-**Last Updated:** November 2025  
-**Reference Implementation:** `exercises-lib`
+**Last Updated:** December 2025  
+**Reference Implementations:** `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`

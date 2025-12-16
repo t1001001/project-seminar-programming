@@ -50,6 +50,7 @@ buildNumber.properties
 
 # VS Code
 .vscode/
+.cursor/
 
 # Mac OS
 .DS_Store

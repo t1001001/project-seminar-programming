@@ -1,7 +1,7 @@
 <section class="plans-overview page-container">
     <header class="overview-header">
         <div class="header-content">
-            <h1>Training Plans</h1>
+            <h1>Plans</h1>
             <p class="subtitle">Organize your training plans</p>
         </div>
 
@@ -25,20 +25,23 @@
     </header>
 
     @if (filteredPlans(); as plans) {
-    @if (!plans.length) {
-    <p class="empty-state">
-        No training plans found.
-    </p>
-    }
     @if (plans.length) {
     <div class="plans-list">
         @for (plan of plans; track plan.id) {
         <lib-plan-card [plan]="plan" (delete)="onDelete($event)" />
         }
     </div>
+    } @else {
+    <div class="empty-state">
+        <mat-icon class="empty-icon">calendar_today</mat-icon>
+        <h3>No Plans found</h3>
+        <p>Create your first plan to organize your workout schedule!</p>
+    </div>
     }
     } @else {
-    <p>Loading plans…</p>
+    <div class="loading-state">
+        <p>Loading plans...</p>
+    </div>
     }
 
     <button mat-fab extended class="create-fab" (click)="onCreate()">

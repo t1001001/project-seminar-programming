@@ -26,12 +26,7 @@
     vertical-align: middle;
 }
 
-.required-hint {
-    margin: 0 0 1rem 0;
-    padding: 0.5rem 0;
-    font-size: 0.875rem;
-    color: var(--fitness-text-secondary);
-}
+
 
 .detail-card {
     background-color: var(--fitness-bg-card) !important;
@@ -117,11 +112,24 @@ h1 {
     white-space: pre-wrap;
 }
 
-.detail-form {
+.sessions-section {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
+    padding-top: 0.5rem;
 }
+
+.sessions-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+
+    h3 {
+        margin: 0;
+    }
+}
+
 
 mat-form-field {
     width: 100%;
@@ -173,7 +181,19 @@ mat-card-actions {
     position: relative;
     padding: 1rem 0 1rem 2rem;
     margin-left: 1rem;
-    border-left: 2px solid rgba(var(--fitness-primary-rgb), 0.3);
+    border-left: none;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: -0.1rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: rgba(var(--fitness-primary-rgb), 0.35);
+        border-radius: 4px;
+        display: block;
+    }
 }
 
 .timeline-item {
@@ -185,15 +205,16 @@ mat-card-actions {
     }
 
     &:has(.timeline-content:hover) .timeline-marker {
-        transform: scale(1.3);
+        transform: scale(1.1);
         box-shadow: 0 0 0 3px rgba(var(--fitness-primary-rgb), 0.4);
     }
 }
 
 .timeline-marker {
     position: absolute;
-    left: -2.6rem;
+    left: -2.735rem;
     top: 1.5rem;
+    transform: none;
     width: 1rem;
     height: 1rem;
     border-radius: 50%;
@@ -206,6 +227,7 @@ mat-card-actions {
 
 .timeline-content {
     transition: transform 0.2s ease;
+    cursor: pointer;
 
     &:hover {
         transform: translateY(-2px);
@@ -217,9 +239,9 @@ mat-card-actions {
     border-radius: 12px !important;
     box-shadow: none !important;
     border: 1px solid var(--fitness-border) !important;
-    background-color: var(--fitness-bg-card) !important;
+    background-color: var(--fitness-bg-card-nested) !important;
     overflow: hidden;
-    cursor: default;
+    cursor: pointer;
 
     mat-card-header {
         padding: 1rem 1rem 0.5rem 1rem !important;
@@ -227,6 +249,31 @@ mat-card-actions {
 
     mat-card-content {
         padding: 0.5rem 1rem 1rem 1rem !important;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 0.75rem 1rem 1rem 1rem;
+    }
+
+    .click-hint {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--fitness-text-secondary);
+        opacity: 0.7;
+        transition: all 0.2s ease;
+    }
+
+    &:hover .click-hint {
+        opacity: 1;
+        color: var(--fitness-primary);
+    }
+
+    .click-hint .material-icons {
+        font-size: 1rem;
     }
 }
 
@@ -243,20 +290,6 @@ mat-card-title {
     font-size: 1.1rem !important;
     font-weight: 600 !important;
     margin-bottom: 0.25rem !important;
-}
-
-mat-card-subtitle {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.85rem !important;
-    color: var(--fitness-text-secondary) !important;
-}
-
-.small-icon {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
 }
 
 .exercises-list {
@@ -286,7 +319,7 @@ mat-card-subtitle {
     display: inline-block;
     padding: 0.25rem 0.75rem;
     background-color: var(--fitness-bg-chip);
-    border-radius: 16px;
+    border-radius: 12px;
     font-size: 0.85rem;
     color: var(--fitness-dark);
     font-weight: 500;
@@ -324,6 +357,32 @@ mat-card-subtitle {
     }
 }
 
+.empty-exercises {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    color: var(--fitness-text-tertiary);
+    background-color: var(--fitness-bg-chip);
+    border-radius: 8px;
+    border: 1px dashed var(--fitness-border);
+}
+
+.empty-exercises .empty-icon {
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.empty-exercises p {
+    margin: 0;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
 @media (max-width: 768px) {
     h1 {
         font-size: 1.5rem;
@@ -337,36 +396,35 @@ mat-card-subtitle {
         padding: 1rem 1.5rem !important;
     }
 
-    .session-status-chip {
+    .order-chip {
         position: static !important;
         margin: 1rem 1rem 0 1rem;
-        display: inline-block;
+        display: inline-flex;
         width: fit-content;
     }
 }
 
-.session-status-chip {
+.order-chip {
     position: absolute;
     top: 1rem;
     right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.25rem 0.75rem;
-    border-radius: 16px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    background-color: var(--fitness-bg-chip);
+    border: 1px solid var(--fitness-border);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: var(--fitness-text-secondary);
+    font-weight: 500;
     z-index: 10;
 
-    &.completed {
-        background-color: rgba(var(--fitness-primary-rgb), 0.1);
-        color: var(--fitness-primary);
-        border: 1px solid rgba(var(--fitness-primary-rgb), 0.2);
-    }
-
-    &.planned {
-        background-color: var(--fitness-bg-chip);
+    mat-icon {
+        font-size: 1.1rem;
+        width: 1.1rem;
+        height: 1.1rem;
         color: var(--fitness-text-secondary);
-        border: 1px solid var(--fitness-border);
     }
 }
 

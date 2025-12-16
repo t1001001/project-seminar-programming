@@ -1,0 +1,242 @@
+:host {
+  display: block;
+}
+
+.session-card {
+  background-color: var(--fitness-bg-card) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--fitness-border) !important;
+  box-shadow: none !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 1.5rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.session-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--fitness-shadow);
+}
+
+.card-content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.plan-pill,
+.order-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.plan-pill {
+  background-color: rgba(var(--fitness-primary-rgb), 0.1);
+  color: var(--fitness-primary);
+  border: 1px solid rgba(var(--fitness-primary-rgb), 0.25);
+}
+
+.order-chip {
+  background-color: var(--fitness-bg-chip);
+  color: var(--fitness-text-secondary);
+  border: 1px solid var(--fitness-border);
+}
+
+.plan-pill .mat-icon,
+.order-chip .mat-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.session-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--fitness-dark);
+  margin: 0;
+}
+
+.detail-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--fitness-text-secondary);
+  font-size: 0.95rem;
+}
+
+.detail-item .mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.stats-section {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  padding: 0.35rem 0.75rem;
+  /* Closer to style guide padding */
+  box-sizing: border-box;
+  background-color: var(--fitness-bg-chip);
+  border-radius: 12px;
+  /* Consistent with plan-card */
+  border: 1px solid var(--fitness-border);
+  min-width: unset;
+  flex: 1;
+}
+
+.stat-chip .mat-icon {
+  color: var(--fitness-text-secondary);
+  transform: scale(0.85);
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+}
+
+.stat-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.stat-text .label {
+  font-size: 0.75rem;
+  color: var(--fitness-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  /* Compliant with style guide */
+  font-weight: 600;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.stat-text .value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--fitness-dark);
+}
+
+.stat-chip.highlight {
+  background-color: rgba(var(--fitness-primary-rgb), 0.08);
+  border-color: rgba(var(--fitness-primary-rgb), 0.25);
+}
+
+.side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.actions-section {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.delete-btn {
+  background-color: var(--fitness-action-delete) !important;
+  color: var(--fitness-dark) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.delete-btn:hover {
+  background-color: var(--fitness-action-delete-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--fitness-action-delete-rgb), 0.3) !important;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--fitness-border);
+}
+
+.click-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--fitness-text-secondary);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.session-card:hover .click-hint {
+  opacity: 1;
+  color: var(--fitness-primary);
+}
+
+.click-hint .material-icons {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .card-content-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .side-section {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .stats-section {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .stat-chip {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .actions-section {
+    width: 100%;
+  }
+
+  .delete-btn {
+    width: 100% !important;
+  }
+}

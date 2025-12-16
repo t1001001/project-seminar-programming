@@ -1,0 +1,464 @@
+.edit-dialog {
+  min-width: 650px;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.dialog-header {
+  padding: 1rem 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+h2[mat-dialog-title] {
+  margin: 0;
+  padding: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--fitness-text-primary);
+}
+
+.required-hint {
+  font-size: 0.8rem;
+  color: var(--fitness-text-secondary);
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.name-item {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fitness-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--fitness-text-primary);
+}
+
+.detail-value-small {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--fitness-text-secondary);
+}
+
+.header-divider {
+  height: 1px;
+  background: var(--fitness-border);
+  width: 100%;
+  margin-top: 1.25rem;
+}
+
+::ng-deep .mat-mdc-dialog-surface {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+  padding: 0 1.5rem;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: 55vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+  color: var(--fitness-text-secondary);
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--fitness-border);
+  width: 100%;
+  margin: 0.25rem 0;
+}
+
+.session-notes-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-notes-field {
+  width: 100%;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.exercises-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--fitness-text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+}
+
+.all-complete-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: rgba(var(--fitness-primary-rgb), 0.15);
+  color: var(--fitness-primary);
+
+  mat-icon {
+    font-size: 0.9rem;
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+}
+
+.count-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  padding: 0 0.45rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: var(--fitness-bg-chip);
+  border: 1px solid var(--fitness-border);
+  font-weight: 600;
+  color: var(--fitness-text-secondary);
+  font-size: 0.82rem;
+}
+
+.exercises-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.exercise-log-card {
+  background-color: var(--fitness-bg-card-nested);
+  border: 1px solid var(--fitness-border);
+  border-radius: 12px;
+  padding: 0.65rem 0.95rem 1rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: all 0.2s ease;
+
+  &.completed {
+    border-color: var(--fitness-primary);
+    background-color: rgba(var(--fitness-primary-rgb), 0.05);
+  }
+}
+
+.exercise-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.exercise-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--fitness-text-primary);
+  }
+}
+
+.card-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--fitness-border);
+  margin: 1.25rem 0 0.6rem 0;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--fitness-bg-chip);
+  border: 1px solid var(--fitness-border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--fitness-text-secondary);
+  font-weight: 500;
+  text-transform: capitalize;
+  width: fit-content;
+}
+
+.complete-checkbox {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+
+  ::ng-deep .mdc-form-field {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  ::ng-deep .mdc-checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  ::ng-deep .mdc-checkbox__native-control {
+    left: unset;
+    top: unset;
+  }
+
+  ::ng-deep .mdc-checkbox__background {
+    width: 16px;
+    height: 16px;
+    top: 1px;
+    left: 1px;
+    border-radius: 4px;
+    border-width: 2px;
+    border-color: var(--fitness-text-tertiary) !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease;
+  }
+
+  ::ng-deep .mdc-checkbox__checkmark {
+    color: white;
+  }
+
+  ::ng-deep .mdc-checkbox__ripple,
+  ::ng-deep .mat-mdc-checkbox-ripple {
+    display: none;
+  }
+
+  ::ng-deep .mdc-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--fitness-text-secondary);
+    padding-left: 0;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  &.is-completed {
+    ::ng-deep .mdc-checkbox__background {
+      border-color: var(--fitness-primary) !important;
+      background-color: var(--fitness-primary) !important;
+    }
+
+    ::ng-deep .mdc-label {
+      color: var(--fitness-primary);
+      font-weight: 600;
+    }
+  }
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
+.value-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.5rem;
+}
+
+.readonly-field {
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: var(--fitness-bg-chip);
+  }
+}
+
+.readonly-input[readonly] {
+  background-color: transparent;
+  color: var(--fitness-text-secondary);
+  cursor: not-allowed;
+}
+
+.disabled-fields {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.exercise-log-card.completed .disabled-fields {
+  pointer-events: auto;
+}
+
+.field-icon {
+  font-size: 0.95rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--fitness-text-tertiary);
+}
+
+.compact-field {
+  width: 100%;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.notes-field {
+  width: 100%;
+  margin-top: 0.75rem;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--fitness-text-tertiary);
+  background-color: var(--fitness-bg-chip);
+  border-radius: 12px;
+  border: 2px dashed var(--fitness-border);
+
+  mat-icon {
+    font-size: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+::ng-deep mat-dialog-actions,
+mat-dialog-actions {
+  padding: 1rem 1.5rem 1.5rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.cancel-btn {
+  color: var(--fitness-text-primary) !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    color: var(--fitness-primary) !important;
+  }
+}
+
+.update-btn {
+  background-color: var(--fitness-action-update) !important;
+  color: var(--fitness-dark) !important;
+  box-shadow: none !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover:not(:disabled) {
+    background-color: var(--fitness-action-update-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--fitness-shadow-glow-update) !important;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+}
+
+.btn-spinner {
+  ::ng-deep circle {
+    stroke: var(--fitness-dark);
+  }
+}
+
+@media (max-width: 768px) {
+  .edit-dialog {
+    min-width: 300px;
+    max-width: 100%;
+  }
+
+  .exercise-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .complete-checkbox {
+    align-self: flex-start;
+  }
+
+  .values-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.65rem;
+  }
+}

@@ -4,7 +4,7 @@ import { PlanProviderService, TrainingPlan, TrainingPlanCreate, TrainingPlanUpda
 
 @Injectable({ providedIn: 'root' })
 export class PlanLogicService {
-  private planProviderService = inject(PlanProviderService);
+  private readonly planProviderService = inject(PlanProviderService);
 
   private createdPlanSubject = new Subject<TrainingPlan>();
   createdPlan$ = this.createdPlanSubject.asObservable();
@@ -33,12 +33,6 @@ export class PlanLogicService {
   getAllPlans(): Observable<TrainingPlan[]> {
     return this.planProviderService.getAllPlans()
       .pipe(
-        tap((plans: TrainingPlan[]) => {
-          // Calculate sessionsCount since backend doesn't provide it
-          plans.forEach(plan => {
-            plan.sessionsCount = plan.sessions ? plan.sessions.length : 0;
-          });
-        }),
         catchError((err) => {
           let errorMessage = 'Failed to load training plans';
 
