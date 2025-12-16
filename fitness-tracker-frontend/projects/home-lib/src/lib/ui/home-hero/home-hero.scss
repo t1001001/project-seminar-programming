@@ -191,12 +191,12 @@
     padding: 4px;
     background: conic-gradient(var(--fitness-primary) var(--border-progress), transparent 0deg);
     -webkit-mask:
-        linear-gradient(#000 0 0) content-box,
-        linear-gradient(#000 0 0);
+        linear-gradient(var(--fitness-dark) 0 0) content-box,
+        linear-gradient(var(--fitness-dark) 0 0);
     -webkit-mask-composite: xor;
     mask:
-        linear-gradient(#000 0 0) content-box,
-        linear-gradient(#000 0 0);
+        linear-gradient(var(--fitness-dark) 0 0) content-box,
+        linear-gradient(var(--fitness-dark) 0 0);
     mask-composite: exclude;
     pointer-events: none;
     opacity: 0;
