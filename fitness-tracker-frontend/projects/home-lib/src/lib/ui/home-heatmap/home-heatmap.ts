@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'home-home-heatmap',
   imports: [],
   templateUrl: './home-heatmap.html',
-  styleUrl: './home-heatmap.css',
+  styleUrl: './home-heatmap.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeHeatmapComponent {
 

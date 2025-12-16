@@ -6,6 +6,7 @@ import { HomeHeroComponent } from '../../ui/home-hero/home-hero';
   imports: [HomeHeroComponent],
   templateUrl: './home-landing.html',
   styleUrl: './home-landing.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeLandingComponent {
 

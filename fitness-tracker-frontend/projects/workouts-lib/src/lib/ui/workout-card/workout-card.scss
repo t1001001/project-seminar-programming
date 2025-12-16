@@ -176,11 +176,20 @@
   background-color: var(--fitness-bg-chip);
   color: var(--fitness-text-secondary);
   border: 1px solid var(--fitness-border);
+  max-width: 180px;
+  flex-shrink: 1;
 
   mat-icon {
     font-size: 1.1rem;
     width: 1.1rem;
     height: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -316,12 +325,15 @@
   .stats-section {
     flex-direction: column;
     width: 100%;
+    box-sizing: border-box;
   }
 
   .stat-chip,
   .plan-pill {
     width: 100%;
     min-width: unset;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .stat-text {
