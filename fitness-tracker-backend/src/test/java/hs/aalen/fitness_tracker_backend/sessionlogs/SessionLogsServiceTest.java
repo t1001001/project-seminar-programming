@@ -110,16 +110,12 @@ class SessionLogsServiceTest {
 
 @Test
 void shouldCompleteSession() {
-    Sessions session = new Sessions();
-    session.setId(UUID.randomUUID());
-    session.setName("Test Session");
-
     SessionLogs log = new SessionLogs();
     log.setId(UUID.randomUUID());
     log.setStatus(SessionLogs.LogStatus.InProgress);
-    log.setSession(session);
 
-    when(sessionLogsRepository.findById(log.getId())).thenReturn(Optional.of(log));
+    when(sessionLogsRepository.findById(log.getId()))
+            .thenReturn(Optional.of(log));
     when(sessionLogsRepository.save(any(SessionLogs.class)))
             .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -129,18 +125,14 @@ void shouldCompleteSession() {
     assertNotNull(updated.getCompletedAt());
 }
 
-    @Test
-    void shouldCancelSessionWhenInProgress() {
-        Sessions session = new Sessions();
-        session.setId(UUID.randomUUID());
-        session.setName("Test Session");
-
+        @Test
+        void shouldCancelSessionWhenInProgress() {
         SessionLogs log = new SessionLogs();
         log.setId(UUID.randomUUID());
         log.setStatus(SessionLogs.LogStatus.InProgress);
-        log.setSession(session); 
 
-        when(sessionLogsRepository.findById(log.getId())).thenReturn(Optional.of(log));
+        when(sessionLogsRepository.findById(log.getId()))
+                .thenReturn(Optional.of(log));
         when(sessionLogsRepository.save(any(SessionLogs.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -148,7 +140,7 @@ void shouldCompleteSession() {
 
         assertEquals(SessionLogs.LogStatus.Cancelled, cancelled.getStatus());
         assertNotNull(cancelled.getCompletedAt());
-    }
+        }
 
     @Test
     void shouldThrowCancelWhenNotInProgress() {
@@ -163,22 +155,18 @@ void shouldCompleteSession() {
         assertTrue(ex.getMessage().contains("Can only cancel a training that is in progress"));
     }
 
-    @Test
-    void shouldUpdateNotesAndStatus() {
-        Sessions session = new Sessions();
-        session.setId(UUID.randomUUID());
-        session.setName("Test Session");
-        
+        @Test
+        void shouldUpdateNotesAndStatus() {
         SessionLogs log = new SessionLogs();
         log.setId(UUID.randomUUID());
         log.setStatus(SessionLogs.LogStatus.InProgress);
-        log.setSession(session);
 
         SessionLogsUpdateDto dto = new SessionLogsUpdateDto();
         dto.setNotes("New notes");
         dto.setStatus(SessionLogs.LogStatus.Completed);
 
-        when(sessionLogsRepository.findById(log.getId())).thenReturn(Optional.of(log));
+        when(sessionLogsRepository.findById(log.getId()))
+                .thenReturn(Optional.of(log));
         when(sessionLogsRepository.save(any(SessionLogs.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -187,7 +175,7 @@ void shouldCompleteSession() {
         assertEquals("New notes", updated.getNotes());
         assertEquals(SessionLogs.LogStatus.Completed, updated.getStatus());
         assertNotNull(updated.getCompletedAt());
-    }
+        }
 
     @Test
     void shouldThrowUpdateWhenCompletedOrCancelled() {
@@ -228,7 +216,10 @@ void shouldCompleteSession() {
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.deleteSessionLog(log.getId()));
-        assertTrue(ex.getMessage().contains("Cannot delete a completed training"));
+        assertEquals(
+                "Cannot delete a completed workout. Completed sessions are permanent records.",
+                ex.getMessage()
+        );
     }
 
     @Test

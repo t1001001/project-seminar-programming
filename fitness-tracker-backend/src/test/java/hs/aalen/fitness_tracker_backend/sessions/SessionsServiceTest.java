@@ -1,5 +1,6 @@
 package hs.aalen.fitness_tracker_backend.sessions;
 
+import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 import hs.aalen.fitness_tracker_backend.plans.repository.PlansRepository;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsCreateDto;
@@ -79,11 +80,18 @@ class SessionsServiceTest {
         SessionsCreateDto dto = new SessionsCreateDto();
         dto.setName("Session 1");
         dto.setPlanId(planId);
+        dto.setOrderID(1);
 
         when(plansRepository.findById(planId)).thenReturn(Optional.of(plan));
-        when(sessionsRepository.findByNameAndPlan_Id(dto.getName(), planId)).thenReturn(Optional.of(session));
+        when(sessionsRepository.findByNameAndPlan_Id(dto.getName(), planId))
+                .thenReturn(Optional.of(session));
 
-        assertThrows(IllegalArgumentException.class, () -> service.create(dto));
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.create(dto)
+        );
+
+        assertEquals("Session with this name already exists in this plan", ex.getMessage());
     }
 
     @Test
@@ -361,7 +369,7 @@ class SessionsServiceTest {
         SessionsCreateDto dto = new SessionsCreateDto();
         dto.setName("No Order");
         dto.setPlanId(planId);
-        dto.setOrderID(null);
+        dto.setOrderID(1);
 
         when(plansRepository.findById(planId)).thenReturn(Optional.of(plan));
         when(sessionsRepository.findByNameAndPlan_Id(dto.getName(), planId))
@@ -371,6 +379,56 @@ class SessionsServiceTest {
 
         var created = service.create(dto);
 
-        assertEquals(0, created.getOrderID());
+        assertEquals(1, created.getOrderID());
     }
+
+    @Test
+    void shouldMapExerciseExecutionsAndSessionLogCount() {
+        var exercise = new ExerciseExecutions();
+        exercise.setId(UUID.randomUUID());
+        exercise.setOrderID(1);
+        exercise.setPlannedSets(3);
+        exercise.setPlannedReps(10);
+        exercise.setPlannedWeight(50);
+        exercise.setSession(session);
+
+        session.setExerciseExecutions(List.of(exercise));
+        session.setSessionLogCount(5);
+
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+
+        var result = service.getById(sessionId);
+
+        assertEquals(5, result.getSessionLogCount());
+        assertEquals(1, result.getExerciseExecutions().size());
+        assertEquals(exercise.getId(), result.getExerciseExecutions().get(0).getId());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingOrderToTaken() {
+        Sessions otherSession = new Sessions();
+        otherSession.setId(UUID.randomUUID());
+        otherSession.setPlan(plan);
+        otherSession.setOrderID(2);
+        plan.getSessions().add(otherSession);
+
+        SessionsUpdateDto dto = new SessionsUpdateDto();
+        dto.setName("Session 1");
+        dto.setPlanId(planId);
+        dto.setOrderID(2);
+
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(plansRepository.findById(planId)).thenReturn(Optional.of(plan));
+        when(sessionsRepository.findByNameAndPlan_Id(dto.getName(), planId))
+                .thenReturn(Optional.of(session));
+        when(sessionsRepository.findByPlan_Id(planId)).thenReturn(plan.getSessions());
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.update(sessionId, dto)
+        );
+
+        assertEquals("Order 2 is already used in this plan", ex.getMessage());
+    }
+
 }
