@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -185,5 +186,49 @@ class ExecutionLogsServiceTest {
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> service.deleteExecutionLog(id));
+    }
+
+    @Test
+    void shouldUpdateExecutionLogWithAllNullValues() {
+        ExecutionLogsUpdateDto dto = new ExecutionLogsUpdateDto();
+
+        when(repository.findById(id)).thenReturn(Optional.of(log));
+        when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        ExecutionLogsResponseDto result = service.updateExecutionLog(id, dto);
+
+        assertEquals(5, result.getActualSets());
+        assertEquals(10, result.getActualReps());
+        assertEquals(50, result.getActualWeight());
+        assertFalse(result.getCompleted());
+        assertEquals("test", result.getNotes());
+    }
+
+    @Test
+    void shouldAllowZeroActualValues() {
+        ExecutionLogsUpdateDto dto = new ExecutionLogsUpdateDto();
+        dto.setActualSets(0);
+        dto.setActualReps(0);
+        dto.setActualWeight(0);
+
+        when(repository.findById(id)).thenReturn(Optional.of(log));
+        when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        ExecutionLogsResponseDto result = service.updateExecutionLog(id, dto);
+
+        assertEquals(0, result.getActualSets());
+        assertEquals(0, result.getActualReps());
+        assertEquals(0, result.getActualWeight());
+    }
+
+    @Test
+    void shouldDeleteExecutionLogWhenTrainingInProgress() {
+        sessionLog.setStatus(SessionLogs.LogStatus.InProgress);
+
+        when(repository.findById(id)).thenReturn(Optional.of(log));
+
+        service.deleteExecutionLog(id);
+
+        verify(repository).deleteById(id);
     }
 }

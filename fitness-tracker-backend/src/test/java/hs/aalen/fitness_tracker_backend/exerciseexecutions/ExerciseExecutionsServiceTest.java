@@ -298,4 +298,71 @@ class ExerciseExecutionsServiceTest {
 
         verify(executionsRepository).deleteById(execId);
     }
+
+    @Test
+    void shouldAllowZeroPlannedWeight() {
+        ExerciseExecutionsCreateDto dto = new ExerciseExecutionsCreateDto();
+        dto.setPlannedSets(3);
+        dto.setPlannedReps(10);
+        dto.setPlannedWeight(0);
+        dto.setSessionId(sessionId);
+        dto.setExerciseId(exerciseId);
+
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(exercisesRepository.findById(exerciseId)).thenReturn(Optional.of(exercise));
+        when(executionsRepository.findBySessionIdOrderByOrderID(sessionId)).thenReturn(List.of());
+        when(executionsRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        ExerciseExecutionsResponseDto result = service.createExerciseExecution(dto);
+
+        assertEquals(0, result.getPlannedWeight());
+    }
+
+    @Test
+    void shouldCreateWithNullOrderId() {
+        ExerciseExecutionsCreateDto dto = new ExerciseExecutionsCreateDto();
+        dto.setPlannedSets(3);
+        dto.setPlannedReps(10);
+        dto.setPlannedWeight(50);
+        dto.setSessionId(sessionId);
+        dto.setExerciseId(exerciseId);
+        dto.setOrderID(null);
+
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(exercisesRepository.findById(exerciseId)).thenReturn(Optional.of(exercise));
+        when(executionsRepository.findBySessionIdOrderByOrderID(sessionId)).thenReturn(List.of());
+        when(executionsRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        ExerciseExecutionsResponseDto result = service.createExerciseExecution(dto);
+
+        assertEquals(0, result.getOrderID());
+    }
+
+    @Test
+    void shouldUpdateWithoutOrderChange() {
+        ExerciseExecutionsUpdateDto dto = new ExerciseExecutionsUpdateDto();
+        dto.setPlannedSets(4);
+
+        when(executionsRepository.findById(execId)).thenReturn(Optional.of(execution));
+        when(executionsRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        ExerciseExecutionsResponseDto result = service.updateExerciseExecution(execId, dto);
+
+        assertEquals(4, result.getPlannedSets());
+        assertEquals(1, result.getOrderID());
+    }
+
+    @Test
+    void shouldUpdateWithoutExerciseChange() {
+        ExerciseExecutionsUpdateDto dto = new ExerciseExecutionsUpdateDto();
+        dto.setPlannedReps(12);
+
+        when(executionsRepository.findById(execId)).thenReturn(Optional.of(execution));
+        when(executionsRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        ExerciseExecutionsResponseDto result = service.updateExerciseExecution(execId, dto);
+
+        assertEquals(12, result.getPlannedReps());
+        assertEquals(exerciseId, result.getExerciseId());
+    }
 }

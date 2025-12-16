@@ -230,4 +230,43 @@ void shouldCompleteSession() {
                 () -> service.deleteSessionLog(log.getId()));
         assertTrue(ex.getMessage().contains("Cannot delete a completed training"));
     }
+
+    @Test
+    void shouldThrowUpdateWhenCancelled() {
+        SessionLogs log = new SessionLogs();
+        log.setId(UUID.randomUUID());
+        log.setStatus(SessionLogs.LogStatus.Cancelled);
+
+        SessionLogsUpdateDto dto = new SessionLogsUpdateDto();
+        dto.setNotes("Should fail");
+
+        when(sessionLogsRepository.findById(log.getId()))
+                .thenReturn(Optional.of(log));
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateSessionLog(log.getId(), dto)
+        );
+
+        assertEquals("Cannot update a cancelled training", ex.getMessage());
+    }
+
+    @Test
+    void shouldStartSessionWithoutPlan() {
+        session.setPlan(null);
+
+        when(sessionsRepository.findById(sessionId))
+                .thenReturn(Optional.of(session));
+
+        when(exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId))
+                .thenReturn(List.of(execution));
+
+        when(sessionLogsRepository.save(any(SessionLogs.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        SessionLogsResponseDto dto = service.startSession(sessionId);
+
+        assertEquals("No Plan", dto.getSessionPlanName());
+        assertEquals("", dto.getSessionPlan());
+    }
 }

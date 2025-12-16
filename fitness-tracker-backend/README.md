@@ -14,6 +14,15 @@ docker build -t fitness-tracker-backend-app .
 docker run -p 8080:8080 fitness-tracker-backend-app
 ```
 
+# Run tests
+
+In order to run tests, run the following commands
+
+```bash
+mvn clean test
+mvn jacoco:report
+```
+
 # Endpoints
 
 ## Exercises Endpoint
