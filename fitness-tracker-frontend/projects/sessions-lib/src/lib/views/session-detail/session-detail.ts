@@ -82,6 +82,15 @@ export class SessionDetailComponent implements OnInit {
   }
 
   onStart(session: SessionDetail): void {
+    // Validate session has at least one exercise
+    if (!session.exercises || session.exercises.length === 0) {
+      this.snackBar.open('Cannot start workout: Session must contain at least one exercise.', 'Close', {
+        duration: SNACKBAR_ERROR_DURATION,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
     const confirmRef = this.dialog.open(WorkoutStartDialogComponent, {
       width: '420px',
       panelClass: 'custom-dialog-container',
