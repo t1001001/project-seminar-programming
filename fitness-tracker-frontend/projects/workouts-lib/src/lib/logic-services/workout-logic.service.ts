@@ -51,6 +51,8 @@ export class WorkoutLogicService {
 
         if (err.status === 404) {
           errorMessage = 'Workout session not found. It may have been deleted.';
+        } else if (err.status === 400) {
+          errorMessage = 'Cannot start workout: Session must contain at least one exercise.';
         } else if (err.status === 0) {
           errorMessage = 'Cannot connect to server. Please check your connection.';
         }

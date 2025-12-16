@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, combineLatest, forkJoin, map, of, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, combineLatest, concat, forkJoin, last, map, of, switchMap, throwError } from 'rxjs';
 import {
   SessionProviderService,
   Session,
@@ -273,7 +273,10 @@ export class SessionLogicService {
           orderID: exercise.orderID ?? index + 1,
         }));
 
-        return forkJoin(executionRequests.map(req => this.sessionProvider.createExerciseExecution(req))).pipe(
+        // Execute sequentially to avoid race conditions on the backend
+        const createCalls = executionRequests.map(req => this.sessionProvider.createExerciseExecution(req));
+        return concat(...createCalls).pipe(
+          last(),
           map(() => createdSession)
         );
       }),
@@ -375,11 +378,15 @@ export class SessionLogicService {
               .filter(exec => !desiredIds.has(exec.id))
               .map(exec => this.sessionProvider.deleteExerciseExecution(exec.id));
 
-            const allCalls = [...updateCalls, ...createCalls, ...deleteCalls];
+            // Execute sequentially to avoid race conditions on the backend
+            const allCalls = [...deleteCalls, ...updateCalls, ...createCalls];
             if (!allCalls.length) {
               return of(updatedSession);
             }
-            return forkJoin(allCalls).pipe(map(() => updatedSession));
+            return concat(...allCalls).pipe(
+              last(),
+              map(() => updatedSession)
+            );
           })
         )
       ),
