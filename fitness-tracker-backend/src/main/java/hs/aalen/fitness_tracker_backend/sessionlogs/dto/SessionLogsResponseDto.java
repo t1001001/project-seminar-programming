@@ -3,7 +3,9 @@ package hs.aalen.fitness_tracker_backend.sessionlogs.dto;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import hs.aalen.fitness_tracker_backend.executionlogs.dto.ExecutionLogsResponseDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
 
 @Getter
@@ -19,5 +21,6 @@ public class SessionLogsResponseDto {
     private SessionLogs.LogStatus status;
     private String notes;
     private UUID originalSessionId;
+    private List<ExecutionLogsResponseDto> executionLogs;
     private Integer executionLogCount;
 }

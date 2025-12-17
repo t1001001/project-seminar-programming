@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
+import hs.aalen.fitness_tracker_backend.executionlogs.dto.ExecutionLogsResponseDto;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository;
 import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsResponseDto;
@@ -184,7 +185,36 @@ public class SessionLogsService {
         dto.setStatus(sessionLog.getStatus());
         dto.setNotes(sessionLog.getNotes());
         dto.setOriginalSessionId(sessionLog.getOriginalSessionId());
-        dto.setExecutionLogCount(sessionLog.getExecutionLogs().size());
+        List<ExecutionLogsResponseDto> executionLogs = mapExecutionLogs(sessionLog);
+        dto.setExecutionLogs(executionLogs);
+        dto.setExecutionLogCount(executionLogs.size());
+        return dto;
+    }
+
+    private List<ExecutionLogsResponseDto> mapExecutionLogs(SessionLogs sessionLog) {
+        return sessionLog.getExecutionLogs().stream()
+                .map(this::mapExecutionLog)
+                .collect(Collectors.toList());
+    }
+
+    private ExecutionLogsResponseDto mapExecutionLog(ExecutionLogs executionLog) {
+        ExecutionLogsResponseDto dto = new ExecutionLogsResponseDto();
+        dto.setId(executionLog.getId());
+        dto.setExerciseExecutionId(executionLog.getExerciseExecutionId());
+        dto.setExerciseExecutionPlannedSets(executionLog.getExerciseExecutionPlannedSets());
+        dto.setExerciseExecutionPlannedReps(executionLog.getExerciseExecutionPlannedReps());
+        dto.setExerciseExecutionPlannedWeight(executionLog.getExerciseExecutionPlannedWeight());
+        dto.setExerciseId(executionLog.getExerciseId());
+        dto.setExerciseName(executionLog.getExerciseName());
+        dto.setExerciseCategory(executionLog.getExerciseCategory());
+        dto.setExerciseMuscleGroup(executionLog.getExerciseMuscleGroup());
+        dto.setExerciseDescription(executionLog.getExerciseDescription());
+        dto.setActualSets(executionLog.getActualSets());
+        dto.setActualReps(executionLog.getActualReps());
+        dto.setActualWeight(executionLog.getActualWeight());
+        dto.setCompleted(executionLog.getCompleted());
+        dto.setNotes(executionLog.getNotes());
+        dto.setSessionLogId(executionLog.getSessionLog() != null ? executionLog.getSessionLog().getId() : null);
         return dto;
     }
 }
