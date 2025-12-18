@@ -3,7 +3,7 @@ package hs.aalen.fitness_tracker_backend.sessionlogs.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,8 +29,8 @@ public class SessionLogs {
     private UUID originalSessionId;
 
     @Column(nullable = false)
-    private LocalDateTime startedAt;
-    private LocalDateTime completedAt;
+    private Instant startedAt;
+    private Instant completedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

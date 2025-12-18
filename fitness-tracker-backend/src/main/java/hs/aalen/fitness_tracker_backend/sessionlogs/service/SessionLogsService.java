@@ -15,7 +15,7 @@ import hs.aalen.fitness_tracker_backend.sessionlogs.repository.SessionLogsReposi
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,7 +49,7 @@ public class SessionLogsService {
         sessionLog.setSessionName(session.getName());
         sessionLog.setSessionPlanName(session.getPlan() != null ? session.getPlan().getName() : "No Plan");
         sessionLog.setSessionPlan(session.getPlan() != null ? session.getPlan().getDescription() : "");
-        sessionLog.setStartedAt(LocalDateTime.now());
+        sessionLog.setStartedAt(Instant.now());
         sessionLog.setStatus(SessionLogs.LogStatus.InProgress);
         // Store original session ID for reference (not a foreign key - allows deletion
         // of original)
@@ -91,7 +91,7 @@ public class SessionLogsService {
         SessionLogs sessionLog = sessionLogsRepository.findById(sessionLogId)
                 .orElseThrow(() -> new RuntimeException("SessionLog not found"));
         sessionLog.setStatus(SessionLogs.LogStatus.Completed);
-        sessionLog.setCompletedAt(LocalDateTime.now());
+        sessionLog.setCompletedAt(Instant.now());
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
         return mapToResponseDto(updated);
     }
@@ -107,7 +107,7 @@ public class SessionLogsService {
         }
 
         sessionLog.setStatus(SessionLogs.LogStatus.Cancelled);
-        sessionLog.setCompletedAt(LocalDateTime.now());
+        sessionLog.setCompletedAt(Instant.now());
 
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
         return mapToResponseDto(updated);
@@ -148,7 +148,7 @@ public class SessionLogsService {
         if (dto.getStatus() != null) {
             sessionLog.setStatus(dto.getStatus());
             if (dto.getStatus() == SessionLogs.LogStatus.Completed && sessionLog.getCompletedAt() == null) {
-                sessionLog.setCompletedAt(LocalDateTime.now());
+                sessionLog.setCompletedAt(Instant.now());
             }
         }
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
