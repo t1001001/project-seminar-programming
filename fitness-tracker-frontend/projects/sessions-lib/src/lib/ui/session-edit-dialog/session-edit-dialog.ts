@@ -72,8 +72,8 @@ export class SessionEditDialogComponent {
 
   readonly sessionForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(MIN_NAME_LENGTH)]],
-    planId: ['', [Validators.required]],
-    orderID: [null, [Validators.required, Validators.min(1), Validators.max(MAX_ORDER_VALUE)]],
+    planId: [''],
+    orderID: [null, [Validators.min(1), Validators.max(MAX_ORDER_VALUE)]],
   });
 
   readonly addExerciseForm: FormGroup = this.fb.group({
@@ -95,6 +95,10 @@ export class SessionEditDialogComponent {
   // Public API
   /** Returns FormArray controls cast to FormGroup for template iteration. */
   get exerciseControls(): FormGroup[] { return this.exercisesArray.controls as FormGroup[]; }
+  /** Checks if there are no plans available in the system. */
+  hasNoPlans(): boolean { return this.plans.length === 0; }
+  /** Checks if the session is orphaned (no planId assigned). */
+  isOrphanedSession(): boolean { return this.isEditMode() && !this.sessionForm.get('planId')?.value; }
   isEditMode(): boolean { return !!this.sessionId; }
   availableExercises(): Exercise[] { return getAvailableExercises(this.exercises, this.exercisesArray); }
   hasAvailableExercises(): boolean { return this.availableExercises().length > 0; }
@@ -222,9 +226,30 @@ export class SessionEditDialogComponent {
 
   private loadPlans(): void {
     this.sessionService.getPlans().pipe(
-      take(1), tap((plans) => this.plans = plans),
+      take(1), tap((plans) => {
+        this.plans = plans;
+        this.updatePlanValidators();
+      }),
       catchError(() => { showError(this.snackBar, 'Failed to load plans'); return of([] as PlanSummary[]); })
     ).subscribe(() => this.repopulateIfEditMode());
+  }
+
+  /**
+   * Updates planId and orderID validators based on whether plans exist.
+   * When no plans exist, these fields are not required.
+   */
+  private updatePlanValidators(): void {
+    const planIdControl = this.sessionForm.get('planId');
+    const orderIdControl = this.sessionForm.get('orderID');
+    if (this.plans.length > 0) {
+      planIdControl?.setValidators([Validators.required]);
+      orderIdControl?.setValidators([Validators.required, Validators.min(1), Validators.max(MAX_ORDER_VALUE)]);
+    } else {
+      planIdControl?.clearValidators();
+      orderIdControl?.clearValidators();
+    }
+    planIdControl?.updateValueAndValidity({ emitEvent: false });
+    orderIdControl?.updateValueAndValidity({ emitEvent: false });
   }
 
   private setupFormSubscriptions(): void {
