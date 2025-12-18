@@ -12,7 +12,6 @@ import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
 @Setter
 public class SessionLogsResponseDto {
     private UUID id;
-    private Integer sessionID;
     private String sessionName;
     private String sessionPlanName;
     private String sessionPlan;

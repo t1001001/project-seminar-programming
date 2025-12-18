@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsCreateDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsResponseDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsUpdateDto;
 import hs.aalen.fitness_tracker_backend.sessionlogs.service.SessionLogsService;

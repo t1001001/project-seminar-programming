@@ -46,13 +46,13 @@ public class SessionLogsService {
         session.setSessionLogCount(currentCount + 1);
         // Create SessionLogs with denormalized data
         SessionLogs sessionLog = new SessionLogs();
-        sessionLog.setSessionID(currentCount + 1);
         sessionLog.setSessionName(session.getName());
         sessionLog.setSessionPlanName(session.getPlan() != null ? session.getPlan().getName() : "No Plan");
         sessionLog.setSessionPlan(session.getPlan() != null ? session.getPlan().getDescription() : "");
         sessionLog.setStartedAt(LocalDateTime.now());
         sessionLog.setStatus(SessionLogs.LogStatus.InProgress);
-        // Store original session ID for reference (not a foreign key - allows deletion of original)
+        // Store original session ID for reference (not a foreign key - allows deletion
+        // of original)
         sessionLog.setOriginalSessionId(session.getId());
         // Save session log first to get ID
         SessionLogs savedLog = sessionLogsRepository.save(sessionLog);
@@ -176,7 +176,6 @@ public class SessionLogsService {
     private SessionLogsResponseDto mapToResponseDto(SessionLogs sessionLog) {
         SessionLogsResponseDto dto = new SessionLogsResponseDto();
         dto.setId(sessionLog.getId());
-        dto.setSessionID(sessionLog.getSessionID());
         dto.setSessionName(sessionLog.getSessionName());
         dto.setSessionPlanName(sessionLog.getSessionPlanName());
         dto.setSessionPlan(sessionLog.getSessionPlan());

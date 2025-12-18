@@ -19,8 +19,6 @@ public class SessionLogs {
     private UUID id;
 
     @Column(nullable = false)
-    private Integer sessionID;
-    @Column(nullable = false)
     private String sessionName;
     @Column(nullable = false)
     private String sessionPlanName;
