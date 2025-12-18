@@ -26,12 +26,19 @@ export function validateSessionFields(payload: SessionPayload, operation: 'creat
     if (!name) {
         return { valid: false, error: throwError(() => new Error(ERROR_MESSAGES.SESSION_NAME_REQUIRED)) };
     }
-    if (!payload.planId) {
-        const message = `${ERROR_MESSAGES.PLAN_REQUIRED} to ${operation} a session`;
-        return { valid: false, error: throwError(() => new Error(message)) };
+    if (operation === 'create') {
+        if (!payload.planId) {
+            const message = `${ERROR_MESSAGES.PLAN_REQUIRED} to ${operation} a session`;
+            return { valid: false, error: throwError(() => new Error(message)) };
+        }
+        if (payload.orderID == null || payload.orderID < 1 || payload.orderID > MAX_ORDER_VALUE) {
+            return { valid: false, error: throwError(() => new Error(`Order must be between 1 and ${MAX_ORDER_VALUE}`)) };
+        }
     }
-    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > MAX_ORDER_VALUE) {
-        return { valid: false, error: throwError(() => new Error(`Order must be between 1 and ${MAX_ORDER_VALUE}`)) };
+    if (operation === 'update' && payload.planId) {
+        if (payload.orderID == null || payload.orderID < 1 || payload.orderID > MAX_ORDER_VALUE) {
+            return { valid: false, error: throwError(() => new Error(`Order must be between 1 and ${MAX_ORDER_VALUE}`)) };
+        }
     }
     return { valid: true };
 }

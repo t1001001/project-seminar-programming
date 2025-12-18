@@ -164,8 +164,8 @@ export class SessionLogicService {
 
     const sessionUpdate: SessionUpdate = {
       name: payload.name!.trim(),
-      planId: payload.planId!,
-      orderID: payload.orderID!
+      ...(payload.planId && { planId: payload.planId }),
+      ...(payload.orderID && { orderID: payload.orderID })
     };
 
     return this.sessionProvider.updateSession(sessionId, sessionUpdate).pipe(
