@@ -12,6 +12,7 @@ import { TrainingPlan, TrainingPlanCreate } from '../../provider-services/plan-p
 import { PlanCardComponent } from '../../ui/plan-card/plan-card';
 import { PlanFormDialogComponent } from '../../ui/plan-form-dialog/plan-form-dialog';
 import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-delete-dialog';
+import { showError, showSuccess } from '../../shared';
 
 @Component({
     selector: 'lib-plans-overview',
@@ -26,6 +27,7 @@ import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-dele
     styleUrl: './plans-overview.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class PlansOverviewComponent {
     private readonly planService = inject(PlanLogicService);
     private readonly dialog = inject(MatDialog);
@@ -58,10 +60,7 @@ export class PlansOverviewComponent {
         );
     });
 
-    // Expose total count for the badge
     readonly totalPlansCount = computed(() => this.plans()?.length);
-
-
 
     private refreshPlans(): void {
         this.refreshTrigger$.next();
@@ -78,17 +77,9 @@ export class PlansOverviewComponent {
                 this.planService.createPlan(result).subscribe({
                     next: () => {
                         this.refreshPlans();
-                        this.snackBar.open('Training plan created successfully!', 'Close', {
-                            duration: 3000,
-                            panelClass: ['success-snackbar']
-                        });
+                        showSuccess(this.snackBar, 'Training plan created successfully!');
                     },
-                    error: (err) => {
-                        this.snackBar.open(err.message, 'Close', {
-                            duration: 5000,
-                            panelClass: ['error-snackbar']
-                        });
-                    }
+                    error: (err) => showError(this.snackBar, err.message)
                 });
             }
         });
@@ -105,17 +96,9 @@ export class PlansOverviewComponent {
                 this.planService.deletePlan(plan.id).subscribe({
                     next: () => {
                         this.refreshPlans();
-                        this.snackBar.open('Training plan deleted successfully!', 'Close', {
-                            duration: 3000,
-                            panelClass: ['success-snackbar']
-                        });
+                        showSuccess(this.snackBar, 'Training plan deleted successfully!');
                     },
-                    error: (err) => {
-                        this.snackBar.open(err.message, 'Close', {
-                            duration: 5000,
-                            panelClass: ['error-snackbar']
-                        });
-                    }
+                    error: (err) => showError(this.snackBar, err.message)
                 });
             }
         });

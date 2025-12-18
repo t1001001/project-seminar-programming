@@ -11,9 +11,7 @@ import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
 import { SessionDetail, SessionLogicService } from '../../logic-services/session-logic.service';
 import { SessionEditDialogComponent } from '../../ui/session-edit-dialog/session-edit-dialog';
 import { WorkoutLogicService, WorkoutStartDialogComponent } from 'workouts-lib';
-
-const SNACKBAR_SUCCESS_DURATION = 3000;
-const SNACKBAR_ERROR_DURATION = 5000;
+import { showError, showSuccess } from '../../shared';
 
 @Component({
   selector: 'lib-session-detail',
@@ -28,6 +26,7 @@ const SNACKBAR_ERROR_DURATION = 5000;
   styleUrl: './session-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class SessionDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -37,22 +36,13 @@ export class SessionDetailComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
 
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+
   session$: Observable<SessionDetail | null> | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.session$ = this.refreshTrigger$.pipe(
-        switchMap(() => this.sessionService.getSessionDetail(id)),
-        catchError((err) => {
-          this.snackBar.open(err.message, 'Close', {
-            duration: SNACKBAR_ERROR_DURATION,
-            panelClass: ['error-snackbar']
-          });
-          this.router.navigate(['/sessions']);
-          return of(null);
-        })
-      );
+      this.initializeSessionObservable(id);
     } else {
       this.router.navigate(['/sessions']);
     }
@@ -73,51 +63,14 @@ export class SessionDetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((updated: boolean) => {
       if (updated) {
         this.refresh();
-        this.snackBar.open('Session updated successfully!', 'Close', {
-          duration: SNACKBAR_SUCCESS_DURATION,
-          panelClass: ['success-snackbar']
-        });
+        showSuccess(this.snackBar, 'Session updated successfully!');
       }
     });
   }
 
   onStart(session: SessionDetail): void {
-    // Validate session has at least one exercise
-    if (!session.exercises || session.exercises.length === 0) {
-      this.snackBar.open('Cannot start workout: Session must contain at least one exercise.', 'Close', {
-        duration: SNACKBAR_ERROR_DURATION,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    const confirmRef = this.dialog.open(WorkoutStartDialogComponent, {
-      width: '420px',
-      panelClass: 'custom-dialog-container',
-      data: { sessionName: session.name }
-    });
-
-    confirmRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) {
-        return;
-      }
-
-      this.workoutService.startWorkout(session.id).subscribe({
-        next: (workoutLog) => {
-          this.snackBar.open('Workout created successfully. Redirecting...', 'Close', {
-            duration: SNACKBAR_SUCCESS_DURATION,
-            panelClass: ['success-snackbar']
-          });
-          this.router.navigate(['/workouts', workoutLog.id]);
-        },
-        error: (err) => {
-          this.snackBar.open(err.message, 'Close', {
-            duration: SNACKBAR_ERROR_DURATION,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
-    });
+    if (!this.validateSessionForWorkout(session)) return;
+    this.showWorkoutConfirmation(session);
   }
 
   refresh(): void {
@@ -128,5 +81,48 @@ export class SessionDetailComponent implements OnInit {
     if (exercise.exerciseId) {
       this.router.navigate(['/exercises', exercise.exerciseId]);
     }
+  }
+
+  private initializeSessionObservable(id: string): void {
+    this.session$ = this.refreshTrigger$.pipe(
+      switchMap(() => this.sessionService.getSessionDetail(id)),
+      catchError((err) => {
+        showError(this.snackBar, err.message);
+        this.router.navigate(['/sessions']);
+        return of(null);
+      })
+    );
+  }
+
+  private validateSessionForWorkout(session: SessionDetail): boolean {
+    if (!session.exercises || session.exercises.length === 0) {
+      showError(this.snackBar, 'Cannot start workout: Session must contain at least one exercise.');
+      return false;
+    }
+    return true;
+  }
+
+  private showWorkoutConfirmation(session: SessionDetail): void {
+    const confirmRef = this.dialog.open(WorkoutStartDialogComponent, {
+      width: '420px',
+      panelClass: 'custom-dialog-container',
+      data: { sessionName: session.name }
+    });
+
+    confirmRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.startWorkout(session);
+      }
+    });
+  }
+
+  private startWorkout(session: SessionDetail): void {
+    this.workoutService.startWorkout(session.id).subscribe({
+      next: (workoutLog: { id: string }) => {
+        showSuccess(this.snackBar, 'Workout created successfully. Redirecting...');
+        this.router.navigate(['/workouts', workoutLog.id]);
+      },
+      error: (err: Error) => showError(this.snackBar, err.message)
+    });
   }
 }

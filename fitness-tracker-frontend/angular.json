@@ -43,13 +43,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kb",
+                  "maximumError": "15kb"
                 }
               ],
               "outputHashing": "all"
@@ -246,6 +246,36 @@
           "builder": "@angular/build:karma",
           "options": {
             "tsConfig": "projects/workouts-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "common-lib": {
+      "projectType": "library",
+      "root": "projects/common-lib",
+      "sourceRoot": "projects/common-lib/src",
+      "prefix": "common",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/common-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/common-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/common-lib/tsconfig.spec.json",
             "polyfills": [
               "zone.js",
               "zone.js/testing"

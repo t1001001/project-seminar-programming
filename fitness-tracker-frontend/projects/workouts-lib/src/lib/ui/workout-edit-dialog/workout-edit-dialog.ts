@@ -13,9 +13,7 @@ import { Subscription } from 'rxjs';
 
 import { WorkoutLogicService, WorkoutLogWithExecutions, WorkoutExecutionInput } from '../../logic-services/workout-logic.service';
 import { WorkoutCompleteConfirmDialogComponent } from '../workout-complete-confirm-dialog/workout-complete-confirm-dialog';
-
-const SNACKBAR_SUCCESS_DURATION = 3000;
-const SNACKBAR_ERROR_DURATION = 5000;
+import { showError, showSuccess } from '../../shared';
 
 export interface WorkoutEditDialogData {
   workoutLogId: string;
@@ -38,6 +36,7 @@ export interface WorkoutEditDialogData {
   styleUrl: './workout-edit-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class WorkoutEditDialogComponent implements OnInit, OnDestroy {
   private readonly dialogRef = inject(MatDialogRef<WorkoutEditDialogComponent>);
   private readonly data = inject<WorkoutEditDialogData>(MAT_DIALOG_DATA);
@@ -94,10 +93,7 @@ export class WorkoutEditDialogComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.snackBar.open(err.message, 'Close', {
-          duration: SNACKBAR_ERROR_DURATION,
-          panelClass: ['error-snackbar']
-        });
+        showError(this.snackBar, err.message);
         this.dialogRef.close(false);
       }
     });
@@ -175,18 +171,12 @@ export class WorkoutEditDialogComponent implements OnInit, OnDestroy {
       this.workoutService.saveWorkout(workoutLog.id, executionUpdates, notes).subscribe({
         next: () => {
           this.isSaving.set(false);
-          this.snackBar.open('Workout progress saved successfully.', 'Close', {
-            duration: SNACKBAR_SUCCESS_DURATION,
-            panelClass: ['success-snackbar']
-          });
+          showSuccess(this.snackBar, 'Workout progress saved successfully.');
           this.dialogRef.close(true);
         },
         error: (err) => {
           this.isSaving.set(false);
-          this.snackBar.open(err.message, 'Close', {
-            duration: SNACKBAR_ERROR_DURATION,
-            panelClass: ['error-snackbar']
-          });
+          showError(this.snackBar, err.message);
         }
       });
     };
@@ -212,4 +202,3 @@ export class WorkoutEditDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close(false);
   }
 }
-

@@ -107,11 +107,9 @@
   justify-content: flex-start;
   gap: 0.6rem;
   padding: 0.35rem 0.75rem;
-  /* Closer to style guide padding */
   box-sizing: border-box;
   background-color: var(--fitness-bg-chip);
   border-radius: 12px;
-  /* Consistent with plan-card */
   border: 1px solid var(--fitness-border);
   min-width: unset;
   flex: 1;
@@ -138,7 +136,6 @@
   color: var(--fitness-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  /* Compliant with style guide */
   font-weight: 600;
   white-space: nowrap;
   flex: 1;

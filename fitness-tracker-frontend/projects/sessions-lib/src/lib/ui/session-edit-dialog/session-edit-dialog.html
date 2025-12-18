@@ -1,5 +1,5 @@
 <form class="session-form" [formGroup]="sessionForm" (ngSubmit)="onSave()">
-  <h2 mat-dialog-title>{{ isEditMode() ? 'Edit session' : 'Create a new session with exercises' }}</h2>
+  <h2 mat-dialog-title>Edit session</h2>
 
   <mat-dialog-content class="session-dialog">
     <p class="required-hint">* Required fields</p>
@@ -28,7 +28,6 @@
           <mat-error>Select a plan</mat-error>
           }
         </mat-form-field>
-
         <div class="field-divider"></div>
       </div>
     </div>
@@ -120,9 +119,9 @@
           <mat-select formControlName="exerciseId" required [disabled]="!hasAvailableExercises()">
             <mat-select-trigger>
               @if (hasAvailableExercises()) {
-                {{ getExerciseName(addExerciseForm.get('exerciseId')?.value) || 'Select exercise' }}
+              {{ getExerciseName(addExerciseForm.get('exerciseId')?.value) || 'Select exercise' }}
               } @else {
-                No more exercises available to add
+              No more exercises available to add
               }
             </mat-select-trigger>
             @for (exercise of availableExercises(); track exercise.id) {

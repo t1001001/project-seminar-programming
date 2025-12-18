@@ -13,6 +13,7 @@ import { forkJoin, of, switchMap, Observable } from 'rxjs';
 import { PlanLogicService } from '../../logic-services/plan-logic.service';
 import { TrainingPlan, TrainingPlanUpdate, Session } from '../../provider-services/plan-provider.service';
 import { SessionLogicService } from 'sessions-lib';
+import { showError } from '../../shared';
 
 export interface PlanEditDialogData {
   plan: TrainingPlan;
@@ -34,6 +35,7 @@ export interface PlanEditDialogData {
   styleUrl: './plan-edit-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class PlanEditDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<PlanEditDialogComponent>);
   private readonly dialogData = inject<PlanEditDialogData>(MAT_DIALOG_DATA);
@@ -93,10 +95,7 @@ export class PlanEditDialogComponent implements OnInit {
     };
 
     if (!payload.name) {
-      this.snackBar.open('Name is required', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      showError(this.snackBar, 'Name is required');
       return;
     }
 
@@ -144,10 +143,7 @@ export class PlanEditDialogComponent implements OnInit {
         },
         error: (err: any) => {
           this.isSaving = false;
-          this.snackBar.open(err?.message || 'Failed to update plan', 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          showError(this.snackBar, err?.message || 'Failed to update plan');
         }
       });
   }

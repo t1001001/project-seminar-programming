@@ -1,12 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, Subject, catchError, forkJoin, map, of, switchMap, tap, throwError } from 'rxjs';
+import { Observable, Subject, catchError, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import {
   WorkoutProviderService,
   WorkoutLog,
   WorkoutExecutionLog,
   WorkoutExecutionLogUpdate,
-  WorkoutLogUpdate
 } from '../provider-services/workout-provider.service';
+import { handleWorkoutError, createWorkoutErrorConfig } from '../shared';
 
 export interface WorkoutLogWithExecutions extends WorkoutLog {
   executions: WorkoutExecutionLog[];
@@ -25,7 +25,6 @@ export interface WorkoutExecutionInput {
 export class WorkoutLogicService {
   private readonly workoutProvider = inject(WorkoutProviderService);
 
-  // Event emission for cross-component communication
   private readonly workoutCompletedSubject = new Subject<WorkoutLog>();
   workoutCompleted$ = this.workoutCompletedSubject.asObservable();
 
@@ -37,53 +36,15 @@ export class WorkoutLogicService {
 
   startWorkout(sessionId: string): Observable<WorkoutLogWithExecutions> {
     return this.workoutProvider.startWorkout(sessionId).pipe(
-      switchMap((workoutLog) =>
-        this.workoutProvider.getExecutionLogsByWorkoutLogId(workoutLog.id).pipe(
-          map((executions) => ({
-            ...workoutLog,
-            executions: executions.sort((a, b) => a.exerciseExecutionId - b.exerciseExecutionId)
-          })),
-          catchError(() => of({ ...workoutLog, executions: [] as WorkoutExecutionLog[] }))
-        )
-      ),
-      catchError((err) => {
-        let errorMessage = 'Failed to start workout';
-
-        if (err.status === 404) {
-          errorMessage = 'Workout session not found. It may have been deleted.';
-        } else if (err.status === 400) {
-          errorMessage = 'Cannot start workout: Session must contain at least one exercise.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      switchMap((workoutLog) => this.enrichWithExecutions(workoutLog)),
+      catchError((err) => handleWorkoutError(err, createWorkoutErrorConfig('start')))
     );
   }
 
   getWorkoutLogWithExecutions(workoutLogId: string): Observable<WorkoutLogWithExecutions> {
     return this.workoutProvider.getWorkoutLogById(workoutLogId).pipe(
-      switchMap((workoutLog) =>
-        this.workoutProvider.getExecutionLogsByWorkoutLogId(workoutLog.id).pipe(
-          map((executions) => ({
-            ...workoutLog,
-            executions: executions.sort((a, b) => a.exerciseExecutionId - b.exerciseExecutionId)
-          })),
-          catchError(() => of({ ...workoutLog, executions: [] as WorkoutExecutionLog[] }))
-        )
-      ),
-      catchError((err) => {
-        let errorMessage = 'Failed to load workout log';
-
-        if (err.status === 404) {
-          errorMessage = 'Workout log not found.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      switchMap((workoutLog) => this.enrichWithExecutions(workoutLog)),
+      catchError((err) => handleWorkoutError(err, createWorkoutErrorConfig('load')))
     );
   }
 
@@ -92,7 +53,6 @@ export class WorkoutLogicService {
     executionUpdates: WorkoutExecutionInput[],
     notes?: string
   ): Observable<WorkoutLog> {
-    // Update all execution logs
     const executionUpdateCalls = executionUpdates.map((update) => {
       const payload: WorkoutExecutionLogUpdate = {
         actualSets: update.actualSets,
@@ -104,24 +64,17 @@ export class WorkoutLogicService {
       return this.workoutProvider.updateExecutionLog(update.id, payload);
     });
 
-    // Update the workout log notes if provided
     const workoutUpdateCall = notes !== undefined
       ? this.workoutProvider.updateWorkoutLog(workoutLogId, { notes })
       : of(null);
 
-    // Check if all exercises are completed
     const allCompleted = executionUpdates.every((update) => update.completed);
 
     return forkJoin([workoutUpdateCall, ...executionUpdateCalls]).pipe(
-      switchMap(() => {
-        if (allCompleted) {
-          // Complete the workout if all exercises are done
-          return this.workoutProvider.completeWorkout(workoutLogId);
-        } else {
-          // Just return the updated workout log (stays InProgress)
-          return this.workoutProvider.getWorkoutLogById(workoutLogId);
-        }
-      }),
+      switchMap(() => allCompleted
+        ? this.workoutProvider.completeWorkout(workoutLogId)
+        : this.workoutProvider.getWorkoutLogById(workoutLogId)
+      ),
       tap((workout) => {
         if (workout.status === 'Completed') {
           this.workoutCompletedSubject.next(workout);
@@ -129,19 +82,7 @@ export class WorkoutLogicService {
           this.workoutSavedSubject.next(workout);
         }
       }),
-      catchError((err) => {
-        let errorMessage = 'Failed to save workout';
-
-        if (err.status === 404) {
-          errorMessage = 'Workout log not found. It may have been deleted.';
-        } else if (err.status === 400) {
-          errorMessage = 'Invalid workout data. Please check all fields.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handleWorkoutError(err, createWorkoutErrorConfig('save')))
     );
   }
 
@@ -150,26 +91,13 @@ export class WorkoutLogicService {
     executionUpdates: WorkoutExecutionInput[],
     notes?: string
   ): Observable<WorkoutLog> {
-    // Legacy method - now just calls saveWorkout
     return this.saveWorkout(workoutLogId, executionUpdates, notes);
   }
 
   cancelWorkout(workoutLogId: string): Observable<WorkoutLog> {
     return this.workoutProvider.cancelWorkout(workoutLogId).pipe(
-      tap((cancelledWorkout) => {
-        this.workoutCancelledSubject.next(cancelledWorkout);
-      }),
-      catchError((err) => {
-        let errorMessage = 'Failed to cancel workout';
-
-        if (err.status === 404) {
-          errorMessage = 'Workout log not found. It may have been deleted.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      tap((cancelledWorkout) => this.workoutCancelledSubject.next(cancelledWorkout)),
+      catchError((err) => handleWorkoutError(err, createWorkoutErrorConfig('cancel')))
     );
   }
 
@@ -178,15 +106,7 @@ export class WorkoutLogicService {
       map((logs) => logs.sort((a, b) =>
         new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
       )),
-      catchError((err) => {
-        let errorMessage = 'Failed to load workout logs';
-
-        if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handleWorkoutError(err, createWorkoutErrorConfig('loadAll')))
     );
   }
 
@@ -210,17 +130,17 @@ export class WorkoutLogicService {
 
   deleteWorkoutLog(id: string): Observable<void> {
     return this.workoutProvider.deleteWorkoutLog(id).pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to delete workout log';
+      catchError((err) => handleWorkoutError(err, createWorkoutErrorConfig('delete')))
+    );
+  }
 
-        if (err.status === 404) {
-          errorMessage = 'Workout log not found. It may have been already deleted.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+  private enrichWithExecutions(workoutLog: WorkoutLog): Observable<WorkoutLogWithExecutions> {
+    return this.workoutProvider.getExecutionLogsByWorkoutLogId(workoutLog.id).pipe(
+      map((executions) => ({
+        ...workoutLog,
+        executions: executions.sort((a, b) => a.exerciseExecutionId - b.exerciseExecutionId)
+      })),
+      catchError(() => of({ ...workoutLog, executions: [] as WorkoutExecutionLog[] }))
     );
   }
 }

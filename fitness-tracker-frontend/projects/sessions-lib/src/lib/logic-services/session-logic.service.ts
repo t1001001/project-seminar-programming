@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, combineLatest, concat, forkJoin, last, map, of, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, combineLatest, concat, last, map, of, switchMap } from 'rxjs';
 import {
   SessionProviderService,
   Session,
@@ -11,6 +11,13 @@ import {
   ExerciseExecutionUpdate
 } from '../provider-services/session-provider.service';
 import { ExerciseProviderService, Exercise } from 'exercises-lib';
+import {
+  handleHttpError,
+  createSessionErrorConfig,
+  validateSessionFields,
+  validateSessionWithExercises,
+  SessionExerciseInput
+} from '../shared';
 
 export interface SessionOverview extends Session {
   planName?: string;
@@ -24,16 +31,6 @@ export interface SessionExerciseDetail extends ExerciseExecution {
   category?: string;
 }
 
-export interface SessionExerciseInput {
-  id?: string;
-  exerciseId: string;
-  plannedSets: number;
-  plannedReps: number;
-  plannedWeight: number;
-  orderID?: number;
-  category?: Exercise['category'];
-}
-
 export interface SessionCreatePayload extends SessionCreate {
   exercises: SessionExerciseInput[];
 }
@@ -44,25 +41,20 @@ export interface SessionUpdatePayload extends SessionUpdate {
 
 @Injectable({ providedIn: 'root' })
 export class SessionLogicService {
-  private readonly MAX_ORDER_VALUE = 30;
   private readonly sessionProvider = inject(SessionProviderService);
   private readonly exerciseProvider = inject(ExerciseProviderService);
 
   getAllSessions(): Observable<SessionOverview[]> {
     return this.sessionProvider.getAllSessions().pipe(
       switchMap((sessions) => {
-        if (!sessions || sessions.length === 0) {
-          return of([] as SessionOverview[]);
-        }
+        if (!sessions?.length) return of([] as SessionOverview[]);
 
-        const plan$ = this.sessionProvider.getPlans().pipe(
-          catchError(() => of([] as PlanSummary[]))
-        );
-
-        return combineLatest([of(sessions), plan$]).pipe(
+        return combineLatest([
+          of(sessions),
+          this.sessionProvider.getPlans().pipe(catchError(() => of([] as PlanSummary[])))
+        ]).pipe(
           map(([sessionList, plans]) => {
             const planMap = new Map(plans.map(plan => [plan.id, plan.name]));
-
             return sessionList.map((session) => ({
               ...session,
               planName: planMap.get(session.planId ?? '') ?? 'No plan',
@@ -73,196 +65,82 @@ export class SessionLogicService {
           })
         );
       }),
-      catchError((err) => {
-        let errorMessage = 'Failed to load sessions';
-
-        if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handleHttpError(err, createSessionErrorConfig('load')))
     );
   }
 
   getSessionDetail(sessionId: string): Observable<SessionDetail> {
     return this.sessionProvider.getSessionById(sessionId).pipe(
-      switchMap((session) => {
-        const plan$ = this.sessionProvider.getPlans()
-          .pipe(catchError(() => of([] as PlanSummary[])));
-
-        const exercises$ = this.sessionProvider.getExerciseExecutionsBySession(sessionId).pipe(
+      switchMap((session) => combineLatest([
+        of(session),
+        this.sessionProvider.getPlans().pipe(catchError(() => of([] as PlanSummary[]))),
+        this.sessionProvider.getExerciseExecutionsBySession(sessionId).pipe(
           map((exercises) => [...exercises].sort((a, b) => (a.orderID ?? 0) - (b.orderID ?? 0))),
           catchError(() => of([] as ExerciseExecution[]))
-        );
+        ),
+        this.exerciseProvider.getAllExercises().pipe(catchError(() => of([] as Exercise[])))
+      ]).pipe(
+        map(([baseSession, plans, exercises, exerciseDefinitions]) => {
+          const planName = plans.find(plan => plan.id === baseSession.planId)?.name ?? 'No plan';
+          const exerciseMap = new Map(exerciseDefinitions.map((item) => [item.id, item]));
 
-        const exerciseDefinitions$ = this.exerciseProvider.getAllExercises().pipe(
-          catchError(() => of([] as Exercise[]))
-        );
-
-        return combineLatest([of(session), plan$, exercises$, exerciseDefinitions$]).pipe(
-          map(([baseSession, plans, exercises, exerciseDefinitions]) => {
-            const planName = plans.find(plan => plan.id === baseSession.planId)?.name ?? 'No plan';
-            const exerciseMap = new Map(exerciseDefinitions.map((item) => [item.id, item]));
-
-            const detailedExercises: SessionExerciseDetail[] = exercises.map((exercise) => {
-              const exerciseDefinition = exercise.exerciseId ? exerciseMap.get(exercise.exerciseId) : undefined;
-              return {
-                ...exercise,
-                category: exerciseDefinition?.category
-              };
-            });
-
-            return {
-              ...baseSession,
-              planName,
-              orderID: baseSession.orderID ?? 0,
-              exerciseExecutionsCount: baseSession.exerciseExecutionsCount ?? exercises.length,
-              sessionLogCount: baseSession.sessionLogCount ?? 0,
-              exercises: detailedExercises
-            };
-          })
-        );
-      }),
-      catchError((err) => {
-        let errorMessage = 'Failed to load session';
-
-        if (err?.message) {
-          errorMessage = err.message;
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+          return {
+            ...baseSession,
+            planName,
+            orderID: baseSession.orderID ?? 0,
+            exerciseExecutionsCount: baseSession.exerciseExecutionsCount ?? exercises.length,
+            sessionLogCount: baseSession.sessionLogCount ?? 0,
+            exercises: exercises.map((exercise) => ({
+              ...exercise,
+              category: exercise.exerciseId ? exerciseMap.get(exercise.exerciseId)?.category : undefined
+            }))
+          };
+        })
+      )),
+      catchError((err) => handleHttpError(err, createSessionErrorConfig('load')))
     );
   }
 
   deleteSession(id: string): Observable<void> {
     return this.sessionProvider.deleteSession(id).pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to delete session';
-
-        if (err.status === 404) {
-          errorMessage = 'Session not found. It may have been already deleted.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handleHttpError(err, createSessionErrorConfig('delete')))
     );
   }
 
   updateSession(id: string, session: SessionUpdate): Observable<Session> {
     return this.sessionProvider.updateSession(id, session).pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to update session';
-
-        if (err.status === 404) {
-          errorMessage = 'Session not found. It may have been deleted.';
-        } else if (err.status === 409) {
-          errorMessage = err.error || 'A session with this position already exists in this plan.';
-        } else if (err.status === 400) {
-          errorMessage = 'Invalid session data. Please check all fields.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handleHttpError(err, createSessionErrorConfig('update')))
     );
   }
 
   createSession(payload: SessionCreate): Observable<Session> {
-    const name = payload.name?.trim();
-    if (!name) {
-      return throwError(() => new Error('Session name is required'));
-    }
-    if (!payload.planId) {
-      return throwError(() => new Error('Plan is required to create a session'));
-    }
-    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > this.MAX_ORDER_VALUE) {
-      return throwError(() => new Error(`Order must be between 1 and ${this.MAX_ORDER_VALUE}`));
-    }
+    const validation = validateSessionFields(payload, 'create');
+    if (!validation.valid) return validation.error;
 
     const sessionRequest: SessionCreate = {
-      name,
-      planId: payload.planId,
-      orderID: payload.orderID
+      name: payload.name!.trim(),
+      planId: payload.planId!,
+      orderID: payload.orderID!
     };
 
     return this.sessionProvider.createSession(sessionRequest).pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to create session';
-        const positionLabel = sessionRequest.orderID ?? payload.orderID;
-        const conflictMessage = typeof err?.error === 'string' && err.error.trim()
-          ? err.error
-          : '';
-
-        if (err?.status === 409) {
-          const positionText = positionLabel != null
-            ? `A session with position ${positionLabel} already exists in this plan.`
-            : 'A session with this position already exists in this plan.';
-          errorMessage = conflictMessage || positionText;
-        } else if (err?.status === 400) {
-          errorMessage = 'Invalid session data. Please check all fields.';
-        } else if (err?.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        } else if (err?.message) {
-          errorMessage = err.message;
-        }
-
-        const error = Object.assign(new Error(errorMessage), { status: err?.status, error: err?.error });
-        return throwError(() => error);
-      })
+      catchError((err) => handleHttpError(err, createSessionErrorConfig('create')))
     );
   }
 
   createSessionWithExercises(payload: SessionCreatePayload): Observable<Session> {
-    const name = payload.name?.trim();
-    if (!name) {
-      return throwError(() => new Error('Session name is required'));
-    }
-    if (!payload.planId) {
-      return throwError(() => new Error('Plan is required to create a session'));
-    }
-    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > this.MAX_ORDER_VALUE) {
-      return throwError(() => new Error(`Order must be between 1 and ${this.MAX_ORDER_VALUE}`));
-    }
-
-    const exerciseIds = new Set<string>();
-    for (const exercise of payload.exercises || []) {
-      if (exerciseIds.has(exercise.exerciseId)) {
-        return throwError(() => new Error('Each exercise can only be added once to the session'));
-      }
-      exerciseIds.add(exercise.exerciseId);
-
-      if (!exercise.plannedSets || exercise.plannedSets <= 0) {
-        return throwError(() => new Error('Sets must be greater than 0'));
-      }
-      if (!exercise.plannedReps || exercise.plannedReps <= 0) {
-        return throwError(() => new Error('Reps must be greater than 0'));
-      }
-      if (exercise.plannedWeight == null || exercise.plannedWeight < 0) {
-        return throwError(() => new Error('Weight must be 0 or greater'));
-      }
-      if (exercise.category !== 'BodyWeight' && exercise.plannedWeight <= 0) {
-        return throwError(() => new Error('Weight must be greater than 0 for this exercise'));
-      }
-    }
+    const validation = validateSessionWithExercises(payload, 'create');
+    if (!validation.valid) return validation.error;
 
     const sessionRequest: SessionCreate = {
-      name,
-      planId: payload.planId,
-      orderID: payload.orderID
+      name: payload.name!.trim(),
+      planId: payload.planId!,
+      orderID: payload.orderID!
     };
 
     return this.sessionProvider.createSession(sessionRequest).pipe(
       switchMap((createdSession) => {
-        if (!payload.exercises?.length) {
-          return of(createdSession);
-        }
+        if (!payload.exercises?.length) return of(createdSession);
 
         const executionRequests: ExerciseExecutionCreate[] = payload.exercises.map((exercise, index) => ({
           sessionId: createdSession.id,
@@ -273,153 +151,37 @@ export class SessionLogicService {
           orderID: exercise.orderID ?? index + 1,
         }));
 
-        // Execute sequentially to avoid race conditions on the backend
         const createCalls = executionRequests.map(req => this.sessionProvider.createExerciseExecution(req));
-        return concat(...createCalls).pipe(
-          last(),
-          map(() => createdSession)
-        );
+        return concat(...createCalls).pipe(last(), map(() => createdSession));
       }),
-      catchError((err) => {
-        let errorMessage = 'Failed to create session';
-        const positionLabel = sessionRequest.orderID ?? payload.orderID;
-        const conflictMessage = typeof err?.error === 'string' && err.error.trim()
-          ? err.error
-          : '';
-
-        if (err?.status === 409) {
-          const positionText = positionLabel != null
-            ? `A session with position ${positionLabel} already exists in this plan.`
-            : 'A session with this position already exists in this plan.';
-          errorMessage = conflictMessage || positionText;
-        } else if (err?.status === 400) {
-          errorMessage = 'Invalid session data. Please check all fields.';
-        } else if (err?.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        } else if (err?.message) {
-          errorMessage = err.message;
-        }
-
-        const error = Object.assign(new Error(errorMessage), { status: err?.status, error: err?.error });
-        return throwError(() => error);
-      })
+      catchError((err) => handleHttpError(err, createSessionErrorConfig('create')))
     );
   }
 
   updateSessionWithExercises(sessionId: string, payload: SessionUpdatePayload): Observable<Session> {
-    const name = payload.name?.trim();
-    if (!name) {
-      return throwError(() => new Error('Session name is required'));
-    }
-    if (!payload.planId) {
-      return throwError(() => new Error('Plan is required to update a session'));
-    }
-    if (payload.orderID == null || payload.orderID < 1 || payload.orderID > this.MAX_ORDER_VALUE) {
-      return throwError(() => new Error(`Order must be between 1 and ${this.MAX_ORDER_VALUE}`));
-    }
-
-    const exerciseIds = new Set<string>();
-    for (const exercise of payload.exercises || []) {
-      if (exerciseIds.has(exercise.exerciseId)) {
-        return throwError(() => new Error('Each exercise can only be added once to the session'));
-      }
-      exerciseIds.add(exercise.exerciseId);
-
-      if (!exercise.plannedSets || exercise.plannedSets <= 0) {
-        return throwError(() => new Error('Sets must be greater than 0'));
-      }
-      if (!exercise.plannedReps || exercise.plannedReps <= 0) {
-        return throwError(() => new Error('Reps must be greater than 0'));
-      }
-      if (exercise.plannedWeight == null || exercise.plannedWeight < 0) {
-        return throwError(() => new Error('Weight must be 0 or greater'));
-      }
-      if (exercise.category !== 'BodyWeight' && exercise.plannedWeight <= 0) {
-        return throwError(() => new Error('Weight must be greater than 0 for this exercise'));
-      }
-    }
+    const validation = validateSessionWithExercises(payload, 'update');
+    if (!validation.valid) return validation.error;
 
     const sessionUpdate: SessionUpdate = {
-      name,
-      planId: payload.planId,
-      orderID: payload.orderID
+      name: payload.name!.trim(),
+      planId: payload.planId!,
+      orderID: payload.orderID!
     };
 
     return this.sessionProvider.updateSession(sessionId, sessionUpdate).pipe(
       switchMap((updatedSession) =>
         this.sessionProvider.getExerciseExecutionsBySession(sessionId).pipe(
-          switchMap((existingExecutions) => {
-            const desiredIds = new Set<string>();
-            const updateCalls: Observable<ExerciseExecution>[] = [];
-            const createCalls: Observable<ExerciseExecution>[] = [];
-
-            payload.exercises.forEach((exercise, idx) => {
-              const execId = exercise.id;
-              const request: ExerciseExecutionUpdate | ExerciseExecutionCreate = {
-                exerciseId: exercise.exerciseId,
-                plannedSets: exercise.plannedSets,
-                plannedReps: exercise.plannedReps,
-                plannedWeight: exercise.plannedWeight,
-                orderID: exercise.orderID ?? idx + 1,
-              };
-
-              if (execId) {
-                desiredIds.add(execId);
-                updateCalls.push(this.sessionProvider.updateExerciseExecution(execId, request));
-              } else {
-                createCalls.push(this.sessionProvider.createExerciseExecution({
-                  ...(request as ExerciseExecutionCreate),
-                  sessionId
-                }));
-              }
-            });
-
-            const deleteCalls = existingExecutions
-              .filter(exec => !desiredIds.has(exec.id))
-              .map(exec => this.sessionProvider.deleteExerciseExecution(exec.id));
-
-            // Execute sequentially to avoid race conditions on the backend
-            const allCalls = [...deleteCalls, ...updateCalls, ...createCalls];
-            if (!allCalls.length) {
-              return of(updatedSession);
-            }
-            return concat(...allCalls).pipe(
-              last(),
-              map(() => updatedSession)
-            );
-          })
+          switchMap((existingExecutions) =>
+            this.syncExerciseExecutions(sessionId, payload.exercises, existingExecutions, updatedSession)
+          )
         )
       ),
-      catchError((err) => {
-        let errorMessage = 'Failed to update session';
-        const positionLabel = payload.orderID;
-        const conflictMessage = typeof err?.error === 'string' && err.error.trim()
-          ? err.error
-          : '';
-
-        if (err?.status === 409) {
-          const positionText = positionLabel != null
-            ? `A session with position ${positionLabel} already exists in this plan.`
-            : 'A session with this position already exists in this plan.';
-          errorMessage = conflictMessage || positionText;
-        } else if (err?.status === 400) {
-          errorMessage = 'Invalid session data. Please check all fields.';
-        } else if (err?.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        } else if (err?.message) {
-          errorMessage = err.message;
-        }
-
-        const error = Object.assign(new Error(errorMessage), { status: err?.status, error: err?.error });
-        return throwError(() => error);
-      })
+      catchError((err) => handleHttpError(err, createSessionErrorConfig('update')))
     );
   }
 
   getNextAvailablePosition(planId: string, excludeSessionId?: string): Observable<number> {
-    if (!planId) {
-      return of(1);
-    }
+    if (!planId) return of(1);
 
     return this.sessionProvider.getAllSessions().pipe(
       map((sessions) => {
@@ -428,19 +190,13 @@ export class SessionLogicService {
           .map((session) => session.orderID)
           .filter((orderId): orderId is number => typeof orderId === 'number' && orderId > 0);
 
-        if (!usedPositions.length) {
-          return 1;
-        }
+        if (!usedPositions.length) return 1;
 
         const taken = new Set(usedPositions);
-        for (let i = 1; i <= this.MAX_ORDER_VALUE; i++) {
-          if (!taken.has(i)) {
-            return i;
-          }
+        for (let i = 1; i <= 30; i++) {
+          if (!taken.has(i)) return i;
         }
-
-        const max = Math.max(...usedPositions);
-        return Math.min(max + 1, this.MAX_ORDER_VALUE);
+        return Math.min(Math.max(...usedPositions) + 1, 30);
       }),
       catchError(() => of(1))
     );
@@ -448,29 +204,54 @@ export class SessionLogicService {
 
   getPlans(): Observable<PlanSummary[]> {
     return this.sessionProvider.getPlans().pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to load plans';
-
-        if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handleHttpError(err, { defaultMessage: 'Failed to load plans' }))
     );
   }
 
   getAllExercises(): Observable<Exercise[]> {
     return this.exerciseProvider.getAllExercises().pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to load exercises';
-
-        if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handleHttpError(err, { defaultMessage: 'Failed to load exercises' }))
     );
+  }
+
+  private syncExerciseExecutions(
+    sessionId: string,
+    exercises: SessionExerciseInput[],
+    existingExecutions: ExerciseExecution[],
+    updatedSession: Session
+  ): Observable<Session> {
+    const desiredIds = new Set<string>();
+    const updateCalls: Observable<ExerciseExecution>[] = [];
+    const createCalls: Observable<ExerciseExecution>[] = [];
+
+    exercises.forEach((exercise, idx) => {
+      const execId = exercise.id;
+      const request: ExerciseExecutionUpdate | ExerciseExecutionCreate = {
+        exerciseId: exercise.exerciseId,
+        plannedSets: exercise.plannedSets,
+        plannedReps: exercise.plannedReps,
+        plannedWeight: exercise.plannedWeight,
+        orderID: exercise.orderID ?? idx + 1,
+      };
+
+      if (execId) {
+        desiredIds.add(execId);
+        updateCalls.push(this.sessionProvider.updateExerciseExecution(execId, request));
+      } else {
+        createCalls.push(this.sessionProvider.createExerciseExecution({
+          ...(request as ExerciseExecutionCreate),
+          sessionId
+        }));
+      }
+    });
+
+    const deleteCalls = existingExecutions
+      .filter(exec => !desiredIds.has(exec.id))
+      .map(exec => this.sessionProvider.deleteExerciseExecution(exec.id));
+
+    const allCalls = [...deleteCalls, ...updateCalls, ...createCalls];
+    if (!allCalls.length) return of(updatedSession);
+
+    return concat(...allCalls).pipe(last(), map(() => updatedSession));
   }
 }
