@@ -11,6 +11,7 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
 import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card';
 import { ExerciseDeleteDialogComponent, DeleteDialogData } from '../../ui/exercise-delete-dialog/exercise-delete-dialog';
 import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exercise-form-dialog';
+import { showError, showSuccess } from '../../shared';
 
 @Component({
   selector: 'ex-exercises-overview',
@@ -19,6 +20,7 @@ import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exerc
   styleUrl: './exercises-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class ExercisesOverviewComponent {
   private readonly exerciseService = inject(ExerciseLogicService);
   private readonly dialog = inject(MatDialog);
@@ -54,8 +56,6 @@ export class ExercisesOverviewComponent {
 
   readonly totalExercisesCount = computed(() => this.exercises()?.length);
 
-
-
   private refreshExercises(): void {
     this.refreshTrigger$.next();
   }
@@ -71,21 +71,9 @@ export class ExercisesOverviewComponent {
         this.exerciseService.createExercise(result).subscribe({
           next: () => {
             this.refreshExercises();
-            this.snackBar.open('Exercise created successfully!', 'Close', {
-              duration: 3000,
-              horizontalPosition: 'center',
-              verticalPosition: 'bottom',
-              panelClass: ['success-snackbar']
-            });
+            showSuccess(this.snackBar, 'Exercise created successfully!');
           },
-          error: (err) => {
-            this.snackBar.open(err.message, 'Close', {
-              duration: 5000,
-              horizontalPosition: 'center',
-              verticalPosition: 'bottom',
-              panelClass: ['error-snackbar']
-            });
-          }
+          error: (err) => showError(this.snackBar, err.message)
         });
       }
     });
@@ -103,21 +91,9 @@ export class ExercisesOverviewComponent {
         this.exerciseService.removeExercise(id).subscribe({
           next: () => {
             this.refreshExercises();
-            this.snackBar.open('Exercise deleted successfully!', 'Close', {
-              duration: 3000,
-              horizontalPosition: 'center',
-              verticalPosition: 'bottom',
-              panelClass: ['success-snackbar']
-            });
+            showSuccess(this.snackBar, 'Exercise deleted successfully!');
           },
-          error: (err) => {
-            this.snackBar.open(err.message, 'Close', {
-              duration: 5000,
-              horizontalPosition: 'center',
-              verticalPosition: 'bottom',
-              panelClass: ['error-snackbar']
-            });
-          }
+          error: (err) => showError(this.snackBar, err.message)
         });
       }
     });

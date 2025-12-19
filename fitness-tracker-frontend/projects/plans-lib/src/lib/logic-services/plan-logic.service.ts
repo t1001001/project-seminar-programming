@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, Subject, tap, catchError, throwError } from 'rxjs';
+import { Observable, Subject, tap, catchError } from 'rxjs';
 import { PlanProviderService, TrainingPlan, TrainingPlanCreate, TrainingPlanUpdate } from '../provider-services/plan-provider.service';
+import { handlePlanError, createPlanErrorConfig } from '../shared';
 
 @Injectable({ providedIn: 'root' })
 export class PlanLogicService {
@@ -11,89 +12,32 @@ export class PlanLogicService {
 
   createPlan(plan: TrainingPlanCreate): Observable<TrainingPlan> {
     return this.planProviderService.createPlan(plan).pipe(
-      tap((createdPlan) => {
-        this.createdPlanSubject.next(createdPlan);
-      }),
-      catchError((err) => {
-        let errorMessage = 'Failed to create training plan';
-
-        if (err.status === 409) {
-          errorMessage = err.error || 'Training plan with this name already exists';
-        } else if (err.status === 400) {
-          errorMessage = 'Invalid training plan data. Please check all required fields.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      tap((createdPlan) => this.createdPlanSubject.next(createdPlan)),
+      catchError((err) => handlePlanError(err, createPlanErrorConfig('create')))
     );
   }
 
   getAllPlans(): Observable<TrainingPlan[]> {
-    return this.planProviderService.getAllPlans()
-      .pipe(
-        catchError((err) => {
-          let errorMessage = 'Failed to load training plans';
-
-          if (err.status === 0) {
-            errorMessage = 'Cannot connect to server. Please check your connection.';
-          }
-
-          return throwError(() => new Error(errorMessage));
-        })
-      );
+    return this.planProviderService.getAllPlans().pipe(
+      catchError((err) => handlePlanError(err, createPlanErrorConfig('loadAll')))
+    );
   }
 
   getPlanById(id: string): Observable<TrainingPlan> {
     return this.planProviderService.getPlanById(id).pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to load training plan details';
-
-        if (err.status === 404) {
-          errorMessage = 'Training plan not found. It may have been deleted.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handlePlanError(err, createPlanErrorConfig('load')))
     );
   }
 
   updatePlan(id: string, plan: TrainingPlanUpdate): Observable<TrainingPlan> {
     return this.planProviderService.updatePlan(id, plan).pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to update training plan';
-
-        if (err.status === 404) {
-          errorMessage = 'Training plan not found. It may have been deleted.';
-        } else if (err.status === 409) {
-          errorMessage = err.error || 'Training plan with this name already exists';
-        } else if (err.status === 400) {
-          errorMessage = 'Invalid training plan data. Please check all required fields.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handlePlanError(err, createPlanErrorConfig('update')))
     );
   }
 
   deletePlan(id: string): Observable<void> {
     return this.planProviderService.deletePlan(id).pipe(
-      catchError((err) => {
-        let errorMessage = 'Failed to delete training plan';
-
-        if (err.status === 404) {
-          errorMessage = 'Training plan not found. It may have been already deleted.';
-        } else if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check your connection.';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
+      catchError((err) => handlePlanError(err, createPlanErrorConfig('delete')))
     );
   }
 }

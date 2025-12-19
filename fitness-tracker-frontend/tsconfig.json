@@ -18,6 +18,9 @@
       ],
       "workouts-lib": [
         "./projects/workouts-lib/src/public-api"
+      ],
+      "common-lib": [
+        "./projects/common-lib/src/public-api"
       ]
     },
     "strict": true,
@@ -76,6 +79,12 @@
     },
     {
       "path": "./projects/workouts-lib/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/common-lib/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/common-lib/tsconfig.spec.json"
     }
   ]
 }

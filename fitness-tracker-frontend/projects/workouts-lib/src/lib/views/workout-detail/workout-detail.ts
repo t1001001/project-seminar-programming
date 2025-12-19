@@ -10,8 +10,7 @@ import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
 
 import { WorkoutLogicService, WorkoutLogWithExecutions } from '../../logic-services/workout-logic.service';
 import { WorkoutEditDialogComponent } from '../../ui/workout-edit-dialog/workout-edit-dialog';
-
-const SNACKBAR_ERROR_DURATION = 5000;
+import { showError } from '../../shared';
 
 @Component({
   selector: 'lib-workout-detail',
@@ -27,6 +26,7 @@ const SNACKBAR_ERROR_DURATION = 5000;
   styleUrl: './workout-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class WorkoutDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -35,6 +35,7 @@ export class WorkoutDetailComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
 
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+
   workoutLog$: Observable<WorkoutLogWithExecutions | null> | null = null;
   private currentWorkoutLogId: string | null = null;
 
@@ -45,10 +46,7 @@ export class WorkoutDetailComponent implements OnInit {
       this.workoutLog$ = this.refreshTrigger$.pipe(
         switchMap(() => this.workoutService.getWorkoutLogWithExecutions(id)),
         catchError((err) => {
-          this.snackBar.open(err.message, 'Close', {
-            duration: SNACKBAR_ERROR_DURATION,
-            panelClass: ['error-snackbar']
-          });
+          showError(this.snackBar, err.message);
           this.router.navigate(['/workouts']);
           return of(null);
         })

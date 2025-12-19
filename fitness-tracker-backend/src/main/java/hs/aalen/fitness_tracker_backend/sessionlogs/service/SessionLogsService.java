@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
+import hs.aalen.fitness_tracker_backend.executionlogs.dto.ExecutionLogsResponseDto;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository;
 import hs.aalen.fitness_tracker_backend.sessionlogs.dto.SessionLogsResponseDto;
@@ -14,7 +15,7 @@ import hs.aalen.fitness_tracker_backend.sessionlogs.repository.SessionLogsReposi
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,13 +46,13 @@ public class SessionLogsService {
         session.setSessionLogCount(currentCount + 1);
         // Create SessionLogs with denormalized data
         SessionLogs sessionLog = new SessionLogs();
-        sessionLog.setSessionID(currentCount + 1);
         sessionLog.setSessionName(session.getName());
         sessionLog.setSessionPlanName(session.getPlan() != null ? session.getPlan().getName() : "No Plan");
         sessionLog.setSessionPlan(session.getPlan() != null ? session.getPlan().getDescription() : "");
-        sessionLog.setStartedAt(LocalDateTime.now());
+        sessionLog.setStartedAt(Instant.now());
         sessionLog.setStatus(SessionLogs.LogStatus.InProgress);
-        // Store original session ID for reference (not a foreign key - allows deletion of original)
+        // Store original session ID for reference (not a foreign key - allows deletion
+        // of original)
         sessionLog.setOriginalSessionId(session.getId());
         // Save session log first to get ID
         SessionLogs savedLog = sessionLogsRepository.save(sessionLog);
@@ -90,7 +91,7 @@ public class SessionLogsService {
         SessionLogs sessionLog = sessionLogsRepository.findById(sessionLogId)
                 .orElseThrow(() -> new RuntimeException("SessionLog not found"));
         sessionLog.setStatus(SessionLogs.LogStatus.Completed);
-        sessionLog.setCompletedAt(LocalDateTime.now());
+        sessionLog.setCompletedAt(Instant.now());
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
         return mapToResponseDto(updated);
     }
@@ -106,7 +107,7 @@ public class SessionLogsService {
         }
 
         sessionLog.setStatus(SessionLogs.LogStatus.Cancelled);
-        sessionLog.setCompletedAt(LocalDateTime.now());
+        sessionLog.setCompletedAt(Instant.now());
 
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
         return mapToResponseDto(updated);
@@ -147,7 +148,7 @@ public class SessionLogsService {
         if (dto.getStatus() != null) {
             sessionLog.setStatus(dto.getStatus());
             if (dto.getStatus() == SessionLogs.LogStatus.Completed && sessionLog.getCompletedAt() == null) {
-                sessionLog.setCompletedAt(LocalDateTime.now());
+                sessionLog.setCompletedAt(Instant.now());
             }
         }
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
@@ -175,7 +176,6 @@ public class SessionLogsService {
     private SessionLogsResponseDto mapToResponseDto(SessionLogs sessionLog) {
         SessionLogsResponseDto dto = new SessionLogsResponseDto();
         dto.setId(sessionLog.getId());
-        dto.setSessionID(sessionLog.getSessionID());
         dto.setSessionName(sessionLog.getSessionName());
         dto.setSessionPlanName(sessionLog.getSessionPlanName());
         dto.setSessionPlan(sessionLog.getSessionPlan());
@@ -184,7 +184,36 @@ public class SessionLogsService {
         dto.setStatus(sessionLog.getStatus());
         dto.setNotes(sessionLog.getNotes());
         dto.setOriginalSessionId(sessionLog.getOriginalSessionId());
-        dto.setExecutionLogCount(sessionLog.getExecutionLogs().size());
+        List<ExecutionLogsResponseDto> executionLogs = mapExecutionLogs(sessionLog);
+        dto.setExecutionLogs(executionLogs);
+        dto.setExecutionLogCount(executionLogs.size());
+        return dto;
+    }
+
+    private List<ExecutionLogsResponseDto> mapExecutionLogs(SessionLogs sessionLog) {
+        return sessionLog.getExecutionLogs().stream()
+                .map(this::mapExecutionLog)
+                .collect(Collectors.toList());
+    }
+
+    private ExecutionLogsResponseDto mapExecutionLog(ExecutionLogs executionLog) {
+        ExecutionLogsResponseDto dto = new ExecutionLogsResponseDto();
+        dto.setId(executionLog.getId());
+        dto.setExerciseExecutionId(executionLog.getExerciseExecutionId());
+        dto.setExerciseExecutionPlannedSets(executionLog.getExerciseExecutionPlannedSets());
+        dto.setExerciseExecutionPlannedReps(executionLog.getExerciseExecutionPlannedReps());
+        dto.setExerciseExecutionPlannedWeight(executionLog.getExerciseExecutionPlannedWeight());
+        dto.setExerciseId(executionLog.getExerciseId());
+        dto.setExerciseName(executionLog.getExerciseName());
+        dto.setExerciseCategory(executionLog.getExerciseCategory());
+        dto.setExerciseMuscleGroup(executionLog.getExerciseMuscleGroup());
+        dto.setExerciseDescription(executionLog.getExerciseDescription());
+        dto.setActualSets(executionLog.getActualSets());
+        dto.setActualReps(executionLog.getActualReps());
+        dto.setActualWeight(executionLog.getActualWeight());
+        dto.setCompleted(executionLog.getCompleted());
+        dto.setNotes(executionLog.getNotes());
+        dto.setSessionLogId(executionLog.getSessionLog() != null ? executionLog.getSessionLog().getId() : null);
         return dto;
     }
 }

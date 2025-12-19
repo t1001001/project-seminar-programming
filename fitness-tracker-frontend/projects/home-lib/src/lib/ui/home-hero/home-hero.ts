@@ -19,7 +19,6 @@ import DrawSVGPlugin from 'gsap/DrawSVGPlugin';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeHeroComponent implements AfterViewInit, OnDestroy {
-  // Animation Constants
   private readonly SCROLL_START = 'top 80px';
   private readonly SCROLL_END = '+=5000';
   private readonly ANIMATION_DURATION_SLOGAN = 2;
@@ -31,24 +30,20 @@ export class HomeHeroComponent implements AfterViewInit, OnDestroy {
   private readonly EIGHTH_TURN = 0.125;
   private readonly QUARTER_TURN = 0.25;
 
-  // Geometry Constants
   private readonly PIE_CENTER_X = 30;
   private readonly PIE_CENTER_Y = 30;
   private readonly PIE_RADIUS = 50;
   private readonly PIE_TARGET_ANGLE = 270;
 
-  // Use viewChild signal for safer element access
   private readonly wrapper = viewChild.required<ElementRef<HTMLElement>>('wrapper');
   private readonly dialLogo = viewChild.required<ElementRef<SVGElement>>('dialLogo');
   private readonly slogan = viewChild.required<ElementRef<HTMLElement>>('slogan');
   private readonly scrollIndicator = viewChild.required<ElementRef<HTMLElement>>('scrollIndicator');
   private readonly dialContainer = viewChild.required<ElementRef<HTMLElement>>('dialContainer');
 
-  // SVG path elements
   private readonly logoFill = viewChild.required<ElementRef<SVGPathElement>>('logoFill');
   private readonly clipPath = viewChild.required<ElementRef<SVGPathElement>>('clipPath');
 
-  // Word elements
   private readonly wordTop = viewChild.required<ElementRef<HTMLElement>>('wordTop');
   private readonly wordRight = viewChild.required<ElementRef<HTMLElement>>('wordRight');
   private readonly wordBottom = viewChild.required<ElementRef<HTMLElement>>('wordBottom');

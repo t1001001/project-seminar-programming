@@ -11,6 +11,7 @@ import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from
 import { PlanLogicService } from '../../logic-services/plan-logic.service';
 import { TrainingPlan, Session } from '../../provider-services/plan-provider.service';
 import { PlanEditDialogComponent } from '../../ui/plan-edit-dialog/plan-edit-dialog';
+import { showError, showSuccess } from '../../shared';
 
 @Component({
   selector: 'lib-plan-detail',
@@ -26,6 +27,7 @@ import { PlanEditDialogComponent } from '../../ui/plan-edit-dialog/plan-edit-dia
   styleUrl: './plan-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class PlanDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -34,6 +36,7 @@ export class PlanDetailComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
 
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+
   plan$: Observable<TrainingPlan | null> | null = null;
   currentPlan: TrainingPlan | null = null;
 
@@ -46,14 +49,9 @@ export class PlanDetailComponent implements OnInit {
           ...plan,
           sessions: this.normalizeSessions(plan.sessions)
         })),
-        tap(plan => {
-          this.currentPlan = plan;
-        }),
+        tap(plan => this.currentPlan = plan),
         catchError((err) => {
-          this.snackBar.open(err.message, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          showError(this.snackBar, err.message);
           this.router.navigate(['/plans']);
           return of(null);
         })
@@ -76,10 +74,7 @@ export class PlanDetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((updated: boolean) => {
       if (updated) {
         this.refreshTrigger$.next();
-        this.snackBar.open('Training plan updated successfully!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        showSuccess(this.snackBar, 'Training plan updated successfully!');
       }
     });
   }

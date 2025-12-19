@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
 import { Exercise, ExerciseCategory } from '../../provider-services/exercise-provider.service';
+import { showError, showSuccess } from '../../shared';
 
 @Component({
   selector: 'ex-exercise-detail',
@@ -28,6 +29,7 @@ import { Exercise, ExerciseCategory } from '../../provider-services/exercise-pro
   styleUrl: './exercise-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class ExerciseDetailComponent implements OnInit {
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
@@ -38,6 +40,7 @@ export class ExerciseDetailComponent implements OnInit {
 
   private exerciseId: string | null = null;
   exercise: Exercise | null = null;
+
   isEditMode = false;
 
   readonly form: FormGroup = this.fb.group({
@@ -68,14 +71,7 @@ export class ExerciseDetailComponent implements OnInit {
         });
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        this.snackBar.open(err.message, 'Close', {
-          duration: 3000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-          panelClass: ['error-snackbar']
-        });
-      }
+      error: (err) => showError(this.snackBar, err.message)
     });
   }
 
@@ -104,21 +100,9 @@ export class ExerciseDetailComponent implements OnInit {
             muscleGroups: updatedExercise.muscleGroups.join(', '),
           });
           this.cdr.markForCheck();
-          this.snackBar.open('Exercise updated successfully!', 'Close', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-            panelClass: ['success-snackbar']
-          });
+          showSuccess(this.snackBar, 'Exercise updated successfully!');
         },
-        error: (err) => {
-          this.snackBar.open(err.message, 'Close', {
-            duration: 5000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-            panelClass: ['error-snackbar']
-          });
-        }
+        error: (err) => showError(this.snackBar, err.message)
       });
     }
   }

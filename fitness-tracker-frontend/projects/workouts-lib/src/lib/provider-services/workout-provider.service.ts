@@ -6,7 +6,6 @@ export type WorkoutStatus = 'InProgress' | 'Completed' | 'Cancelled';
 
 export interface WorkoutLog {
   id: string;
-  sessionId: string;
   sessionName: string;
   sessionPlanName: string;
   sessionPlan?: string;
@@ -55,7 +54,6 @@ export class WorkoutProviderService {
   private readonly workoutLogsApiUrl = 'http://localhost:8080/api/v1/session-logs';
   private readonly executionLogsApiUrl = 'http://localhost:8080/api/v1/execution-logs';
 
-  // Workout Logs API
   startWorkout(sessionId: string): Observable<WorkoutLog> {
     return this.http.post<WorkoutLog>(`${this.workoutLogsApiUrl}/start/${sessionId}`, {});
   }
@@ -88,7 +86,6 @@ export class WorkoutProviderService {
     return this.http.delete<void>(`${this.workoutLogsApiUrl}/${id}`);
   }
 
-  // Execution Logs API
   getExecutionLogsByWorkoutLogId(workoutLogId: string): Observable<WorkoutExecutionLog[]> {
     return this.http.get<WorkoutExecutionLog[]>(`${this.executionLogsApiUrl}?sessionLogId=${workoutLogId}`);
   }
@@ -105,4 +102,3 @@ export class WorkoutProviderService {
     return this.http.delete<void>(`${this.executionLogsApiUrl}/${id}`);
   }
 }
-

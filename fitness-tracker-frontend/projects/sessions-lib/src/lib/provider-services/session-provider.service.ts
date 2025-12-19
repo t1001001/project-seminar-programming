@@ -24,7 +24,7 @@ export interface SessionCreate {
 
 export interface SessionUpdate {
   name: string;
-  planId: string;
+  planId?: string;
   orderID?: number;
 }
 

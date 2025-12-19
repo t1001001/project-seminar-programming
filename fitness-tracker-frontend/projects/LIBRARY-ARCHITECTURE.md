@@ -2,7 +2,7 @@
 
 This document defines the standard architecture pattern for Angular feature libraries in this project. All new libraries **must** follow these patterns to ensure consistency, maintainability, and scalability.
 
-> **Reference Implementations:** See `exercises-lib`, `sessions-lib`, `plans-lib`, and `workouts-lib` for working examples.
+> **Reference Implementations:** See `common-lib` for shared utilities and `exercises-lib`, `sessions-lib`, `plans-lib`, and `workouts-lib` for feature library examples.
 
 ---
 
@@ -12,11 +12,19 @@ Every feature library follows this structure:
 
 ```
 projects/
-└── [feature]-lib/
+├── common-lib/                        # Cross-cutting shared utilities
+│   └── src/
+│       └── lib/
+│           ├── constants/             # Shared constants (snackbar, http-error)
+│           ├── utils/                 # Shared utility functions
+│           └── common-lib.ts          # Barrel file for exports
+│
+└── [feature]-lib/                     # Feature-specific library
     └── src/
         └── lib/
             ├── provider-services/     # HTTP & Backend Communication
             ├── logic-services/        # Business Logic Layer
+            ├── shared/                # Feature-specific constants, validation, error handling
             ├── ui/                    # Reusable UI Components
             ├── views/                 # Smart Container Components
             └── [feature]-lib.ts       # Barrel file for API exports
@@ -28,6 +36,9 @@ projects/
 // Services
 export * from './logic-services/[entity]-logic.service';
 export * from './provider-services/[entity]-provider.service';
+
+// Shared (constants, validation, error handling)
+export * from './shared';
 
 // UI Components
 export * from './ui/[entity]-card/[entity]-card';
@@ -42,6 +53,218 @@ export * from './views/[entity]-detail/[entity]-detail';
 ---
 
 ## 🏗️ Architecture Layers
+
+### 0. Common Library (`common-lib`)
+
+**Purpose:** Cross-cutting utilities shared across all feature libraries. Eliminates code duplication for generic functionality.
+
+#### Directory Structure
+
+```
+common-lib/
+└── src/
+    └── lib/
+        ├── constants/
+        │   ├── snackbar.constants.ts     # Snackbar durations and CSS classes
+        │   └── http-error.constants.ts   # Common HTTP error messages
+        ├── utils/
+        │   ├── snackbar.util.ts          # showError(), showSuccess() functions
+        │   └── http-error.util.ts        # handleHttpError() utility
+        └── common-lib.ts                 # Barrel file
+```
+
+#### Exports (`common-lib.ts`)
+
+```typescript
+// Constants
+export * from './constants/snackbar.constants';
+export * from './constants/http-error.constants';
+
+// Utilities
+export * from './utils/snackbar.util';
+export * from './utils/http-error.util';
+```
+
+#### Template: Snackbar Constants
+
+```typescript
+export const SNACKBAR_SUCCESS_DURATION = 3000;
+export const SNACKBAR_ERROR_DURATION = 5000;
+export const SNACKBAR_ERROR_CLASS = 'error-snackbar';
+export const SNACKBAR_SUCCESS_CLASS = 'success-snackbar';
+```
+
+#### Template: Snackbar Utilities
+
+```typescript
+import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+  SNACKBAR_SUCCESS_DURATION,
+  SNACKBAR_ERROR_DURATION,
+  SNACKBAR_ERROR_CLASS,
+  SNACKBAR_SUCCESS_CLASS,
+} from '../constants/snackbar.constants';
+
+export function showError(snackBar: MatSnackBar, message: string): void {
+  snackBar.open(message, 'Close', {
+    duration: SNACKBAR_ERROR_DURATION,
+    horizontalPosition: 'center',
+    verticalPosition: 'bottom',
+    panelClass: [SNACKBAR_ERROR_CLASS],
+  });
+}
+
+export function showSuccess(snackBar: MatSnackBar, message: string): void {
+  snackBar.open(message, 'Close', {
+    duration: SNACKBAR_SUCCESS_DURATION,
+    horizontalPosition: 'center',
+    verticalPosition: 'bottom',
+    panelClass: [SNACKBAR_SUCCESS_CLASS],
+  });
+}
+```
+
+#### Template: HTTP Error Handler
+
+```typescript
+import { throwError, Observable } from 'rxjs';
+import { COMMON_ERROR_MESSAGES } from '../constants/http-error.constants';
+
+export interface HttpErrorConfig {
+  defaultMessage: string;
+  notFoundMessage?: string;
+  conflictMessage?: string;
+  badRequestMessage?: string;
+  connectionMessage?: string;
+}
+
+export function handleHttpError(err: any, config: HttpErrorConfig): Observable<never> {
+  let errorMessage = config.defaultMessage;
+
+  switch (err?.status) {
+    case 404:
+      errorMessage = config.notFoundMessage ?? errorMessage;
+      break;
+    case 409:
+      errorMessage = extractErrorMessage(err) || config.conflictMessage || errorMessage;
+      break;
+    case 400:
+      errorMessage = config.badRequestMessage ?? errorMessage;
+      break;
+    case 0:
+      errorMessage = config.connectionMessage ?? COMMON_ERROR_MESSAGES.CONNECTION_ERROR;
+      break;
+    default:
+      if (err?.message) {
+        errorMessage = err.message;
+      }
+  }
+
+  const error = Object.assign(new Error(errorMessage), {
+    status: err?.status,
+    error: err?.error
+  });
+
+  return throwError(() => error);
+}
+```
+
+---
+
+### Shared Folder (`shared/`)
+
+**Purpose:** Domain-specific constants, validation logic, and error handling for a feature library. Each library has its own `shared/` folder.
+
+#### Directory Structure
+
+```
+[feature]-lib/
+└── src/
+    └── lib/
+        └── shared/
+            ├── [feature].constants.ts     # Domain-specific constants & error messages
+            ├── error-handler.util.ts      # Feature-specific error config factory
+            ├── [validation].util.ts       # Domain-specific validation functions (optional)
+            └── index.ts                   # Barrel file re-exporting common-lib utilities
+```
+
+#### Template: Barrel File (`index.ts`)
+
+```typescript
+// Feature-specific exports
+export * from './[feature].constants';
+export * from './error-handler.util';
+export * from './[validation].util';  // if applicable
+
+// Re-export common-lib utilities for convenience
+export { showError, showSuccess, handleHttpError } from 'common-lib';
+export type { HttpErrorConfig } from 'common-lib';
+```
+
+#### Template: Feature Constants
+
+```typescript
+export const MAX_ORDER_VALUE = 30;
+export const MIN_NAME_LENGTH = 2;
+
+export const ERROR_MESSAGES = {
+  [ENTITY]_NOT_FOUND: '[Entity] not found. It may have been deleted.',
+  DUPLICATE_[ENTITY]: 'A [entity] with this name already exists.',
+  INVALID_[ENTITY]_DATA: 'Invalid [entity] data. Please check all fields.',
+  [FIELD]_REQUIRED: '[Field] is required',
+} as const;
+```
+
+#### Template: Error Handler Utility
+
+```typescript
+import { HttpErrorConfig, handleHttpError } from 'common-lib';
+import { Observable } from 'rxjs';
+import { ERROR_MESSAGES } from './[feature].constants';
+
+export type [Entity]ErrorConfig = HttpErrorConfig;
+
+export function handle[Entity]Error(err: any, config: [Entity]ErrorConfig): Observable<never> {
+  return handleHttpError(err, config);
+}
+
+export function create[Entity]ErrorConfig(
+  operation: 'create' | 'load' | 'loadAll' | 'update' | 'delete'
+): [Entity]ErrorConfig {
+  return {
+    defaultMessage: `Failed to ${operation} [entity]`,
+    notFoundMessage: ERROR_MESSAGES.[ENTITY]_NOT_FOUND,
+    conflictMessage: ERROR_MESSAGES.DUPLICATE_[ENTITY],
+    badRequestMessage: ERROR_MESSAGES.INVALID_[ENTITY]_DATA,
+  };
+}
+```
+
+#### Template: Validation Utility (for complex features)
+
+```typescript
+import { throwError, Observable } from 'rxjs';
+import { ERROR_MESSAGES } from './[feature].constants';
+
+export interface ValidationResult {
+  valid: true;
+} | {
+  valid: false;
+  error: Observable<never>;
+}
+
+export function validate[Entity]Fields(payload: [Entity]Payload): ValidationResult {
+  if (!payload.name?.trim()) {
+    return { 
+      valid: false, 
+      error: throwError(() => new Error(ERROR_MESSAGES.NAME_REQUIRED)) 
+    };
+  }
+  return { valid: true };
+}
+```
+
+---
 
 ### 1. Provider Services Layer (`provider-services/`)
 
@@ -152,9 +375,9 @@ export class [Feature]ProviderService {
 #### Template: Standard Logic Service
 
 ```typescript
-import { Injectable, inject } from '@angular/core';
-import { Observable, Subject, tap, catchError, throwError } from 'rxjs';
+import { Injectable, inject } from '@angular/core';\nimport { Observable, Subject, tap, catchError } from 'rxjs';
 import { [Entity], [Entity]Create, [Entity]ProviderService } from '../provider-services/[entity]-provider.service';
+import { handle[Entity]Error, create[Entity]ErrorConfig } from '../shared';
 
 @Injectable({ providedIn: 'root' })
 export class [Entity]LogicService {
@@ -167,51 +390,37 @@ export class [Entity]LogicService {
   create(entity: [Entity]Create): Observable<[Entity]> {
     return this.provider.create(entity).pipe(
       tap((created) => this.createdSubject.next(created)),
-      catchError((err) => this.handleError(err, 'create'))
+      catchError((err) => handle[Entity]Error(err, create[Entity]ErrorConfig('create')))
     );
   }
 
   getAll(): Observable<[Entity][]> {
     return this.provider.getAll().pipe(
-      catchError((err) => this.handleError(err, 'load'))
+      catchError((err) => handle[Entity]Error(err, create[Entity]ErrorConfig('loadAll')))
     );
   }
 
   getById(id: string): Observable<[Entity]> {
     return this.provider.getById(id).pipe(
-      catchError((err) => this.handleError(err, 'load'))
+      catchError((err) => handle[Entity]Error(err, create[Entity]ErrorConfig('load')))
     );
   }
 
   update(id: string, entity: [Entity]Update): Observable<[Entity]> {
     return this.provider.update(id, entity).pipe(
-      catchError((err) => this.handleError(err, 'update'))
+      catchError((err) => handle[Entity]Error(err, create[Entity]ErrorConfig('update')))
     );
   }
 
   delete(id: string): Observable<void> {
     return this.provider.delete(id).pipe(
-      catchError((err) => this.handleError(err, 'delete'))
+      catchError((err) => handle[Entity]Error(err, create[Entity]ErrorConfig('delete')))
     );
-  }
-
-  private handleError(err: any, operation: string): Observable<never> {
-    let message = `Failed to ${operation} [entity]`;
-    
-    if (err.status === 404) {
-      message = '[Entity] not found. It may have been deleted.';
-    } else if (err.status === 409) {
-      message = err.error || '[Entity] with this name already exists.';
-    } else if (err.status === 400) {
-      message = 'Invalid data. Please check all required fields.';
-    } else if (err.status === 0) {
-      message = 'Cannot connect to server. Please check your connection.';
-    }
-    
-    return throwError(() => new Error(message));
   }
 }
 ```
+
+> **Note:** Error handling is centralized in `shared/error-handler.util.ts` which uses `handleHttpError` from `common-lib`. This ensures consistent error messages across all operations.
 
 #### Pattern: Complex Orchestration
 
@@ -811,6 +1020,8 @@ export class [Entity]DetailComponent implements OnInit {
 
 | Layer | Responsibility |
 |-------|----------------|
+| **Common-lib** | "What everyone needs" (shared utilities) |
+| **Shared** | "What this feature needs" (domain constants, validation) |
 | **Provider** | "How to get data" (HTTP mechanics) |
 | **Logic** | "What to do with data" (business rules, error handling) |
 | **UI** | "How to display data" (presentation) |
@@ -827,8 +1038,11 @@ export class [Entity]DetailComponent implements OnInit {
 
 | Allowed | Forbidden |
 |---------|-----------|
-| Views → Logic Services ✅ | Views → Provider Services ❌ |
-| Views → UI Components ✅ | UI Components → Provider Services ❌ |
+| All Feature Libs → `common-lib` ✅ | Views → Provider Services ❌ |
+| `shared/` → `common-lib` ✅ | UI Components → Provider Services ❌ |
+| Logic Services → `shared/` ✅ | Direct HTTP error handling in components ❌ |
+| Views → Logic Services ✅ | |
+| Views → UI Components ✅ | |
 | Logic Services → Provider Services ✅ | |
 | Edit Dialogs → Logic Services ✅ | |
 
@@ -857,9 +1071,16 @@ When creating a new feature library `[feature]-lib`:
 ### Logic Service
 - [ ] File: `[entity]-logic.service.ts`
 - [ ] All provider methods wrapped
-- [ ] `catchError` on every method
-- [ ] User-friendly error messages
+- [ ] `catchError` using `shared/error-handler.util.ts`
+- [ ] User-friendly error messages via `ERROR_MESSAGES` constants
 - [ ] Event `Subject` for cross-component communication
+
+### Shared Folder
+- [ ] Directory: `shared/`
+- [ ] `[feature].constants.ts` with `ERROR_MESSAGES` object
+- [ ] `error-handler.util.ts` using `handleHttpError` from `common-lib`
+- [ ] `index.ts` barrel file re-exporting `showError`, `showSuccess` from `common-lib`
+- [ ] Validation utilities (if applicable)
 
 ### UI Components
 - [ ] Directory: `ui/[component-name]/`
@@ -954,9 +1175,11 @@ background-color: var(--fitness-primary);
 1. **Maintainability**: Clear separation makes code easy to find and modify
 2. **Testability**: Each layer can be tested independently
 3. **Reusability**: UI components work anywhere, logic is centralized
-4. **Consistency**: Error handling and patterns are uniform
+4. **Consistency**: Error handling and patterns are uniform across all libraries
 5. **Scalability**: Easy to add new features following the same structure
 6. **Developer Experience**: Clear guidelines reduce decision fatigue
+7. **DRY Compliance**: `common-lib` eliminates code duplication for shared utilities
+8. **Clean Code**: Domain-specific constants and validation in `shared/` folders
 
 ---
 
@@ -965,4 +1188,6 @@ The architecture is **repeatable and predictable** across all feature libraries.
 ---
 
 **Last Updated:** December 2025  
-**Reference Implementations:** `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`
+**Shared Utilities:** `common-lib`  
+**Feature Libraries:** `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`, `home-lib`
+

@@ -8,7 +8,18 @@
     "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true,
-    "types": []
+    "types": [],
+    "paths": {
+      "common-lib": [
+        "../../dist/common-lib"
+      ],
+      "exercises-lib": [
+        "../../dist/exercises-lib"
+      ],
+      "workouts-lib": [
+        "../../dist/workouts-lib"
+      ]
+    }
   },
   "include": [
     "src/**/*.ts"

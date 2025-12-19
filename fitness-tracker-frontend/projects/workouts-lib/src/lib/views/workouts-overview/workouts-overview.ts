@@ -11,9 +11,7 @@ import { WorkoutLog } from '../../provider-services/workout-provider.service';
 import { WorkoutCardComponent } from '../../ui/workout-card/workout-card';
 import { WorkoutDeleteDialogComponent } from '../../ui/workout-delete-dialog/workout-delete-dialog';
 import { WorkoutEditDialogComponent } from '../../ui/workout-edit-dialog/workout-edit-dialog';
-
-const SNACKBAR_SUCCESS_DURATION = 3000;
-const SNACKBAR_ERROR_DURATION = 5000;
+import { showError, showSuccess } from '../../shared';
 
 @Component({
   selector: 'lib-workouts-overview',
@@ -28,6 +26,7 @@ const SNACKBAR_ERROR_DURATION = 5000;
   styleUrl: './workouts-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class WorkoutsOverviewComponent implements OnInit {
   private readonly workoutService = inject(WorkoutLogicService);
   private readonly dialog = inject(MatDialog);
@@ -40,10 +39,7 @@ export class WorkoutsOverviewComponent implements OnInit {
     this.refreshTrigger$.pipe(
       switchMap(() => this.workoutService.getActiveWorkoutLogs().pipe(
         catchError((err) => {
-          this.snackBar.open(err.message, 'Close', {
-            duration: SNACKBAR_ERROR_DURATION,
-            panelClass: ['error-snackbar']
-          });
+          showError(this.snackBar, err.message);
           return of([] as WorkoutLog[]);
         })
       )),
@@ -71,14 +67,10 @@ export class WorkoutsOverviewComponent implements OnInit {
 
   readonly totalWorkoutsCount = computed(() => this.workoutLogs()?.length ?? 0);
 
+
   ngOnInit(): void {
-    // Subscribe to workout session events to auto-refresh
-    this.workoutService.workoutCompleted$.subscribe(() => {
-      this.refresh();
-    });
-    this.workoutService.workoutSaved$.subscribe(() => {
-      this.refresh();
-    });
+    this.workoutService.workoutCompleted$.subscribe(() => this.refresh());
+    this.workoutService.workoutSaved$.subscribe(() => this.refresh());
   }
 
   refresh(): void {
@@ -97,17 +89,9 @@ export class WorkoutsOverviewComponent implements OnInit {
         this.workoutService.deleteWorkoutLog(logId).subscribe({
           next: () => {
             this.refresh();
-            this.snackBar.open('Workout log deleted successfully!', 'Close', {
-              duration: SNACKBAR_SUCCESS_DURATION,
-              panelClass: ['success-snackbar']
-            });
+            showSuccess(this.snackBar, 'Workout log deleted successfully!');
           },
-          error: (err) => {
-            this.snackBar.open(err.message, 'Close', {
-              duration: SNACKBAR_ERROR_DURATION,
-              panelClass: ['error-snackbar']
-            });
-          }
+          error: (err) => showError(this.snackBar, err.message)
         });
       }
     });

@@ -7,7 +7,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { take, catchError, of, tap } from 'rxjs';
 
@@ -20,6 +19,19 @@ import {
 } from '../../logic-services/session-logic.service';
 import { Exercise } from 'exercises-lib';
 import { PlanSummary } from '../../provider-services/session-provider.service';
+import {
+  showError,
+  MAX_ORDER_VALUE,
+  MIN_NAME_LENGTH,
+  buildExerciseFormGroup,
+  updateExerciseOrderNumbers,
+  isExerciseDuplicate,
+  getAvailableExercises,
+  validateExerciseInput,
+  validateUniqueExerciseIds,
+  getWeightValidators
+} from '../../shared';
+
 
 export interface SessionEditDialogData {
   session?: SessionDetail;
@@ -28,19 +40,14 @@ export interface SessionEditDialogData {
 @Component({
   selector: 'lib-session-edit-dialog',
   imports: [
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    ReactiveFormsModule,
-    DragDropModule,
+    MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatButtonModule, MatIconModule, ReactiveFormsModule, DragDropModule,
   ],
   templateUrl: './session-edit-dialog.html',
   styleUrl: './session-edit-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class SessionEditDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<SessionEditDialogComponent>);
   private readonly dialogData = inject<SessionEditDialogData | null>(MAT_DIALOG_DATA, { optional: true });
@@ -50,19 +57,20 @@ export class SessionEditDialogComponent {
 
   private sessionId: string | null = null;
   private prefilledExercises: SessionExerciseDetail[] = [];
+  private isInitializingPosition = false;
 
   plans: PlanSummary[] = [];
   exercises: Exercise[] = [];
   isSaving = false;
+
   showAddForm = false;
-  private isInitializingPosition = false;
 
   @ViewChild('addFormRef') addFormRef?: ElementRef<HTMLElement>;
 
   readonly sessionForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    planId: ['', [Validators.required]],
-    orderID: [null, [Validators.required, Validators.min(1), Validators.max(30)]],
+    name: ['', [Validators.required, Validators.minLength(MIN_NAME_LENGTH)]],
+    planId: [''],
+    orderID: [null, [Validators.min(1), Validators.max(MAX_ORDER_VALUE)]],
   });
 
   readonly addExerciseForm: FormGroup = this.fb.group({
@@ -75,280 +83,177 @@ export class SessionEditDialogComponent {
   readonly exercisesArray: FormArray = this.fb.array([]);
 
   constructor() {
+    this.initializeFromDialogData();
+    this.loadExercises();
+    this.loadPlans();
+    this.setupFormSubscriptions();
+  }
+
+  get exerciseControls(): FormGroup[] { return this.exercisesArray.controls as FormGroup[]; }
+  hasNoPlans(): boolean { return this.plans.length === 0; }
+  isOrphanedSession(): boolean { return this.isEditMode() && !this.sessionForm.get('planId')?.value; }
+  isEditMode(): boolean { return !!this.sessionId; }
+  availableExercises(): Exercise[] { return getAvailableExercises(this.exercises, this.exercisesArray); }
+  hasAvailableExercises(): boolean { return this.availableExercises().length > 0; }
+
+  getExerciseName(exerciseId: string | null | undefined): string {
+    if (!exerciseId) return 'Exercise';
+    return this.exercises.find(ex => ex.id === exerciseId)?.name
+      ?? this.prefilledExercises.find(ex => ex.exerciseId === exerciseId)?.exerciseName ?? 'Exercise';
+  }
+
+  getExerciseCategory(exerciseId: string): string {
+    return this.exercises.find(ex => ex.id === exerciseId)?.category
+      ?? this.prefilledExercises.find(ex => ex.exerciseId === exerciseId)?.category ?? 'Unspecified';
+  }
+
+  getWeightHint(exerciseId: string | null | undefined): string {
+    return this.getExerciseCategory(exerciseId || '') === 'BodyWeight'
+      ? 'Can be >=0 for this exercise' : 'Must be >0 for this exercise';
+  }
+
+  getAddFormWeightHint(): string {
+    const selectedId = this.addExerciseForm.get('exerciseId')?.value as string | null;
+    return selectedId ? this.getWeightHint(selectedId) : 'Select an exercise to see guidance';
+  }
+
+  requiresPositiveWeight(exerciseId: string | null | undefined): boolean {
+    return !!exerciseId && this.getExerciseCategory(exerciseId) !== 'BodyWeight';
+  }
+
+  onCancel(): void { this.dialogRef.close(); }
+
+  onToggleAddForm(): void {
+    this.showAddForm = !this.showAddForm;
+    if (this.showAddForm) {
+      setTimeout(() => this.addFormRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' }), 0);
+    }
+  }
+
+  onReorder(event: CdkDragDrop<FormGroup[]>): void {
+    moveItemInArray(this.exercisesArray.controls, event.previousIndex, event.currentIndex);
+    updateExerciseOrderNumbers(this.exercisesArray);
+    this.sessionForm.markAsDirty();
+  }
+
+  removeExercise(index: number): void {
+    this.exercisesArray.removeAt(index);
+    updateExerciseOrderNumbers(this.exercisesArray);
+    this.sessionForm.markAsDirty();
+  }
+
+  onAddExercise(): void {
+    if (this.addExerciseForm.invalid) { this.addExerciseForm.markAllAsTouched(); return; }
+
+    const { exerciseId, plannedSets, plannedReps, plannedWeight } = this.addExerciseForm.value;
+    if (isExerciseDuplicate(exerciseId, this.exercisesArray)) {
+      showError(this.snackBar, 'This exercise is already in the session'); return;
+    }
+
+    const validation = validateExerciseInput(
+      { plannedSets, plannedReps, plannedWeight, exerciseId },
+      this.requiresPositiveWeight(exerciseId)
+    );
+    if (!validation.valid) { showError(this.snackBar, validation.errorMessage!); return; }
+
+    const exercise = this.exercises.find(ex => ex.id === exerciseId);
+    const group = buildExerciseFormGroup(this.fb, {
+      exerciseId, plannedSets: Number(plannedSets), plannedReps: Number(plannedReps),
+      plannedWeight: Number(plannedWeight), orderID: this.exercisesArray.length + 1,
+      category: exercise?.category,
+    }, this.exercisesArray.length, (id) => this.getExerciseCategory(id));
+
+    this.exercisesArray.push(group);
+    this.sessionForm.markAsDirty();
+    this.resetAddExerciseForm();
+  }
+
+  onSave(): void {
+    if (this.sessionForm.invalid) { this.sessionForm.markAllAsTouched(); return; }
+
+    const uniqueCheck = validateUniqueExerciseIds(this.exercisesArray);
+    if (!uniqueCheck.valid) { showError(this.snackBar, uniqueCheck.errorMessage!); return; }
+
+    this.isSaving = true;
+    const payload = this.buildPayload();
+    const save$ = this.isEditMode() && this.sessionId
+      ? this.sessionService.updateSessionWithExercises(this.sessionId, payload as SessionUpdatePayload)
+      : this.sessionService.createSessionWithExercises(payload as SessionCreatePayload);
+
+    save$.subscribe({
+      next: () => { this.isSaving = false; this.dialogRef.close(true); },
+      error: (err) => { this.isSaving = false; showError(this.snackBar, err?.message || 'Failed to save session'); }
+    });
+  }
+
+  private initializeFromDialogData(): void {
     if (this.dialogData?.session) {
       this.sessionId = this.dialogData.session.id;
       this.prefilledExercises = this.dialogData.session.exercises;
       this.populateFromSession(this.dialogData.session);
     }
+  }
 
-    this.sessionService.getAllExercises()
-      .pipe(
-        take(1),
-        tap((list) => this.exercises = list),
-        catchError((err) => {
-          this.snackBar.open('Failed to load exercises', 'Close', {
-            duration: 4000,
-            panelClass: ['error-snackbar']
-          });
-          return of([] as Exercise[]);
-        })
-      )
-      .subscribe(() => {
-        if (this.isEditMode() && this.dialogData?.session) {
-          this.populateFromSession(this.dialogData.session);
-        }
-      });
+  private loadExercises(): void {
+    this.sessionService.getAllExercises().pipe(
+      take(1), tap((list) => this.exercises = list),
+      catchError(() => { showError(this.snackBar, 'Failed to load exercises'); return of([] as Exercise[]); })
+    ).subscribe(() => this.repopulateIfEditMode());
+  }
 
-    // Fetch plans to allow creating sessions directly
-    this.sessionService.getPlans()
-      .pipe(
-        take(1),
-        tap((plans) => this.plans = plans),
-        catchError(() => {
-          this.snackBar.open('Failed to load plans', 'Close', {
-            duration: 4000,
-            panelClass: ['error-snackbar']
-          });
-          return of([] as PlanSummary[]);
-        })
-      )
-      .subscribe(() => {
-        if (this.isEditMode() && this.dialogData?.session) {
-          this.populateFromSession(this.dialogData.session);
-        }
-      });
+  private loadPlans(): void {
+    this.sessionService.getPlans().pipe(
+      take(1), tap((plans) => {
+        this.plans = plans;
+        this.updatePlanValidators();
+      }),
+      catchError(() => { showError(this.snackBar, 'Failed to load plans'); return of([] as PlanSummary[]); })
+    ).subscribe(() => this.repopulateIfEditMode());
+  }
 
-    this.addExerciseForm.get('exerciseId')?.valueChanges.subscribe((exerciseId) => {
-      this.updateAddFormWeightValidator(exerciseId as string | null);
-    });
+  private updatePlanValidators(): void {
+    const planIdControl = this.sessionForm.get('planId');
+    const orderIdControl = this.sessionForm.get('orderID');
+    if (this.plans.length > 0) {
+      planIdControl?.setValidators([Validators.required]);
+      orderIdControl?.setValidators([Validators.required, Validators.min(1), Validators.max(MAX_ORDER_VALUE)]);
+    } else {
+      planIdControl?.clearValidators();
+      orderIdControl?.clearValidators();
+    }
+    planIdControl?.updateValueAndValidity({ emitEvent: false });
+    orderIdControl?.updateValueAndValidity({ emitEvent: false });
+  }
 
+  private setupFormSubscriptions(): void {
+    this.addExerciseForm.get('exerciseId')?.valueChanges.subscribe((id) => this.updateAddFormWeightValidator(id));
     this.sessionForm.get('planId')?.valueChanges.subscribe((planId) => {
-      if (this.isInitializingPosition) return;
-      this.prefillPosition(planId as string | null | undefined);
+      if (!this.isInitializingPosition) this.prefillPosition(planId as string | null);
     });
   }
 
-  get exerciseControls(): FormGroup[] {
-    return this.exercisesArray.controls as FormGroup[];
-  }
-
-  isEditMode(): boolean {
-    return !!this.sessionId;
-  }
-
-  availableExercises(): Exercise[] {
-    const selectedIds = new Set(this.exercisesArray.controls.map(ctrl => ctrl.value.exerciseId));
-    return this.exercises.filter(exercise => !selectedIds.has(exercise.id));
-  }
-
-  hasAvailableExercises(): boolean {
-    return this.availableExercises().length > 0;
-  }
-
-  private findExercise(exerciseId: string | null | undefined): Exercise | undefined {
-    return this.exercises.find(ex => ex.id === exerciseId);
+  private repopulateIfEditMode(): void {
+    if (this.isEditMode() && this.dialogData?.session) this.populateFromSession(this.dialogData.session);
   }
 
   private populateFromSession(session: SessionDetail): void {
     this.isInitializingPosition = true;
-    this.sessionForm.patchValue({
-      name: session.name,
-      planId: session.planId ?? '',
-      orderID: session.orderID ?? null,
-    });
+    this.sessionForm.patchValue({ name: session.name, planId: session.planId ?? '', orderID: session.orderID ?? null });
     this.isInitializingPosition = false;
+    this.populateExercisesArray(session.exercises);
+  }
 
+  private populateExercisesArray(exercises: SessionExerciseDetail[]): void {
     this.exercisesArray.clear();
-    (session.exercises || []).forEach((exercise, idx) => {
-      this.exercisesArray.push(this.buildExerciseGroup(exercise, idx));
+    (exercises || []).forEach((ex, idx) => {
+      this.exercisesArray.push(buildExerciseFormGroup(this.fb, ex, idx, (id) => this.getExerciseCategory(id)));
     });
-    this.updateOrderNumbers();
+    updateExerciseOrderNumbers(this.exercisesArray);
   }
 
-  private buildExerciseGroup(exercise: Partial<SessionExerciseDetail>, index: number): FormGroup {
-    const category = this.getExerciseCategory(exercise.exerciseId || exercise.id || '') as Exercise['category'];
-    const isBodyWeight = category === 'BodyWeight';
-    const weightValidators = this.getWeightValidators(category);
-    const initialWeight = exercise.plannedWeight ?? null;
-
-    return this.fb.group({
-      executionId: [(exercise as SessionExerciseDetail).id || null],
-      exerciseId: [exercise.exerciseId, Validators.required],
-      plannedSets: [exercise.plannedSets ?? 0, [Validators.required, Validators.min(1)]],
-      plannedReps: [exercise.plannedReps ?? 0, [Validators.required, Validators.min(1)]],
-      plannedWeight: [
-        initialWeight,
-        weightValidators
-      ],
-      orderID: [exercise.orderID ?? index + 1],
-    });
-  }
-
-  onAddExercise(): void {
-    if (this.addExerciseForm.invalid) {
-      this.addExerciseForm.markAllAsTouched();
-      return;
-    }
-
-    const value = this.addExerciseForm.value;
-    const exerciseId = value.exerciseId as string;
-    const existing = this.exercisesArray.controls.some(ctrl => ctrl.value.exerciseId === exerciseId);
-    if (existing) {
-      this.snackBar.open('This exercise is already in the session', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    const exercise = this.findExercise(exerciseId);
-    const plannedSets = Number(value.plannedSets);
-    const plannedReps = Number(value.plannedReps);
-    const plannedWeight = Number(value.plannedWeight);
-
-    if (plannedSets <= 0 || plannedReps <= 0) {
-      this.snackBar.open('Sets and reps must be greater than 0', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    const category = this.getExerciseCategory(exerciseId);
-    const isBodyWeight = category === 'BodyWeight';
-    if (plannedWeight < 0) {
-      this.snackBar.open('Weight cannot be negative', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    if (!isBodyWeight && plannedWeight <= 0) {
-      this.snackBar.open('Weight must be greater than 0 for this exercise', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    const group = this.buildExerciseGroup({
-      exerciseId,
-      plannedSets,
-      plannedReps,
-      plannedWeight,
-      orderID: this.exercisesArray.length + 1,
-      category: exercise?.category,
-    }, this.exercisesArray.length);
-
-    this.exercisesArray.push(group);
-    this.sessionForm.markAsDirty();
-    this.addExerciseForm.patchValue({
-      exerciseId: '',
-      plannedSets: null,
-      plannedReps: null,
-      plannedWeight: null,
-    });
-    this.showAddForm = false;
-  }
-
-  onReorder(event: CdkDragDrop<FormGroup[]>): void {
-    moveItemInArray(this.exercisesArray.controls, event.previousIndex, event.currentIndex);
-    this.updateOrderNumbers();
-    this.sessionForm.markAsDirty();
-  }
-
-  private updateOrderNumbers(): void {
-    this.exercisesArray.controls.forEach((ctrl, idx) => {
-      ctrl.get('orderID')?.setValue(idx + 1);
-    });
-  }
-
-  removeExercise(index: number): void {
-    this.exercisesArray.removeAt(index);
-    this.updateOrderNumbers();
-    this.sessionForm.markAsDirty();
-  }
-
-  getExerciseName(exerciseId: string | null | undefined): string {
-    if (!exerciseId) return 'Exercise';
-
-    const fromLibrary = this.findExercise(exerciseId)?.name;
-    if (fromLibrary) return fromLibrary;
-
-    const fromSession = this.prefilledExercises.find(ex => ex.exerciseId === exerciseId);
-    if (fromSession?.exerciseName) return fromSession.exerciseName;
-
-    return 'Exercise';
-  }
-
-  getExerciseCategory(exerciseId: string): string {
-    const fromLibrary = this.findExercise(exerciseId)?.category;
-    if (fromLibrary) return fromLibrary;
-
-    const fromSession = this.prefilledExercises.find(ex => ex.exerciseId === exerciseId);
-    if (fromSession?.category) return fromSession.category;
-
-    return 'Unspecified';
-  }
-
-  getWeightHint(exerciseId: string | null | undefined): string {
-    const category = this.getExerciseCategory(exerciseId || '');
-    if (category === 'BodyWeight') {
-      return 'Can be >=0 for this exercise';
-    }
-    return 'Must be >0 for this exercise';
-  }
-
-  getAddFormWeightHint(): string {
-    const selectedId = this.addExerciseForm.get('exerciseId')?.value as string | null;
-    if (!selectedId) {
-      return 'Select an exercise to see guidance';
-    }
-    return this.getWeightHint(selectedId);
-  }
-
-  requiresPositiveWeight(exerciseId: string | null | undefined): boolean {
-    if (!exerciseId) return false;
-    return this.getExerciseCategory(exerciseId || '') !== 'BodyWeight';
-  }
-
-  onCancel(): void {
-    this.dialogRef.close();
-  }
-
-  onToggleAddForm(): void {
-    this.showAddForm = !this.showAddForm;
-    if (this.showAddForm) {
-      setTimeout(() => {
-        this.addFormRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 0);
-    }
-  }
-
-  onSave(): void {
-    if (this.sessionForm.invalid) {
-      this.sessionForm.markAllAsTouched();
-      return;
-    }
-
-    const exerciseIds = new Set<string>();
-    for (const ctrl of this.exercisesArray.controls) {
-      const id = ctrl.value.exerciseId;
-      if (exerciseIds.has(id)) {
-        this.snackBar.open('Each exercise can only be added once per session', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
-        return;
-      }
-      exerciseIds.add(id);
-    }
-
+  private buildPayload(): SessionCreatePayload | SessionUpdatePayload {
     const formValue = this.sessionForm.value;
-    const position = Number(formValue.orderID);
-    const positionText = Number.isFinite(position) ? position : formValue.orderID;
-    const payload: SessionCreatePayload | SessionUpdatePayload = {
+    return {
       name: formValue.name?.trim() || '',
       planId: formValue.planId,
       orderID: Number(formValue.orderID),
@@ -362,86 +267,28 @@ export class SessionEditDialogComponent {
         category: this.getExerciseCategory(ctrl.value.exerciseId) as Exercise['category'],
       })),
     };
-
-    this.isSaving = true;
-    const save$ = this.isEditMode() && this.sessionId
-      ? this.sessionService.updateSessionWithExercises(this.sessionId, payload as SessionUpdatePayload)
-      : this.sessionService.createSessionWithExercises(payload as SessionCreatePayload);
-
-    save$.subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.dialogRef.close(true);
-      },
-      error: (err) => {
-        this.isSaving = false;
-        const rawMessage = typeof err?.error === 'string'
-          ? err.error
-          : typeof err?.error?.message === 'string'
-            ? err.error.message
-            : typeof err?.message === 'string'
-              ? err.message
-              : '';
-        const normalized = rawMessage ? rawMessage.toLowerCase() : '';
-        const isOrderConflict = err?.status === 409
-          || normalized.includes('order')
-          || normalized.includes('position')
-          || normalized.includes('already exists');
-        const conflictMessage = rawMessage
-          || (positionText ? `A session with position ${positionText} already exists in this plan.` : '');
-        const message = isOrderConflict
-          ? conflictMessage || 'A session with this position already exists in this plan.'
-          : rawMessage || 'Failed to save session';
-        this.snackBar.open(message, 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
   }
 
-  private getWeightValidators(category: Exercise['category'] | string) {
-    const minWeight = category === 'BodyWeight' ? 0 : 1;
-    return [Validators.required, Validators.min(minWeight)];
+  private resetAddExerciseForm(): void {
+    this.addExerciseForm.patchValue({ exerciseId: '', plannedSets: null, plannedReps: null, plannedWeight: null });
+    this.showAddForm = false;
   }
 
   private prefillPosition(planId: string | null | undefined): void {
     const positionControl = this.sessionForm.get('orderID');
-    if (!positionControl) return;
+    if (!positionControl || !planId) { positionControl?.setValue(null); return; }
 
-    if (!planId) {
-      positionControl.setValue(null);
-      return;
-    }
-
-    this.sessionService.getNextAvailablePosition(planId, this.sessionId ?? undefined)
-      .pipe(take(1))
-      .subscribe({
-        next: (nextPosition) => {
-          if (this.sessionForm.get('planId')?.value !== planId) return;
-          positionControl.setValue(nextPosition ?? null, { emitEvent: false });
-        },
-        error: () => {
-          if (this.sessionForm.get('planId')?.value !== planId) return;
-          positionControl.setValue(null, { emitEvent: false });
-        }
-      });
+    this.sessionService.getNextAvailablePosition(planId, this.sessionId ?? undefined).pipe(take(1)).subscribe({
+      next: (pos) => { if (this.sessionForm.get('planId')?.value === planId) positionControl.setValue(pos ?? null, { emitEvent: false }); },
+      error: () => positionControl.setValue(null, { emitEvent: false })
+    });
   }
 
   private updateAddFormWeightValidator(exerciseId: string | null): void {
     const weightControl = this.addExerciseForm.get('plannedWeight');
     if (!weightControl) return;
-
-    if (!exerciseId) {
-      weightControl.setValidators([Validators.required, Validators.min(0)]);
-      weightControl.updateValueAndValidity({ emitEvent: false });
-      return;
-    }
-
-    const category = this.getExerciseCategory(exerciseId || '');
-    const validators = this.getWeightValidators(category);
-    weightControl.setValidators(validators);
-
+    const category = exerciseId ? this.getExerciseCategory(exerciseId) : '';
+    weightControl.setValidators(getWeightValidators(category));
     weightControl.updateValueAndValidity({ emitEvent: false });
   }
 }

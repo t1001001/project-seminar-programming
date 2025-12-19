@@ -11,17 +11,12 @@ import { catchError, of, take, tap } from 'rxjs';
 
 import { SessionLogicService } from '../../logic-services/session-logic.service';
 import { PlanSummary } from '../../provider-services/session-provider.service';
+import { showError } from '../../shared';
+import { MIN_NAME_LENGTH } from '../../shared/session.constants';
 
 @Component({
   selector: 'lib-session-create-dialog',
-  imports: [
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    ReactiveFormsModule,
-  ],
+  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, ReactiveFormsModule],
   templateUrl: './session-create-dialog.html',
   styleUrl: './session-create-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,29 +31,14 @@ export class SessionCreateDialogComponent {
   isSaving = false;
 
   readonly form: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
+    name: ['', [Validators.required, Validators.minLength(MIN_NAME_LENGTH)]],
     planId: ['', [Validators.required]],
-    orderID: [null, [Validators.min(1), Validators.max(30)]],
+    orderID: [null],
   });
 
   constructor() {
-    this.sessionService.getPlans()
-      .pipe(
-        take(1),
-        tap(plans => this.plans = plans),
-        catchError(() => {
-          this.snackBar.open('Failed to load plans', 'Close', {
-            duration: 4000,
-            panelClass: ['error-snackbar']
-          });
-          return of([] as PlanSummary[]);
-        })
-      )
-      .subscribe();
-
-    this.form.get('planId')?.valueChanges.subscribe((planId) => {
-      this.prefillPosition(planId as string | null | undefined);
-    });
+    this.loadPlans();
+    this.setupPlanChangeSubscription();
   }
 
   onCancel(): void {
@@ -66,57 +46,68 @@ export class SessionCreateDialogComponent {
   }
 
   onSave(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (!this.validateForm()) return;
+    this.saveSession();
+  }
 
-    this.isSaving = true;
-    const value = this.form.value;
-    const position = Number(value.orderID);
-    const positionText = Number.isFinite(position) ? position : value.orderID;
-    this.sessionService.createSession({
-      name: value.name,
-      planId: value.planId,
-      orderID: Number(value.orderID),
-    }).subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.dialogRef.close(true);
-      },
-      error: (err) => {
-        this.isSaving = false;
-        const rawMessage = typeof err?.error === 'string'
-          ? err.error
-          : typeof err?.error?.message === 'string'
-            ? err.error.message
-            : typeof err?.message === 'string'
-              ? err.message
-              : '';
-        const normalized = rawMessage ? rawMessage.toLowerCase() : '';
-        const isOrderConflict = err?.status === 409
-          || normalized.includes('order')
-          || normalized.includes('position')
-          || normalized.includes('already exists');
-        const conflictMessage = rawMessage
-          || (positionText ? `A session with position ${positionText} already exists in this plan.` : '');
-        const message = isOrderConflict
-          ? conflictMessage || 'A session with this position already exists in this plan.'
-          : rawMessage || 'Failed to create session';
-        this.snackBar.open(message, 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
-      }
+  private loadPlans(): void {
+    this.sessionService.getPlans().pipe(
+      take(1),
+      tap(plans => this.plans = plans),
+      catchError(() => {
+        showError(this.snackBar, 'Failed to load plans');
+        return of([] as PlanSummary[]);
+      })
+    ).subscribe();
+  }
+
+  private setupPlanChangeSubscription(): void {
+    this.form.get('planId')?.valueChanges.subscribe((planId) => {
+      this.prefillPosition(planId as string | null);
     });
   }
 
-  private prefillPosition(planId: string | null | undefined): void {
-    const positionControl = this.form.get('orderID');
-    if (!positionControl) return;
+  private validateForm(): boolean {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return false;
+    }
+    return true;
+  }
 
-    if (!planId) {
-      positionControl.setValue(null);
+  private saveSession(): void {
+    this.isSaving = true;
+    const payload = this.buildPayload();
+    this.sessionService.createSession(payload).subscribe({
+      next: () => this.handleSuccess(),
+      error: (err) => this.handleError(err)
+    });
+  }
+
+  private buildPayload() {
+    const value = this.form.value;
+    return {
+      name: value.name,
+      planId: value.planId,
+      orderID: Number(value.orderID),
+    };
+  }
+
+  private handleSuccess(): void {
+    this.isSaving = false;
+    this.dialogRef.close(true);
+  }
+
+  private handleError(err: any): void {
+    this.isSaving = false;
+    const message = err?.message || 'Failed to create session';
+    showError(this.snackBar, message);
+  }
+
+  private prefillPosition(planId: string | null): void {
+    const positionControl = this.form.get('orderID');
+    if (!positionControl || !planId) {
+      positionControl?.setValue(null);
       return;
     }
 
@@ -124,13 +115,12 @@ export class SessionCreateDialogComponent {
       .pipe(take(1))
       .subscribe({
         next: (nextPosition) => {
-          if (this.form.get('planId')?.value !== planId) return;
-          positionControl.setValue(nextPosition ?? null, { emitEvent: false });
+          if (this.form.get('planId')?.value === planId) {
+            positionControl.setValue(nextPosition ?? null, { emitEvent: false });
+          }
         },
-        error: () => {
-          if (this.form.get('planId')?.value !== planId) return;
-          positionControl.setValue(null, { emitEvent: false });
-        }
+        error: () => positionControl.setValue(null, { emitEvent: false })
       });
   }
 }
+
