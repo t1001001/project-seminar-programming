@@ -1,12 +1,7 @@
 import { HttpErrorConfig, handleHttpError } from 'common-lib';
-import { Observable } from 'rxjs';
 import { ERROR_MESSAGES } from './session.constants';
 
 export type SessionErrorConfig = HttpErrorConfig;
-
-export function handleSessionError(err: any, config: SessionErrorConfig): Observable<never> {
-    return handleHttpError(err, config);
-}
 
 export function createSessionErrorConfig(operation: 'create' | 'load' | 'loadAll' | 'update' | 'delete'): SessionErrorConfig {
     return {
@@ -16,3 +11,4 @@ export function createSessionErrorConfig(operation: 'create' | 'load' | 'loadAll
         badRequestMessage: ERROR_MESSAGES.INVALID_SESSION_DATA,
     };
 }
+

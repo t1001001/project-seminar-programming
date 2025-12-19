@@ -27,11 +27,9 @@ export class SessionCreateDialogComponent {
   private readonly sessionService = inject(SessionLogicService);
   private readonly snackBar = inject(MatSnackBar);
 
-  // Empty list to include plans later on.
   plans: PlanSummary[] = [];
   isSaving = false;
 
-  // Reactive form for session creation.
   readonly form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(MIN_NAME_LENGTH)]],
     planId: ['', [Validators.required]],
@@ -43,18 +41,15 @@ export class SessionCreateDialogComponent {
     this.setupPlanChangeSubscription();
   }
 
-  // Closes the dialog without saving.
   onCancel(): void {
     this.dialogRef.close();
   }
 
-  // Validates and submits the form to create a session.
   onSave(): void {
     if (!this.validateForm()) return;
     this.saveSession();
   }
 
-  // Loads available plans from the backend to populate the dropdown.
   private loadPlans(): void {
     this.sessionService.getPlans().pipe(
       take(1),
@@ -66,14 +61,12 @@ export class SessionCreateDialogComponent {
     ).subscribe();
   }
 
-  // Sets up subscription to update prefilled position when plan selection changes.
   private setupPlanChangeSubscription(): void {
     this.form.get('planId')?.valueChanges.subscribe((planId) => {
       this.prefillPosition(planId as string | null);
     });
   }
 
-  // Validates the form and marks fields as touched if invalid.
   private validateForm(): boolean {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -82,7 +75,6 @@ export class SessionCreateDialogComponent {
     return true;
   }
 
-  // Initiates the session creation process.
   private saveSession(): void {
     this.isSaving = true;
     const payload = this.buildPayload();
@@ -92,7 +84,6 @@ export class SessionCreateDialogComponent {
     });
   }
 
-  // Constructs the payload for creating a session.
   private buildPayload() {
     const value = this.form.value;
     return {
@@ -102,20 +93,17 @@ export class SessionCreateDialogComponent {
     };
   }
 
-  // Handles successful session creation by closing the dialog.
   private handleSuccess(): void {
     this.isSaving = false;
     this.dialogRef.close(true);
   }
 
-  // Handles errors during session creation by showing a snackbar.
   private handleError(err: any): void {
     this.isSaving = false;
     const message = err?.message || 'Failed to create session';
     showError(this.snackBar, message);
   }
 
-  // Fetches the next available position for the selected plan and updates the form.
   private prefillPosition(planId: string | null): void {
     const positionControl = this.form.get('orderID');
     if (!positionControl || !planId) {
@@ -135,3 +123,4 @@ export class SessionCreateDialogComponent {
       });
   }
 }
+

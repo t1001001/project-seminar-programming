@@ -26,20 +26,15 @@ import { showError, showSuccess } from '../../shared';
   styleUrl: './workouts-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-/**
- * Component for displaying the history of past workouts.
- * Shows active and completed workouts with filtering capabilities.
- */
+
 export class WorkoutsOverviewComponent implements OnInit {
   private readonly workoutService = inject(WorkoutLogicService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  /** Control for filtering workout logs. */
   readonly searchControl = new FormControl('');
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
-  /** Signal holding workout logs, auto-refreshed on trigger or events. */
   private readonly workoutLogs = toSignal(
     this.refreshTrigger$.pipe(
       switchMap(() => this.workoutService.getActiveWorkoutLogs().pipe(
@@ -54,16 +49,11 @@ export class WorkoutsOverviewComponent implements OnInit {
     { initialValue: [] as WorkoutLog[] }
   );
 
-  /** Signal holding debounced search term. */
   private readonly searchTerm = toSignal(
     this.searchControl.valueChanges.pipe(startWith(''), debounceTime(200)),
     { initialValue: '' }
   );
 
-  /**
-   * Filtered list of workouts based on search term.
-   * Matches against session name and plan name.
-   */
   readonly filteredWorkouts = computed(() => {
     const workouts = this.workoutLogs();
     if (!workouts) return undefined;
@@ -75,27 +65,18 @@ export class WorkoutsOverviewComponent implements OnInit {
     );
   });
 
-  /** Total count of workouts in the history. */
   readonly totalWorkoutsCount = computed(() => this.workoutLogs()?.length ?? 0);
 
-  /**
-   * subscribes to workout events to auto-refresh the list.
-   */
+
   ngOnInit(): void {
     this.workoutService.workoutCompleted$.subscribe(() => this.refresh());
     this.workoutService.workoutSaved$.subscribe(() => this.refresh());
   }
 
-  /** Manually triggers a reload of the workout history. */
   refresh(): void {
     this.refreshTrigger$.next();
   }
 
-  /**
-   * Opens confirmation dialog to delete a workout log.
-   * @param logId - ID of the workout log to delete
-   * @param sessionName - Name of the session for confirmation message
-   */
   onDelete(logId: string, sessionName: string): void {
     const dialogRef = this.dialog.open(WorkoutDeleteDialogComponent, {
       width: '400px',
@@ -116,10 +97,6 @@ export class WorkoutsOverviewComponent implements OnInit {
     });
   }
 
-  /**
-   * Opens the edit dialog for a specific workout log.
-   * @param workoutLogId - ID of the workout log to edit
-   */
   onEdit(workoutLogId: string): void {
     const dialogRef = this.dialog.open(WorkoutEditDialogComponent, {
       width: '700px',

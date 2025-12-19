@@ -13,4 +13,6 @@ export const ERROR_MESSAGES = {
     REPS_REQUIRED: 'Reps must be greater than 0',
     WEIGHT_INVALID: 'Weight must be 0 or greater',
     WEIGHT_REQUIRED: 'Weight must be greater than 0 for this exercise',
+    FAILED_LOAD_PLANS: 'Failed to load plans',
+    FAILED_LOAD_EXERCISES: 'Failed to load exercises',
 } as const;

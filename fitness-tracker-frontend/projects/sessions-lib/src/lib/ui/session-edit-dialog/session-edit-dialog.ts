@@ -32,7 +32,7 @@ import {
   getWeightValidators
 } from '../../shared';
 
-/** Data required to initialize or edit a session. */
+
 export interface SessionEditDialogData {
   session?: SessionDetail;
 }
@@ -47,10 +47,7 @@ export interface SessionEditDialogData {
   styleUrl: './session-edit-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-/**
- * Dialog for creating or editing a training session with its exercises.
- * Handles complex form logic for exercises, including drag-and-drop reordering.
- */
+
 export class SessionEditDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<SessionEditDialogComponent>);
   private readonly dialogData = inject<SessionEditDialogData | null>(MAT_DIALOG_DATA, { optional: true });
@@ -65,7 +62,7 @@ export class SessionEditDialogComponent {
   plans: PlanSummary[] = [];
   exercises: Exercise[] = [];
   isSaving = false;
-  /** Toggles visibility of the 'Add Exercise' form. */
+
   showAddForm = false;
 
   @ViewChild('addFormRef') addFormRef?: ElementRef<HTMLElement>;
@@ -92,12 +89,8 @@ export class SessionEditDialogComponent {
     this.setupFormSubscriptions();
   }
 
-  // Public API
-  /** Returns FormArray controls cast to FormGroup for template iteration. */
   get exerciseControls(): FormGroup[] { return this.exercisesArray.controls as FormGroup[]; }
-  /** Checks if there are no plans available in the system. */
   hasNoPlans(): boolean { return this.plans.length === 0; }
-  /** Checks if the session is orphaned (no planId assigned). */
   isOrphanedSession(): boolean { return this.isEditMode() && !this.sessionForm.get('planId')?.value; }
   isEditMode(): boolean { return !!this.sessionId; }
   availableExercises(): Exercise[] { return getAvailableExercises(this.exercises, this.exercisesArray); }
@@ -119,7 +112,6 @@ export class SessionEditDialogComponent {
       ? 'Can be >=0 for this exercise' : 'Must be >0 for this exercise';
   }
 
-  /** Returns guidance text for weight input based on exercise type. */
   getAddFormWeightHint(): string {
     const selectedId = this.addExerciseForm.get('exerciseId')?.value as string | null;
     return selectedId ? this.getWeightHint(selectedId) : 'Select an exercise to see guidance';
@@ -129,8 +121,6 @@ export class SessionEditDialogComponent {
     return !!exerciseId && this.getExerciseCategory(exerciseId) !== 'BodyWeight';
   }
 
-  // Event Handlers
-  /** Closes the dialog. */
   onCancel(): void { this.dialogRef.close(); }
 
   onToggleAddForm(): void {
@@ -140,10 +130,6 @@ export class SessionEditDialogComponent {
     }
   }
 
-  /**
-   * Handles reordering of exercises via drag-and-drop.
-   * Updates the form array and marks form as dirty.
-   */
   onReorder(event: CdkDragDrop<FormGroup[]>): void {
     moveItemInArray(this.exercisesArray.controls, event.previousIndex, event.currentIndex);
     updateExerciseOrderNumbers(this.exercisesArray);
@@ -156,10 +142,6 @@ export class SessionEditDialogComponent {
     this.sessionForm.markAsDirty();
   }
 
-  /**
-   * Validates and adds a new exercise to the session list.
-   * Checks for duplicates and valid input values.
-   */
   onAddExercise(): void {
     if (this.addExerciseForm.invalid) { this.addExerciseForm.markAllAsTouched(); return; }
 
@@ -186,10 +168,6 @@ export class SessionEditDialogComponent {
     this.resetAddExerciseForm();
   }
 
-  /**
-   * Saves the session and all its exercises.
-   * Determines whether to create or update based on session ID presence.
-   */
   onSave(): void {
     if (this.sessionForm.invalid) { this.sessionForm.markAllAsTouched(); return; }
 
@@ -208,7 +186,6 @@ export class SessionEditDialogComponent {
     });
   }
 
-  // Initialization
   private initializeFromDialogData(): void {
     if (this.dialogData?.session) {
       this.sessionId = this.dialogData.session.id;
@@ -234,10 +211,6 @@ export class SessionEditDialogComponent {
     ).subscribe(() => this.repopulateIfEditMode());
   }
 
-  /**
-   * Updates planId and orderID validators based on whether plans exist.
-   * When no plans exist, these fields are not required.
-   */
   private updatePlanValidators(): void {
     const planIdControl = this.sessionForm.get('planId');
     const orderIdControl = this.sessionForm.get('orderID');
@@ -263,7 +236,6 @@ export class SessionEditDialogComponent {
     if (this.isEditMode() && this.dialogData?.session) this.populateFromSession(this.dialogData.session);
   }
 
-  // Form Population
   private populateFromSession(session: SessionDetail): void {
     this.isInitializingPosition = true;
     this.sessionForm.patchValue({ name: session.name, planId: session.planId ?? '', orderID: session.orderID ?? null });
@@ -279,7 +251,6 @@ export class SessionEditDialogComponent {
     updateExerciseOrderNumbers(this.exercisesArray);
   }
 
-  // Helpers
   private buildPayload(): SessionCreatePayload | SessionUpdatePayload {
     const formValue = this.sessionForm.value;
     return {

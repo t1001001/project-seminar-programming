@@ -26,21 +26,15 @@ import { showError, showSuccess } from '../../shared';
   styleUrl: './sessions-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-/**
- * Component for displaying a list of all training sessions.
- * Supports filtration, creation, and deletion of sessions.
- */
+
 export class SessionsOverviewComponent {
   private readonly sessionService = inject(SessionLogicService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  /** Control for filtering sessions by name or plan. */
   readonly searchControl = new FormControl('');
-  /** Trigger to manually refresh the session list. */
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
-  /** Signal holding all sessions, automatically refreshed on trigger. */
   private readonly sessions = toSignal(
     this.refreshTrigger$.pipe(
       switchMap(() => this.sessionService.getAllSessions().pipe(
@@ -54,16 +48,11 @@ export class SessionsOverviewComponent {
     { initialValue: [] as SessionOverview[] }
   );
 
-  /** Signal holding the current search term, debounced. */
   private readonly searchTerm = toSignal(
     this.searchControl.valueChanges.pipe(startWith(''), debounceTime(200)),
     { initialValue: '' }
   );
 
-  /**
-   * Filtered list of sessions based on search term.
-   * Matches against session name and associated plan name.
-   */
   readonly filteredSessions = computed(() => {
     const sessions = this.sessions();
     if (!sessions) return undefined;
@@ -75,21 +64,13 @@ export class SessionsOverviewComponent {
     );
   });
 
-  /** Total count of available sessions. */
   readonly totalSessionsCount = computed(() => this.sessions()?.length ?? 0);
-  /** Total count of completed sessions (based on logs). */
   readonly totalCompletedCount = computed(() =>
     (this.sessions() || []).reduce((sum, session) => sum + (session.sessionLogCount ?? 0), 0)
   );
 
-  // ==========================================================================
-  // Event Handlers
-  // ==========================================================================
 
-  /**
-   * Opens the dialog to create a new session.
-   * Refreshes the list on successful creation.
-   */
+
   onCreate(): void {
     const dialogRef = this.dialog.open(SessionCreateDialogComponent, {
       width: '500px',
@@ -105,10 +86,6 @@ export class SessionsOverviewComponent {
     });
   }
 
-  /**
-   * Opens a confirmation dialog to delete a session.
-   * Proceeds with deletion if confirmed.
-   */
   onDelete(session: SessionOverview): void {
     const dialogRef = this.dialog.open(SessionDeleteDialogComponent, {
       data: { sessionName: session.name },
@@ -122,14 +99,11 @@ export class SessionsOverviewComponent {
     });
   }
 
-  /** Requests a reload of the sessions list. */
   refresh(): void {
     this.refreshTrigger$.next();
   }
 
-  // ==========================================================================
-  // Private Methods
-  // ==========================================================================
+
 
   private deleteSession(session: SessionOverview): void {
     this.sessionService.deleteSession(session.id).subscribe({

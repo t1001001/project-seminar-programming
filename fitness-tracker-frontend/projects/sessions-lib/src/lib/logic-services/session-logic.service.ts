@@ -16,7 +16,9 @@ import {
   createSessionErrorConfig,
   validateSessionFields,
   validateSessionWithExercises,
-  SessionExerciseInput
+  SessionExerciseInput,
+  ERROR_MESSAGES,
+  MAX_ORDER_VALUE
 } from '../shared';
 
 export interface SessionOverview extends Session {
@@ -193,10 +195,10 @@ export class SessionLogicService {
         if (!usedPositions.length) return 1;
 
         const taken = new Set(usedPositions);
-        for (let i = 1; i <= 30; i++) {
+        for (let i = 1; i <= MAX_ORDER_VALUE; i++) {
           if (!taken.has(i)) return i;
         }
-        return Math.min(Math.max(...usedPositions) + 1, 30);
+        return Math.min(Math.max(...usedPositions) + 1, MAX_ORDER_VALUE);
       }),
       catchError(() => of(1))
     );
@@ -204,13 +206,13 @@ export class SessionLogicService {
 
   getPlans(): Observable<PlanSummary[]> {
     return this.sessionProvider.getPlans().pipe(
-      catchError((err) => handleHttpError(err, { defaultMessage: 'Failed to load plans' }))
+      catchError((err) => handleHttpError(err, { defaultMessage: ERROR_MESSAGES.FAILED_LOAD_PLANS }))
     );
   }
 
   getAllExercises(): Observable<Exercise[]> {
     return this.exerciseProvider.getAllExercises().pipe(
-      catchError((err) => handleHttpError(err, { defaultMessage: 'Failed to load exercises' }))
+      catchError((err) => handleHttpError(err, { defaultMessage: ERROR_MESSAGES.FAILED_LOAD_EXERCISES }))
     );
   }
 
