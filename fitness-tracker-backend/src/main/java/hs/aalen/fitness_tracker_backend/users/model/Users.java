@@ -16,7 +16,7 @@ public class Users {
     private UUID id;
 
     @Column(unique = true, nullable = false)
-    private String userName;
+    private String username;
 
     @Column(nullable = false)
     private String password;
