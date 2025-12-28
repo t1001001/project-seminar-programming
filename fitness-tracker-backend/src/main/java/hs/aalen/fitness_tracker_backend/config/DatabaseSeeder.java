@@ -35,12 +35,12 @@ public class DatabaseSeeder {
             // Set users
             Users max = new Users();
             max.setUsername("max");
-            max.setPassword("passwort123");
+            max.setPassword("{noop}passwort123");
             usersRepository.save(max);
 
             Users anna = new Users();
             anna.setUsername("anna");
-            anna.setPassword("passwort456");
+            anna.setPassword("{noop}passwort456");
             usersRepository.save(anna);
 
             // ===== CREATE EXERCISES =====
