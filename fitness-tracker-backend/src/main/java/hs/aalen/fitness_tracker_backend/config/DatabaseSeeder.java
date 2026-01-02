@@ -1,5 +1,7 @@
 package hs.aalen.fitness_tracker_backend.config;
 
+import hs.aalen.fitness_tracker_backend.users.model.Users;
+import hs.aalen.fitness_tracker_backend.users.repository.UsersRepository;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.repository.ExerciseExecutionsRepository;
 import hs.aalen.fitness_tracker_backend.exercises.model.Exercises;
@@ -22,12 +24,24 @@ public class DatabaseSeeder {
             ExercisesRepository exercisesRepository,
             PlansRepository plansRepository,
             SessionsRepository sessionsRepository,
-            ExerciseExecutionsRepository exerciseExecutionsRepository) {
+            ExerciseExecutionsRepository exerciseExecutionsRepository,
+            UsersRepository usersRepository) {
         return args -> {
             // Only seed if database is empty
             if (exercisesRepository.count() > 0) {
                 return;
             }
+
+            // Set users
+            Users max = new Users();
+            max.setUsername("max");
+            max.setPassword("{noop}passwort123");
+            usersRepository.save(max);
+
+            Users anna = new Users();
+            anna.setUsername("anna");
+            anna.setPassword("{noop}passwort456");
+            usersRepository.save(anna);
 
             // ===== CREATE EXERCISES =====
 
