@@ -4,7 +4,7 @@
         Back
     </button>
 
-    @if (plan$ | async; as plan) {
+    @if (plan(); as plan) {
     <mat-card class="detail-card">
         <mat-card-content>
             <div class="header">
