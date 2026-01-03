@@ -167,20 +167,6 @@ class ExecutionLogsServiceTest {
     }
 
     @Test
-    void shouldThrowWhenUpdatingCancelledTraining() {
-        sessionLog.setStatus(SessionLogs.LogStatus.Cancelled);
-
-        when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
-        when(repository.findById(id)).thenReturn(Optional.of(log));
-
-        ExecutionLogsUpdateDto dto = new ExecutionLogsUpdateDto();
-        dto.setActualSets(8);
-
-        assertThrows(IllegalArgumentException.class,
-                () -> service.updateExecutionLog(id, dto, TEST_USERNAME));
-    }
-
-    @Test
     void shouldThrowWhenNegativeValuesProvided() {
         when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
         when(repository.findById(id)).thenReturn(Optional.of(log));
@@ -217,17 +203,6 @@ class ExecutionLogsServiceTest {
     @Test
     void shouldThrowWhenDeletingCompletedTraining() {
         sessionLog.setStatus(SessionLogs.LogStatus.Completed);
-
-        when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
-        when(repository.findById(id)).thenReturn(Optional.of(log));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> service.deleteExecutionLog(id, TEST_USERNAME));
-    }
-
-    @Test
-    void shouldThrowWhenDeletingCancelledTraining() {
-        sessionLog.setStatus(SessionLogs.LogStatus.Cancelled);
 
         when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
         when(repository.findById(id)).thenReturn(Optional.of(log));

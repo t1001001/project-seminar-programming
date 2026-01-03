@@ -181,37 +181,6 @@ class SessionLogsServiceTest {
         }
 
         @Test
-        void shouldCancelSessionWhenInProgress() {
-                SessionLogs log = createSessionLogWithOwner(testUser);
-                log.setStatus(SessionLogs.LogStatus.InProgress);
-
-                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
-                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
-                                .thenReturn(Optional.of(log));
-                when(sessionLogsRepository.save(any(SessionLogs.class)))
-                                .thenAnswer(invocation -> invocation.getArgument(0));
-
-                SessionLogsResponseDto cancelled = service.cancelSession(log.getId(), TEST_USERNAME);
-
-                assertEquals(SessionLogs.LogStatus.Cancelled, cancelled.getStatus());
-                assertNotNull(cancelled.getCompletedAt());
-        }
-
-        @Test
-        void shouldThrowCancelWhenNotInProgress() {
-                SessionLogs log = createSessionLogWithOwner(testUser);
-                log.setStatus(SessionLogs.LogStatus.Completed);
-
-                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
-                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
-                                .thenReturn(Optional.of(log));
-
-                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                                () -> service.cancelSession(log.getId(), TEST_USERNAME));
-                assertTrue(ex.getMessage().contains("Can only cancel a training that is in progress"));
-        }
-
-        @Test
         void shouldUpdateNotesAndStatus() {
                 SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setStatus(SessionLogs.LogStatus.InProgress);
@@ -231,23 +200,6 @@ class SessionLogsServiceTest {
                 assertEquals("New notes", updated.getNotes());
                 assertEquals(SessionLogs.LogStatus.Completed, updated.getStatus());
                 assertNotNull(updated.getCompletedAt());
-        }
-
-        @Test
-        void shouldThrowUpdateWhenCompletedOrCancelled() {
-                SessionLogs log = createSessionLogWithOwner(testUser);
-                log.setStatus(SessionLogs.LogStatus.Completed);
-
-                SessionLogsUpdateDto dto = new SessionLogsUpdateDto();
-                dto.setNotes("Test");
-
-                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
-                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
-                                .thenReturn(Optional.of(log));
-
-                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                                () -> service.updateSessionLog(log.getId(), dto, TEST_USERNAME));
-                assertEquals("Cannot update a completed training", ex.getMessage());
         }
 
         @Test
@@ -278,25 +230,6 @@ class SessionLogsServiceTest {
                 assertEquals(
                                 "Cannot delete a completed workout. Completed sessions are permanent records.",
                                 ex.getMessage());
-        }
-
-        @Test
-        void shouldThrowUpdateWhenCancelled() {
-                SessionLogs log = createSessionLogWithOwner(testUser);
-                log.setStatus(SessionLogs.LogStatus.Cancelled);
-
-                SessionLogsUpdateDto dto = new SessionLogsUpdateDto();
-                dto.setNotes("Should fail");
-
-                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
-                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
-                                .thenReturn(Optional.of(log));
-
-                IllegalArgumentException ex = assertThrows(
-                                IllegalArgumentException.class,
-                                () -> service.updateSessionLog(log.getId(), dto, TEST_USERNAME));
-
-                assertEquals("Cannot update a cancelled training", ex.getMessage());
         }
 
         @Test

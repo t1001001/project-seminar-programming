@@ -90,9 +90,6 @@ public class ExecutionLogsService {
         if (executionLog.getSessionLog().getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot update exercises in a completed training");
         }
-        if (executionLog.getSessionLog().getStatus() == SessionLogs.LogStatus.Cancelled) {
-            throw new IllegalArgumentException("Cannot update exercises in a cancelled training");
-        }
 
         validateActualValues(dto.getActualSets(), dto.getActualReps(), dto.getActualWeight());
 
@@ -120,9 +117,6 @@ public class ExecutionLogsService {
 
         if (executionLog.getSessionLog().getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot delete exercises from a completed training");
-        }
-        if (executionLog.getSessionLog().getStatus() == SessionLogs.LogStatus.Cancelled) {
-            throw new IllegalArgumentException("Cannot delete exercises from a cancelled training");
         }
 
         executionLogsRepository.deleteById(id);

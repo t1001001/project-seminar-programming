@@ -35,15 +35,6 @@ public class SessionLogsController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}/cancel")
-    public ResponseEntity<SessionLogsResponseDto> cancelSession(
-            @PathVariable UUID id,
-            Authentication authentication) {
-        SessionLogsResponseDto response = sessionLogsService.cancelSession(
-                id, authentication.getName());
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping
     public ResponseEntity<List<SessionLogsResponseDto>> getAllSessionLogs(
             @RequestParam(required = false) UUID sessionId,

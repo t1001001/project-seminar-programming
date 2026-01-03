@@ -50,8 +50,6 @@ public class SessionLogs {
 
     public enum LogStatus {
         InProgress,
-        Completed,
-        Cancelled
+        Completed
     }
 }
-

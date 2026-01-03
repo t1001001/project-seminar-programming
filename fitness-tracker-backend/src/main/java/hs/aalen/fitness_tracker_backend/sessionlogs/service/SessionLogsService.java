@@ -120,22 +120,6 @@ public class SessionLogsService {
         return mapToResponseDto(updated);
     }
 
-    @Transactional
-    public SessionLogsResponseDto cancelSession(UUID sessionLogId, String username) {
-        SessionLogs sessionLog = getSessionLogWithOwnershipCheck(sessionLogId, username);
-
-        if (sessionLog.getStatus() != SessionLogs.LogStatus.InProgress) {
-            throw new IllegalArgumentException(
-                    "Can only cancel a training that is in progress. Current status: " + sessionLog.getStatus());
-        }
-
-        sessionLog.setStatus(SessionLogs.LogStatus.Cancelled);
-        sessionLog.setCompletedAt(Instant.now());
-
-        SessionLogs updated = sessionLogsRepository.save(sessionLog);
-        return mapToResponseDto(updated);
-    }
-
     public List<SessionLogsResponseDto> getAllSessionLogs(String username) {
         Users owner = resolveUser(username);
         return sessionLogsRepository.findByOwner(owner).stream()
@@ -161,9 +145,6 @@ public class SessionLogsService {
         if (sessionLog.getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot update a completed training");
         }
-        if (sessionLog.getStatus() == SessionLogs.LogStatus.Cancelled) {
-            throw new IllegalArgumentException("Cannot update a cancelled training");
-        }
 
         if (dto.getNotes() != null) {
             sessionLog.setNotes(dto.getNotes());
@@ -186,10 +167,6 @@ public class SessionLogsService {
         if (sessionLog.getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException(
                     "Cannot delete a completed workout. Completed sessions are permanent records.");
-        }
-        if (sessionLog.getStatus() == SessionLogs.LogStatus.Cancelled) {
-            throw new IllegalArgumentException(
-                    "Cannot delete a cancelled training.");
         }
 
         sessionLogsRepository.deleteById(id);
