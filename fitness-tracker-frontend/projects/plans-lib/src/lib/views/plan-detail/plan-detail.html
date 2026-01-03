@@ -9,10 +9,12 @@
         <mat-card-content>
             <div class="header">
                 <h1>Training Plan Details</h1>
+                @if (authService.isLoggedIn()) {
                 <button mat-raised-button class="edit-btn" (click)="openEditDialog(plan)">
                     <mat-icon>edit</mat-icon>
                     Edit
                 </button>
+                }
             </div>
 
             <!-- Read-only card view -->

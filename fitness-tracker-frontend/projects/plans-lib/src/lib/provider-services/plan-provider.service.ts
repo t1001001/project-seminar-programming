@@ -21,7 +21,6 @@ export interface Session {
   scheduledDate: string;
   orderID?: number;
   sessionLogCount?: number;
-  exerciseCount?: number;
   status?: 'PLANNED' | 'COMPLETED';
   exerciseExecutions?: ExerciseExecution[];
 }
