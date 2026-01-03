@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { BehaviorSubject, catchError, debounceTime, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
+import { catchError, debounceTime, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
 
 import { WorkoutLogicService } from '../../logic-services/workout-logic.service';
 import { WorkoutLog } from '../../provider-services/workout-provider.service';
@@ -33,10 +33,10 @@ export class WorkoutsOverviewComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly searchControl = new FormControl('');
-  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  private readonly refreshTrigger = signal(0);
 
   private readonly workoutLogs = toSignal(
-    this.refreshTrigger$.pipe(
+    toObservable(this.refreshTrigger).pipe(
       switchMap(() => this.workoutService.getActiveWorkoutLogs().pipe(
         catchError((err) => {
           showError(this.snackBar, err.message);
@@ -74,7 +74,7 @@ export class WorkoutsOverviewComponent implements OnInit {
   }
 
   refresh(): void {
-    this.refreshTrigger$.next();
+    this.refreshTrigger.update(v => v + 1);
   }
 
   onDelete(logId: string, sessionName: string): void {
@@ -113,3 +113,4 @@ export class WorkoutsOverviewComponent implements OnInit {
     });
   }
 }
+

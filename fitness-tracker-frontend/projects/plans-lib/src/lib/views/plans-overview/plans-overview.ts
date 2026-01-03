@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { BehaviorSubject, debounceTime, shareReplay, startWith, switchMap } from 'rxjs';
+import { debounceTime, shareReplay, startWith, switchMap } from 'rxjs';
 
 import { PlanLogicService } from '../../logic-services/plan-logic.service';
 import { TrainingPlan, TrainingPlanCreate } from '../../provider-services/plan-provider.service';
@@ -38,10 +38,10 @@ export class PlansOverviewComponent {
 
     readonly searchControl = new FormControl('');
 
-    private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+    private readonly refreshTrigger = signal(0);
 
     private readonly plans = toSignal(
-        this.refreshTrigger$.pipe(
+        toObservable(this.refreshTrigger).pipe(
             switchMap(() => this.planService.getAllPlans()),
             shareReplay(1)
         )
@@ -66,7 +66,7 @@ export class PlansOverviewComponent {
     readonly totalPlansCount = computed(() => this.plans()?.length);
 
     private refreshPlans(): void {
-        this.refreshTrigger$.next();
+        this.refreshTrigger.update(v => v + 1);
     }
 
     onCreate(): void {
@@ -107,3 +107,4 @@ export class PlansOverviewComponent {
         });
     }
 }
+

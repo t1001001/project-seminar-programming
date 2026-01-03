@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, debounceTime, shareReplay, startWith, switchMap, catchError, of } from 'rxjs';
+import { debounceTime, shareReplay, startWith, switchMap, catchError, of } from 'rxjs';
 
 import { SessionLogicService, SessionOverview } from '../../logic-services/session-logic.service';
 import { SessionCardComponent } from '../../ui/session-card/session-card';
@@ -36,10 +36,10 @@ export class SessionsOverviewComponent {
   public readonly authService = inject(AuthService);
 
   readonly searchControl = new FormControl('');
-  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  private readonly refreshTrigger = signal(0);
 
   private readonly sessions = toSignal(
-    this.refreshTrigger$.pipe(
+    toObservable(this.refreshTrigger).pipe(
       switchMap(() => this.sessionService.getAllSessions().pipe(
         catchError((err) => {
           showError(this.snackBar, err.message);
@@ -103,7 +103,7 @@ export class SessionsOverviewComponent {
   }
 
   refresh(): void {
-    this.refreshTrigger$.next();
+    this.refreshTrigger.update(v => v + 1);
   }
 
 
@@ -118,3 +118,4 @@ export class SessionsOverviewComponent {
     });
   }
 }
+

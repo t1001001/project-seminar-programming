@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, debounceTime, shareReplay, startWith, switchMap } from 'rxjs';
+import { debounceTime, shareReplay, startWith, switchMap } from 'rxjs';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
 import { Exercise } from '../../provider-services/exercise-provider.service';
 import { ExerciseCardComponent } from '../../ui/exercise-card/exercise-card';
@@ -31,10 +31,10 @@ export class ExercisesOverviewComponent {
 
   readonly searchControl = new FormControl('');
 
-  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  private readonly refreshTrigger = signal(0);
 
   private readonly exercises = toSignal(
-    this.refreshTrigger$.pipe(
+    toObservable(this.refreshTrigger).pipe(
       switchMap(() => this.exerciseService.getAllExercises()),
       shareReplay(1)
     )
@@ -60,7 +60,7 @@ export class ExercisesOverviewComponent {
   readonly totalExercisesCount = computed(() => this.exercises()?.length);
 
   private refreshExercises(): void {
-    this.refreshTrigger$.next();
+    this.refreshTrigger.update(v => v + 1);
   }
 
   openCreateDialog(): void {
@@ -102,3 +102,4 @@ export class ExercisesOverviewComponent {
     });
   }
 }
+
