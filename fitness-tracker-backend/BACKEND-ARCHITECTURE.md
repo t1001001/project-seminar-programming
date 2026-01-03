@@ -8,7 +8,8 @@ The project follows a **feature-based package structure**, grouping related clas
 
 ```
 src/main/java/hs/aalen/fitness_tracker_backend/
-├── config/                  # Configuration classes (e.g., CORS, Swagger)
+├── config/                  # Configuration classes (e.g., Security, DatabaseSeeder)
+├── users/                   # User Management & Authentication
 ├── plans/                   # Training Plans feature
 │   ├── controller/          # REST Controllers
 │   ├── dto/                 # Data Transfer Objects
@@ -30,6 +31,19 @@ The application uses a standard Spring Boot layered architecture:
 2.  **Service Layer** (`service`): Contains business logic and transaction management.
 3.  **Repository Layer** (`repository`): Handles data access using Spring Data JPA.
 4.  **Model Layer** (`model`): Defines the persistent data entities.
+5.  **Config Layer** (`config`): Handles global configuration like Security (`SecurityConfig`) and Data Seeding.
+
+## 🔐 Security & Access Control
+
+The application implements a **Hybrid Public/Private** access model using Spring Security:
+
+- **Public Resources (Read-Only)**: usage of `Plans`, `Sessions`, `Exercises`, `ExerciseExecutions` is open to everyone. These serve as a shared catalog/template library.
+    - `GET /api/v1/exercises/**`
+    - `GET /api/v1/plans/**`
+    - `GET /api/v1/sessions/**`
+- **Private Resources (Authenticated)**: User-specific data like execution history and logs requires authentication.
+    - `SessionLogs` and `ExecutionLogs` are owned by specific users.
+    - API endpoints for these resources are protected.
 
 ## 💾 Data Models & Database Design
 
@@ -38,6 +52,7 @@ The application uses a standard Spring Boot layered architecture:
 - **Plans** (1) ↔ (N) **Sessions**
 - **Sessions** (1) ↔ (N) **ExerciseExecutions**
 - **ExerciseExecutions** (N) ↔ (1) **Exercises**
+- **Users** (1) ↔ (N) **SessionLogs** (Owner)
 - **SessionLogs** (1) ↔ (N) **ExecutionLogs**
 
 **Note:** SessionLogs does NOT have a foreign key relationship to Sessions. It stores the `originalSessionId` as a simple UUID field (not a JPA relationship) to allow logs to persist even if the original Session is deleted.
@@ -45,7 +60,7 @@ The application uses a standard Spring Boot layered architecture:
 ### Key Design Decisions
 
 #### ID Types
-- **UUID**: Used for primary keys of all main entities (`Plans`, `Sessions`, `Exercises`, etc.) to ensure global uniqueness.
+- **UUID**: Used for primary keys of all main entities (`Plans`, `Sessions`, `Exercises`, `Users`, etc.) to ensure global uniqueness.
 - **Integer**: Used for reference IDs in Log entities (`SessionLogs.sessionID`, `ExecutionLogs.exerciseExecutionId`).
     - *Rationale*: These are display counters (e.g., "Session #3"), not foreign keys.
 
@@ -65,6 +80,12 @@ The `SessionLogs` and `ExecutionLogs` entities are **static copies/snapshots** o
 **Purpose:** Logs persist as permanent historical records even if the original Session, Plan, or Exercise templates are modified or deleted.
 
 ### Entity Definitions
+
+#### `Users`
+Represents a system user.
+- `id`: UUID
+- `username`: String (Unique)
+- `password`: String (Encrypted/Hashed)
 
 #### `Plans`
 Represents a training plan (e.g., "Push/Pull/Legs").
@@ -98,6 +119,7 @@ Represents the planned sets/reps for an exercise in a session. This entity links
 #### `SessionLogs`
 Records the actual performance of a session. This is a **static copy** that persists independently.
 - `id`: UUID
+- `owner`: Users (The user who performed the session)
 - `sessionID`: Integer (display counter, e.g., "Session #3")
 - `sessionName`: String (copied from Session)
 - `sessionPlanName`: String (copied from Plan)

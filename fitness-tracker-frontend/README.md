@@ -1,129 +1,241 @@
-# Prerequisites
+# Fitness Tracker Frontend
 
-Before running the project, install the following dependencies:
+An Angular 20 application for managing workout plans, sessions, exercises, and tracking workouts. Built with a modular library architecture and Angular Material.
 
-[Node.js](https://nodejs.org/) (v18 or higher)
+## Tech Stack
 
-[Angular CLI](https://angular.dev/tools/cli) (v20.3.9 or higher)
+- **Angular 20.3.12** with standalone components
+- **Angular Material 20.2.13** for UI components
+- **Angular CDK** for accessibility and utilities
+- **RxJS 7.8** for reactive programming
+- **GSAP 3.13** for animations
+- **TypeScript 5.9**
+- **Karma/Jasmine** for unit testing
 
-[Docker](https://docs.docker.com/desktop/) (optional, for containerized deployment)
+## Prerequisites
 
+Before running the project, install the following:
 
-# Usage
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [Angular CLI](https://angular.dev/tools/cli) (v20.3.9 or higher)
+- [Docker](https://docs.docker.com/desktop/) (optional, for containerized deployment)
 
-## Development Server
+## Usage
 
-To start the development server, run:
+### Development Server
 
 ```bash
 npm install
 npm start
 ```
 
-The application will be available at `http://localhost:4200/`. The app will automatically reload when you modify source files.
+The application will be available at `http://localhost:4200/`.
 
-## Building for Production
-
-To build the project for production:
+### Building for Production
 
 ```bash
 npm run build
 ```
 
-The build artifacts will be stored in the `dist/` directory.
+Build artifacts are stored in the `dist/` directory.
 
-## Running with Docker
-
-You can bundle and serve the compiled Angular app via nginx using the provided Dockerfile.
+### Running with Docker
 
 ```bash
 docker build -t fitness-tracker-frontend-app .
 docker run -p 4200:80 fitness-tracker-frontend-app
 ```
 
-Open `http://localhost:4200` in your browser once the container is running.
+---
 
+## Application Routes
 
-# Project Structure
+| Route | Component | Auth Required |
+|-------|-----------|---------------|
+| `/login` | LoginComponent | ❌ |
+| `/home` | HomeLanding | ❌ |
+| `/exercises` | ExercisesOverview | ❌ |
+| `/exercises/:id` | ExercisesDetails | ❌ |
+| `/plans` | PlansOverview | ❌ |
+| `/plans/:id` | PlansDetails | ❌ |
+| `/sessions` | SessionsOverview | ❌ |
+| `/sessions/:id` | SessionsDetails | ❌ |
+| `/workouts` | WorkoutsOverview | ✅ |
+| `/workouts/:id` | WorkoutsDetails | ✅ |
 
-This Angular application is organized into feature libraries for better modularity and maintainability:
+---
+
+## Project Structure
+
+```
+fitness-tracker-frontend/
+├── src/
+│   └── app/
+│       ├── pages/            # Route components
+│       │   ├── exercises/
+│       │   ├── plans/
+│       │   ├── sessions/
+│       │   ├── workouts/
+│       │   ├── home/
+│       │   └── login/
+│       ├── services/         # App-level services
+│       ├── app.routes.ts     # Route configuration
+│       └── app.ts            # Root component
+├── projects/                 # Angular libraries
+│   ├── common-lib/           # Shared utilities & auth
+│   ├── exercises-lib/        # Exercise management
+│   ├── plans-lib/            # Training plans
+│   ├── sessions-lib/         # Workout sessions
+│   ├── workouts-lib/         # Workout tracking
+│   └── home-lib/             # Landing page
+└── public/                   # Static assets
+```
+
+---
 
 ## Libraries
 
-### exercises-lib
-Manages exercise data and UI components for browsing, creating, editing, and deleting exercises.
+The application uses a **feature-based library architecture**. Each library follows a layered pattern:
 
-**Key Components:**
-- `ExercisesOverviewComponent` - Lists all exercises
-- `ExerciseDetailComponent` - Displays individual exercise details
-- `ExerciseFormDialogComponent` - Form for creating/editing exercises
-- `ExerciseDeleteDialogComponent` - Confirmation dialog for deletion
+```
+[feature]-lib/
+└── src/lib/
+    ├── provider-services/    # HTTP communication
+    ├── logic-services/       # Business logic
+    ├── ui/                   # Reusable UI components
+    ├── views/                # Smart container components
+    └── shared/               # Constants & utilities
+```
+
+### common-lib
+
+Cross-cutting utilities shared across all feature libraries.
+
+**Key Features:**
+- **Authentication** - Signal-based auth state, HTTP interceptor, route guards
+- **Snackbar Utilities** - `showError()`, `showSuccess()` helpers
+- **HTTP Error Handling** - Centralized error handler with user-friendly messages
+
+**Exports:**
+- `AuthService` - Login/logout, session persistence
+- `authGuard` - Route protection for authenticated routes
+- `authInterceptor` - Automatic Authorization header injection
+
+### exercises-lib
+
+Manages the exercise catalog - browsing, creating, editing, and deleting exercises.
+
+**Components:**
+- `ExercisesOverviewComponent` - List all exercises
+- `ExerciseDetailComponent` - Individual exercise details
+- `ExerciseFormDialogComponent` - Create/edit dialog
+- `ExerciseDeleteDialogComponent` - Delete confirmation
 
 **Services:**
-- `ExerciseLogicService` - Business logic for exercise operations
-- `ExerciseProviderService` - HTTP communication with backend API
+- `ExerciseLogicService` - Business logic
+- `ExerciseProviderService` - HTTP communication
 
 ### plans-lib
-Manages training plan data and UI components for creating and organizing workout plans.
 
-**Key Components:**
-- `PlansOverviewComponent` - Lists all training plans
-- `PlanDetailComponent` - Displays individual plan details
-- `PlanFormDialogComponent` - Form for creating/editing plans
-- `PlanDeleteDialogComponent` - Confirmation dialog for deletion
-- `PlanCardComponent` - Card display for plan summaries
+Manages training plans and their organization.
+
+**Components:**
+- `PlansOverviewComponent` - List all plans
+- `PlanDetailComponent` - Plan details with sessions
+- `PlanFormDialogComponent` - Create/edit dialog
+- `PlanDeleteDialogComponent` - Delete confirmation
+- `PlanCardComponent` - Plan summary card
 
 **Services:**
-- `PlanLogicService` - Business logic for plan operations
-- `PlanProviderService` - HTTP communication with backend API
+- `PlanLogicService` - Business logic
+- `PlanProviderService` - HTTP communication
 
 ### sessions-lib
-Manages workout session data (planned for future implementation).
+
+Manages workout sessions within training plans.
+
+**Components:**
+- `SessionsOverviewComponent` - List all sessions
+- `SessionDetailComponent` - Session details with exercises
+- `SessionFormDialogComponent` - Create/edit dialog
+- `SessionDeleteDialogComponent` - Delete confirmation
+- `SessionCardComponent` - Session summary card
+
+**Services:**
+- `SessionLogicService` - Business logic, exercise execution management
+- `SessionProviderService` - HTTP communication
+
+### workouts-lib
+
+Manages active workout tracking and history (user-authenticated).
+
+**Components:**
+- `WorkoutsOverviewComponent` - List user's workout logs
+- `WorkoutDetailComponent` - Active workout tracking
+- `WorkoutCardComponent` - Workout summary card
+
+**Services:**
+- `WorkoutLogicService` - Workout state management, completion tracking
+- `WorkoutProviderService` - HTTP communication for session logs & execution logs
+
+**Features:**
+- Start/complete workout sessions
+- Track actual sets, reps, and weight
+- Add notes to workouts and exercises
+- View workout history
 
 ### home-lib
-Contains the home page and landing components.
 
+Landing page and home components.
 
-# Testing
+**Components:**
+- `HomeLandingComponent` - Welcome page
 
-## Unit Tests
+---
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner:
+## Authentication
+
+The app uses HTTP Basic Authentication with the backend API.
+
+- **Login** - Enter credentials on `/login` page
+- **Session Persistence** - Auth token stored in localStorage
+- **Protected Routes** - `/workouts/**` requires authentication
+- **Auto-header** - `authInterceptor` automatically adds Authorization header
+
+---
+
+## Testing
+
+### Unit Tests
 
 ```bash
 npm test
 ```
 
-## End-to-End Tests
+Runs tests with [Karma](https://karma-runner.github.io).
 
-For end-to-end (e2e) testing:
+### End-to-End Tests
 
 ```bash
 ng e2e
 ```
 
-Note: Angular CLI does not include an e2e testing framework by default. You can choose one that suits your needs.
+---
 
+## Code Scaffolding
 
-# Code Scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component:
+Generate new components:
 
 ```bash
 ng generate component component-name
+ng generate --help  # See all schematics
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`):
+---
 
-```bash
-ng generate --help
-```
+## Additional Resources
 
-
-# Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-
-For project-specific architecture and library organization, see [LIBRARY-ARCHITECTURE.md](projects/LIBRARY-ARCHITECTURE.md).
-
-For UI styling guidelines and component patterns, see [UI-STYLE-GUIDE.md](UI-STYLE-GUIDE.md).
+- [LIBRARY-ARCHITECTURE.md](projects/LIBRARY-ARCHITECTURE.md) - Detailed library patterns and templates
+- [UI-STYLE-GUIDE.md](UI-STYLE-GUIDE.md) - UI styling guidelines
+- [ANGULAR-BEST-PRACTICES.md](ANGULAR-BEST-PRACTICES.md) - Angular coding conventions
+- [Angular CLI Documentation](https://angular.dev/tools/cli)

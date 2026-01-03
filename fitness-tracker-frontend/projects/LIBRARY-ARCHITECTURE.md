@@ -2,7 +2,7 @@
 
 This document defines the standard architecture pattern for Angular feature libraries in this project. All new libraries **must** follow these patterns to ensure consistency, maintainability, and scalability.
 
-> **Reference Implementations:** See `common-lib` for shared utilities and `exercises-lib`, `sessions-lib`, `plans-lib`, and `workouts-lib` for feature library examples.
+> **Reference Implementations:** See `common-lib` for shared utilities and `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`, and `home-lib` for feature library examples.
 
 ---
 
@@ -31,7 +31,7 @@ projects/
         └── lib/
             ├── provider-services/     # HTTP & Backend Communication
             ├── logic-services/        # Business Logic Layer
-            ├── shared/                # Feature-specific constants, validation, error handling
+            ├── shared/                # Feature-specific constants, validation, error handling (Optional)
             ├── ui/                    # Reusable UI Components
             ├── views/                 # Smart Container Components
             └── [feature]-lib.ts       # Barrel file for API exports
@@ -281,7 +281,7 @@ export function handleHttpError(err: any, config: HttpErrorConfig): Observable<n
 
 ### Shared Folder (`shared/`)
 
-**Purpose:** Domain-specific constants, validation logic, and error handling for a feature library. Each library has its own `shared/` folder.
+**Purpose:** Domain-specific constants, validation logic, and error handling for a feature library. Each library has its own `shared/` folder, but it is **optional** if the feature is simple and doesn't require specific constants or validation.
 
 #### Directory Structure
 
