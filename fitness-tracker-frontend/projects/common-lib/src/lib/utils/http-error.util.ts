@@ -7,12 +7,16 @@ export interface HttpErrorConfig {
     conflictMessage?: string;
     badRequestMessage?: string;
     connectionMessage?: string;
+    unauthorizedMessage?: string;
 }
 
 export function handleHttpError(err: any, config: HttpErrorConfig): Observable<never> {
     let errorMessage = config.defaultMessage;
 
     switch (err?.status) {
+        case 401:
+            errorMessage = config.unauthorizedMessage ?? COMMON_ERROR_MESSAGES.UNAUTHORIZED;
+            break;
         case 404:
             errorMessage = config.notFoundMessage ?? errorMessage;
             break;
