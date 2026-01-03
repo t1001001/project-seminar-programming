@@ -22,7 +22,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
+                        // Public read access for shared resources (exercises, plans, sessions)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/exercises/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/plans/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/sessions/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/exercise-executions/**").permitAll()
+                        // Session logs and execution logs require authentication (user isolation)
+                        .requestMatchers("/api/v1/session-logs/**").authenticated()
+                        .requestMatchers("/api/v1/execution-logs/**").authenticated()
+                        // All other requests require authentication
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
 

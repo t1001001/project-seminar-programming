@@ -11,6 +11,8 @@ import hs.aalen.fitness_tracker_backend.sessionlogs.service.SessionLogsService;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
+import hs.aalen.fitness_tracker_backend.users.model.Users;
+import hs.aalen.fitness_tracker_backend.users.repository.UsersRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.*;
 
@@ -37,15 +40,33 @@ class SessionLogsServiceTest {
         @Mock
         private ExerciseExecutionsRepository exerciseExecutionsRepository;
 
+        @Mock
+        private UsersRepository usersRepository;
+
         @InjectMocks
         private SessionLogsService service;
 
         private UUID sessionId;
         private Sessions session;
         private ExerciseExecutions execution;
+        private Users testUser;
+        private Users otherUser;
+        private static final String TEST_USERNAME = "testUser";
+        private static final String OTHER_USERNAME = "otherUser";
 
         @BeforeEach
         void setup() {
+                // Setup test users
+                testUser = new Users();
+                testUser.setId(UUID.randomUUID());
+                testUser.setUsername(TEST_USERNAME);
+                testUser.setPassword("password");
+
+                otherUser = new Users();
+                otherUser.setId(UUID.randomUUID());
+                otherUser.setUsername(OTHER_USERNAME);
+                otherUser.setPassword("password");
+
                 sessionId = UUID.randomUUID();
                 session = new Sessions();
                 session.setId(sessionId);
@@ -71,16 +92,32 @@ class SessionLogsServiceTest {
                 execution.setSession(session);
         }
 
+        private SessionLogs createSessionLogWithOwner(Users owner) {
+                SessionLogs log = new SessionLogs();
+                log.setId(UUID.randomUUID());
+                log.setSessionName("Test Session");
+                log.setSessionPlanName("Test Plan");
+                log.setStatus(SessionLogs.LogStatus.InProgress);
+                log.setOwner(owner);
+                log.setOriginalSessionId(sessionId);
+                return log;
+        }
+
         @Test
         void shouldStartSessionSuccessfully() {
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
                 when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
                 when(exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId))
                                 .thenReturn(List.of(execution));
 
                 when(sessionLogsRepository.save(any(SessionLogs.class)))
-                                .thenAnswer(invocation -> invocation.getArgument(0));
+                                .thenAnswer(invocation -> {
+                                        SessionLogs sl = invocation.getArgument(0);
+                                        assertEquals(testUser, sl.getOwner());
+                                        return sl;
+                                });
 
-                SessionLogsResponseDto dto = service.startSession(sessionId);
+                SessionLogsResponseDto dto = service.startSession(sessionId, TEST_USERNAME);
 
                 assertEquals("Morning Session", dto.getSessionName());
                 assertEquals(1, dto.getExecutionLogCount());
@@ -90,36 +127,56 @@ class SessionLogsServiceTest {
         }
 
         @Test
+        void shouldSetOwnerWhenStartingSession() {
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+                when(exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId))
+                                .thenReturn(List.of(execution));
+
+                when(sessionLogsRepository.save(any(SessionLogs.class)))
+                                .thenAnswer(invocation -> {
+                                        SessionLogs sl = invocation.getArgument(0);
+                                        assertNotNull(sl.getOwner());
+                                        assertEquals(testUser.getId(), sl.getOwner().getId());
+                                        return sl;
+                                });
+
+                service.startSession(sessionId, TEST_USERNAME);
+                verify(sessionLogsRepository, times(2)).save(any(SessionLogs.class));
+        }
+
+        @Test
         void shouldThrowWhenSessionHasNoExercises() {
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
                 when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
                 when(exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId))
                                 .thenReturn(Collections.emptyList());
 
                 IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                                () -> service.startSession(sessionId));
+                                () -> service.startSession(sessionId, TEST_USERNAME));
                 assertTrue(ex.getMessage().contains("Session must contain at least one exercise"));
         }
 
         @Test
         void shouldThrowWhenSessionNotFound() {
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
                 when(sessionsRepository.findById(sessionId)).thenReturn(Optional.empty());
                 RuntimeException ex = assertThrows(RuntimeException.class,
-                                () -> service.startSession(sessionId));
+                                () -> service.startSession(sessionId, TEST_USERNAME));
                 assertEquals("Session not found", ex.getMessage());
         }
 
         @Test
         void shouldCompleteSession() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
-                log.setStatus(SessionLogs.LogStatus.InProgress);
+                SessionLogs log = createSessionLogWithOwner(testUser);
 
-                when(sessionLogsRepository.findById(log.getId()))
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
                                 .thenReturn(Optional.of(log));
                 when(sessionLogsRepository.save(any(SessionLogs.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-                SessionLogsResponseDto updated = service.completeSession(log.getId());
+                SessionLogsResponseDto updated = service.completeSession(log.getId(), TEST_USERNAME);
 
                 assertEquals(SessionLogs.LogStatus.Completed, updated.getStatus());
                 assertNotNull(updated.getCompletedAt());
@@ -127,16 +184,16 @@ class SessionLogsServiceTest {
 
         @Test
         void shouldCancelSessionWhenInProgress() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
+                SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setStatus(SessionLogs.LogStatus.InProgress);
 
-                when(sessionLogsRepository.findById(log.getId()))
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
                                 .thenReturn(Optional.of(log));
                 when(sessionLogsRepository.save(any(SessionLogs.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-                SessionLogsResponseDto cancelled = service.cancelSession(log.getId());
+                SessionLogsResponseDto cancelled = service.cancelSession(log.getId(), TEST_USERNAME);
 
                 assertEquals(SessionLogs.LogStatus.Cancelled, cancelled.getStatus());
                 assertNotNull(cancelled.getCompletedAt());
@@ -144,33 +201,34 @@ class SessionLogsServiceTest {
 
         @Test
         void shouldThrowCancelWhenNotInProgress() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
+                SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setStatus(SessionLogs.LogStatus.Completed);
 
-                when(sessionLogsRepository.findById(log.getId())).thenReturn(Optional.of(log));
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
+                                .thenReturn(Optional.of(log));
 
                 IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                                () -> service.cancelSession(log.getId()));
+                                () -> service.cancelSession(log.getId(), TEST_USERNAME));
                 assertTrue(ex.getMessage().contains("Can only cancel a training that is in progress"));
         }
 
         @Test
         void shouldUpdateNotesAndStatus() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
+                SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setStatus(SessionLogs.LogStatus.InProgress);
 
                 SessionLogsUpdateDto dto = new SessionLogsUpdateDto();
                 dto.setNotes("New notes");
                 dto.setStatus(SessionLogs.LogStatus.Completed);
 
-                when(sessionLogsRepository.findById(log.getId()))
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
                                 .thenReturn(Optional.of(log));
                 when(sessionLogsRepository.save(any(SessionLogs.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-                SessionLogsResponseDto updated = service.updateSessionLog(log.getId(), dto);
+                SessionLogsResponseDto updated = service.updateSessionLog(log.getId(), dto, TEST_USERNAME);
 
                 assertEquals("New notes", updated.getNotes());
                 assertEquals(SessionLogs.LogStatus.Completed, updated.getStatus());
@@ -179,43 +237,46 @@ class SessionLogsServiceTest {
 
         @Test
         void shouldThrowUpdateWhenCompletedOrCancelled() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
+                SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setStatus(SessionLogs.LogStatus.Completed);
 
                 SessionLogsUpdateDto dto = new SessionLogsUpdateDto();
                 dto.setNotes("Test");
 
-                when(sessionLogsRepository.findById(log.getId())).thenReturn(Optional.of(log));
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
+                                .thenReturn(Optional.of(log));
 
                 IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                                () -> service.updateSessionLog(log.getId(), dto));
+                                () -> service.updateSessionLog(log.getId(), dto, TEST_USERNAME));
                 assertEquals("Cannot update a completed training", ex.getMessage());
         }
 
         @Test
         void shouldDeleteSessionLogWhenNotCompleted() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
+                SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setStatus(SessionLogs.LogStatus.InProgress);
 
-                when(sessionLogsRepository.findById(log.getId())).thenReturn(Optional.of(log));
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
+                                .thenReturn(Optional.of(log));
 
-                service.deleteSessionLog(log.getId());
+                service.deleteSessionLog(log.getId(), TEST_USERNAME);
 
                 verify(sessionLogsRepository).deleteById(log.getId());
         }
 
         @Test
         void shouldThrowDeleteWhenCompleted() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
+                SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setStatus(SessionLogs.LogStatus.Completed);
 
-                when(sessionLogsRepository.findById(log.getId())).thenReturn(Optional.of(log));
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
+                                .thenReturn(Optional.of(log));
 
                 IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                                () -> service.deleteSessionLog(log.getId()));
+                                () -> service.deleteSessionLog(log.getId(), TEST_USERNAME));
                 assertEquals(
                                 "Cannot delete a completed workout. Completed sessions are permanent records.",
                                 ex.getMessage());
@@ -223,19 +284,19 @@ class SessionLogsServiceTest {
 
         @Test
         void shouldThrowUpdateWhenCancelled() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
+                SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setStatus(SessionLogs.LogStatus.Cancelled);
 
                 SessionLogsUpdateDto dto = new SessionLogsUpdateDto();
                 dto.setNotes("Should fail");
 
-                when(sessionLogsRepository.findById(log.getId()))
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
                                 .thenReturn(Optional.of(log));
 
                 IllegalArgumentException ex = assertThrows(
                                 IllegalArgumentException.class,
-                                () -> service.updateSessionLog(log.getId(), dto));
+                                () -> service.updateSessionLog(log.getId(), dto, TEST_USERNAME));
 
                 assertEquals("Cannot update a cancelled training", ex.getMessage());
         }
@@ -244,6 +305,7 @@ class SessionLogsServiceTest {
         void shouldStartSessionWithoutPlan() {
                 session.setPlan(null);
 
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
                 when(sessionsRepository.findById(sessionId))
                                 .thenReturn(Optional.of(session));
 
@@ -253,21 +315,20 @@ class SessionLogsServiceTest {
                 when(sessionLogsRepository.save(any(SessionLogs.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-                SessionLogsResponseDto dto = service.startSession(sessionId);
+                SessionLogsResponseDto dto = service.startSession(sessionId, TEST_USERNAME);
 
                 assertEquals("No Plan", dto.getSessionPlanName());
                 assertEquals("", dto.getSessionPlan());
         }
 
         @Test
-        void shouldReturnAllSessionLogs() {
-                SessionLogs log = new SessionLogs();
-                log.setId(UUID.randomUUID());
-                log.setSessionName("Test Session");
+        void shouldReturnOnlyOwnSessionLogs() {
+                SessionLogs log = createSessionLogWithOwner(testUser);
 
-                when(sessionLogsRepository.findAll()).thenReturn(List.of(log));
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByOwner(testUser)).thenReturn(List.of(log));
 
-                List<SessionLogsResponseDto> results = service.getAllSessionLogs();
+                List<SessionLogsResponseDto> results = service.getAllSessionLogs(TEST_USERNAME);
 
                 assertFalse(results.isEmpty());
                 assertEquals(1, results.size());
@@ -276,38 +337,43 @@ class SessionLogsServiceTest {
 
         @Test
         void shouldReturnSessionLogById() {
-                UUID logId = UUID.randomUUID();
-                SessionLogs log = new SessionLogs();
-                log.setId(logId);
+                SessionLogs log = createSessionLogWithOwner(testUser);
 
-                when(sessionLogsRepository.findById(logId)).thenReturn(Optional.of(log));
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), testUser))
+                                .thenReturn(Optional.of(log));
 
-                SessionLogsResponseDto result = service.getSessionLogById(logId);
+                SessionLogsResponseDto result = service.getSessionLogById(log.getId(), TEST_USERNAME);
 
                 assertNotNull(result);
-                assertEquals(logId, result.getId());
+                assertEquals(log.getId(), result.getId());
         }
 
         @Test
-        void shouldThrowWhenSessionLogNotFoundById() {
-                UUID logId = UUID.randomUUID();
-                when(sessionLogsRepository.findById(logId)).thenReturn(Optional.empty());
+        void shouldThrowWhenAccessingAnotherUsersLog() {
+                SessionLogs log = createSessionLogWithOwner(testUser);
 
-                RuntimeException ex = assertThrows(RuntimeException.class,
-                                () -> service.getSessionLogById(logId));
-                assertEquals("SessionLog not found", ex.getMessage());
+                when(usersRepository.findByUsername(OTHER_USERNAME)).thenReturn(Optional.of(otherUser));
+                when(sessionLogsRepository.findByIdAndOwner(log.getId(), otherUser))
+                                .thenReturn(Optional.empty());
+
+                AccessDeniedException ex = assertThrows(AccessDeniedException.class,
+                                () -> service.getSessionLogById(log.getId(), OTHER_USERNAME));
+                assertTrue(ex.getMessage().contains("access denied"));
         }
 
         @Test
         void shouldReturnSessionLogsBySessionId() {
                 UUID originalSessionId = UUID.randomUUID();
-                SessionLogs log = new SessionLogs();
+                SessionLogs log = createSessionLogWithOwner(testUser);
                 log.setOriginalSessionId(originalSessionId);
 
-                when(sessionLogsRepository.findByOriginalSessionId(originalSessionId))
+                when(usersRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+                when(sessionLogsRepository.findByOwnerAndOriginalSessionId(testUser, originalSessionId))
                                 .thenReturn(List.of(log));
 
-                List<SessionLogsResponseDto> results = service.getSessionLogsBySessionId(originalSessionId);
+                List<SessionLogsResponseDto> results = service.getSessionLogsBySessionId(
+                                originalSessionId, TEST_USERNAME);
 
                 assertFalse(results.isEmpty());
                 assertEquals(originalSessionId, results.get(0).getOriginalSessionId());

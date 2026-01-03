@@ -1,11 +1,16 @@
 package hs.aalen.fitness_tracker_backend.executionlogs.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import hs.aalen.fitness_tracker_backend.executionlogs.dto.ExecutionLogsResponseDto;
 import hs.aalen.fitness_tracker_backend.executionlogs.dto.ExecutionLogsUpdateDto;
 import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
 import hs.aalen.fitness_tracker_backend.executionlogs.repository.ExecutionLogsRepository;
+import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
+import hs.aalen.fitness_tracker_backend.sessionlogs.repository.SessionLogsRepository;
+import hs.aalen.fitness_tracker_backend.users.model.Users;
+import hs.aalen.fitness_tracker_backend.users.repository.UsersRepository;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,6 +19,33 @@ import java.util.stream.Collectors;
 public class ExecutionLogsService {
     @Autowired
     private ExecutionLogsRepository executionLogsRepository;
+    @Autowired
+    private SessionLogsRepository sessionLogsRepository;
+    @Autowired
+    private UsersRepository usersRepository;
+
+    /**
+     * Resolves the authenticated username to a Users entity.
+     */
+    private Users resolveUser(String username) {
+        return usersRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+    }
+
+    /**
+     * Verifies that an ExecutionLog belongs to a SessionLog owned by the user.
+     */
+    private ExecutionLogs getExecutionLogWithOwnershipCheck(UUID id, String username) {
+        Users owner = resolveUser(username);
+        ExecutionLogs executionLog = executionLogsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
+        
+        // Check ownership through parent SessionLog
+        if (!executionLog.getSessionLog().getOwner().getId().equals(owner.getId())) {
+            throw new AccessDeniedException("Execution log not found or access denied");
+        }
+        return executionLog;
+    }
 
     private void validateActualValues(Integer sets, Integer reps, Integer weight) {
         if (sets != null && sets < 0) {
@@ -27,34 +59,38 @@ public class ExecutionLogsService {
         }
     }
 
-    public List<ExecutionLogsResponseDto> getAllExecutionLogs() {
-        return executionLogsRepository.findAll().stream()
+    public List<ExecutionLogsResponseDto> getAllExecutionLogs(String username) {
+        Users owner = resolveUser(username);
+        // Get all session logs owned by user, then collect their execution logs
+        return sessionLogsRepository.findByOwner(owner).stream()
+                .flatMap(sessionLog -> sessionLog.getExecutionLogs().stream())
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public ExecutionLogsResponseDto getExecutionLogById(UUID id) {
-        ExecutionLogs executionLog = executionLogsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
+    public ExecutionLogsResponseDto getExecutionLogById(UUID id, String username) {
+        ExecutionLogs executionLog = getExecutionLogWithOwnershipCheck(id, username);
         return mapToResponseDto(executionLog);
     }
 
-    public List<ExecutionLogsResponseDto> getExecutionLogsBySessionLogId(UUID sessionLogId) {
+    public List<ExecutionLogsResponseDto> getExecutionLogsBySessionLogId(UUID sessionLogId, String username) {
+        Users owner = resolveUser(username);
+        // Verify ownership of the session log
+        SessionLogs sessionLog = sessionLogsRepository.findByIdAndOwner(sessionLogId, owner)
+                .orElseThrow(() -> new AccessDeniedException("Session log not found or access denied"));
+        
         return executionLogsRepository.findBySessionLogId(sessionLogId).stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public ExecutionLogsResponseDto updateExecutionLog(UUID id, ExecutionLogsUpdateDto dto) {
-        ExecutionLogs executionLog = executionLogsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
+    public ExecutionLogsResponseDto updateExecutionLog(UUID id, ExecutionLogsUpdateDto dto, String username) {
+        ExecutionLogs executionLog = getExecutionLogWithOwnershipCheck(id, username);
 
-        if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Completed) {
+        if (executionLog.getSessionLog().getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot update exercises in a completed training");
         }
-        if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Cancelled) {
+        if (executionLog.getSessionLog().getStatus() == SessionLogs.LogStatus.Cancelled) {
             throw new IllegalArgumentException("Cannot update exercises in a cancelled training");
         }
 
@@ -79,16 +115,13 @@ public class ExecutionLogsService {
         return mapToResponseDto(updated);
     }
 
-    public void deleteExecutionLog(UUID id) {
-        ExecutionLogs executionLog = executionLogsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
+    public void deleteExecutionLog(UUID id, String username) {
+        ExecutionLogs executionLog = getExecutionLogWithOwnershipCheck(id, username);
 
-        if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Completed) {
+        if (executionLog.getSessionLog().getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot delete exercises from a completed training");
         }
-        if (executionLog.getSessionLog()
-                .getStatus() == hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs.LogStatus.Cancelled) {
+        if (executionLog.getSessionLog().getStatus() == SessionLogs.LogStatus.Cancelled) {
             throw new IllegalArgumentException("Cannot delete exercises from a cancelled training");
         }
 
