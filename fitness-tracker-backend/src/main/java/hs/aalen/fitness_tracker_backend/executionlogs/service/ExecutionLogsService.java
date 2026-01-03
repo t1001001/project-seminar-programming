@@ -39,7 +39,7 @@ public class ExecutionLogsService {
         Users owner = resolveUser(username);
         ExecutionLogs executionLog = executionLogsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
-        
+
         // Check ownership through parent SessionLog
         if (!executionLog.getSessionLog().getOwner().getId().equals(owner.getId())) {
             throw new AccessDeniedException("Execution log not found or access denied");
@@ -76,9 +76,9 @@ public class ExecutionLogsService {
     public List<ExecutionLogsResponseDto> getExecutionLogsBySessionLogId(UUID sessionLogId, String username) {
         Users owner = resolveUser(username);
         // Verify ownership of the session log
-        SessionLogs sessionLog = sessionLogsRepository.findByIdAndOwner(sessionLogId, owner)
+        sessionLogsRepository.findByIdAndOwner(sessionLogId, owner)
                 .orElseThrow(() -> new AccessDeniedException("Session log not found or access denied"));
-        
+
         return executionLogsRepository.findBySessionLogId(sessionLogId).stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());

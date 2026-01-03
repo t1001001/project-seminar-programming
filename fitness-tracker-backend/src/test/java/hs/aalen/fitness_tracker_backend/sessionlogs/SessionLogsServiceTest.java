@@ -71,7 +71,6 @@ class SessionLogsServiceTest {
                 session = new Sessions();
                 session.setId(sessionId);
                 session.setName("Morning Session");
-                session.setSessionLogCount(0);
                 session.setPlan(new Plans());
                 session.getPlan().setName("Plan A");
                 session.getPlan().setDescription("Desc A");
@@ -123,7 +122,6 @@ class SessionLogsServiceTest {
                 assertEquals(1, dto.getExecutionLogCount());
                 assertEquals(SessionLogs.LogStatus.InProgress, dto.getStatus());
                 verify(sessionLogsRepository, times(2)).save(any(SessionLogs.class));
-                verify(sessionsRepository).save(session);
         }
 
         @Test

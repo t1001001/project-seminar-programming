@@ -24,5 +24,6 @@ public interface SessionLogsRepository extends JpaRepository<SessionLogs, UUID> 
     List<SessionLogs> findByOwnerAndOriginalSessionId(Users owner, UUID originalSessionId);
 
     Optional<SessionLogs> findByIdAndOwner(UUID id, Users owner);
-}
 
+    long countByOwnerAndOriginalSessionId(Users owner, UUID originalSessionId);
+}

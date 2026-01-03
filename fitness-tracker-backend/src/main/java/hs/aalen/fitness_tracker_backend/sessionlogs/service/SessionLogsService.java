@@ -44,6 +44,7 @@ public class SessionLogsService {
 
     /**
      * Fetches a SessionLog by ID and verifies ownership.
+     * 
      * @throws AccessDeniedException if the session log does not belong to the user
      */
     private SessionLogs getSessionLogWithOwnershipCheck(UUID id, String username) {
@@ -66,10 +67,6 @@ public class SessionLogsService {
             throw new IllegalArgumentException(
                     "Cannot start training: Session must contain at least one exercise");
         }
-
-        // Increment session log count
-        Integer currentCount = session.getSessionLogCount() != null ? session.getSessionLogCount() : 0;
-        session.setSessionLogCount(currentCount + 1);
 
         // Create SessionLogs with denormalized data
         SessionLogs sessionLog = new SessionLogs();
@@ -111,7 +108,6 @@ public class SessionLogsService {
 
         // Save again with execution logs
         SessionLogs finalLog = sessionLogsRepository.save(savedLog);
-        sessionsRepository.save(session);
         return mapToResponseDto(finalLog);
     }
 
@@ -182,6 +178,7 @@ public class SessionLogsService {
         return mapToResponseDto(updated);
     }
 
+    @Transactional
     public void deleteSessionLog(UUID id, String username) {
         SessionLogs sessionLog = getSessionLogWithOwnershipCheck(id, username);
 

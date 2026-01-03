@@ -3,11 +3,13 @@ package hs.aalen.fitness_tracker_backend.sessions;
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 import hs.aalen.fitness_tracker_backend.plans.repository.PlansRepository;
+import hs.aalen.fitness_tracker_backend.sessionlogs.repository.SessionLogsRepository;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsCreateDto;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsUpdateDto;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
 import hs.aalen.fitness_tracker_backend.sessions.service.SessionsService;
+import hs.aalen.fitness_tracker_backend.users.repository.UsersRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,12 @@ class SessionsServiceTest {
 
     @Mock
     private PlansRepository plansRepository;
+
+    @Mock
+    private SessionLogsRepository sessionLogsRepository;
+
+    @Mock
+    private UsersRepository usersRepository;
 
     @InjectMocks
     private SessionsService service;
@@ -88,8 +96,7 @@ class SessionsServiceTest {
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.create(dto)
-        );
+                () -> service.create(dto));
 
         assertEquals("Session with this name already exists in this plan", ex.getMessage());
     }
@@ -144,7 +151,7 @@ class SessionsServiceTest {
     @Test
     void shouldGetAllSessions() {
         when(sessionsRepository.findAll()).thenReturn(List.of(session));
-        var result = service.getAll();
+        var result = service.getAll(null);
         assertEquals(1, result.size());
         assertEquals("Session 1", result.get(0).getName());
     }
@@ -152,14 +159,14 @@ class SessionsServiceTest {
     @Test
     void shouldGetSessionById() {
         when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
-        var result = service.getById(sessionId);
+        var result = service.getById(sessionId, null);
         assertEquals("Session 1", result.getName());
     }
 
     @Test
     void shouldThrowEntityNotFoundWhenGettingById() {
         when(sessionsRepository.findById(sessionId)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> service.getById(sessionId));
+        assertThrows(EntityNotFoundException.class, () -> service.getById(sessionId, null));
     }
 
     @Test
@@ -393,13 +400,13 @@ class SessionsServiceTest {
         exercise.setSession(session);
 
         session.setExerciseExecutions(List.of(exercise));
-        session.setSessionLogCount(5);
 
         when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
 
-        var result = service.getById(sessionId);
+        // Without a username, sessionLogCount should be 0
+        var result = service.getById(sessionId, null);
 
-        assertEquals(5, result.getSessionLogCount());
+        assertEquals(0, result.getSessionLogCount());
         assertEquals(1, result.getExerciseExecutions().size());
         assertEquals(exercise.getId(), result.getExerciseExecutions().get(0).getId());
     }
@@ -425,10 +432,83 @@ class SessionsServiceTest {
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.update(sessionId, dto)
-        );
+                () -> service.update(sessionId, dto));
 
         assertEquals("Order 2 is already used in this plan", ex.getMessage());
+    }
+
+    @Test
+    void shouldReturnSessionLogCountWithAuthenticatedUser() {
+        var user = new hs.aalen.fitness_tracker_backend.users.model.Users();
+        user.setId(UUID.randomUUID());
+        user.setUsername("testUser");
+
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(usersRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(sessionLogsRepository.countByOwnerAndOriginalSessionId(user, sessionId)).thenReturn(5L);
+
+        var result = service.getById(sessionId, "testUser");
+
+        assertEquals(5, result.getSessionLogCount());
+    }
+
+    @Test
+    void shouldReturnZeroSessionLogCountWhenUserNotFound() {
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(usersRepository.findByUsername("unknownUser")).thenReturn(Optional.empty());
+
+        var result = service.getById(sessionId, "unknownUser");
+
+        assertEquals(0, result.getSessionLogCount());
+    }
+
+    @Test
+    void shouldHandleSessionWithNullPlan() {
+        session.setPlan(null);
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+
+        var result = service.getById(sessionId, null);
+
+        assertNull(result.getPlanId());
+    }
+
+    @Test
+    void shouldHandleUpdateWithNullPlanId() {
+        SessionsUpdateDto dto = new SessionsUpdateDto();
+        dto.setName("Updated Name");
+        dto.setPlanId(null);
+
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(sessionsRepository.save(any(Sessions.class))).thenAnswer(i -> i.getArgument(0));
+
+        var result = service.update(sessionId, dto);
+
+        assertEquals("Updated Name", result.getName());
+    }
+
+    @Test
+    void shouldHandleUpdateToDifferentPlanWhenOriginalPlanIsNull() {
+        session.setPlan(null);
+
+        Plans newPlan = new Plans();
+        UUID newPlanId = UUID.randomUUID();
+        newPlan.setId(newPlanId);
+        newPlan.setSessions(new ArrayList<>());
+
+        SessionsUpdateDto dto = new SessionsUpdateDto();
+        dto.setName("Updated");
+        dto.setPlanId(newPlanId);
+        dto.setOrderID(1);
+
+        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(plansRepository.findById(newPlanId)).thenReturn(Optional.of(newPlan));
+        when(sessionsRepository.findByNameAndPlan_Id(dto.getName(), newPlanId)).thenReturn(Optional.empty());
+        when(sessionsRepository.save(any(Sessions.class))).thenAnswer(i -> i.getArgument(0));
+
+        var result = service.update(sessionId, dto);
+
+        assertEquals(newPlanId, result.getPlanId());
+        assertTrue(newPlan.getSessions().contains(session));
     }
 
 }

@@ -4,11 +4,14 @@ import hs.aalen.fitness_tracker_backend.exerciseexecutions.dto.ExerciseExecution
 import hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions;
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 import hs.aalen.fitness_tracker_backend.plans.repository.PlansRepository;
+import hs.aalen.fitness_tracker_backend.sessionlogs.repository.SessionLogsRepository;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsCreateDto;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsResponseDto;
 import hs.aalen.fitness_tracker_backend.sessions.dto.SessionsUpdateDto;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
+import hs.aalen.fitness_tracker_backend.users.model.Users;
+import hs.aalen.fitness_tracker_backend.users.repository.UsersRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Comparator;
 import java.util.Optional;
@@ -22,10 +25,18 @@ public class SessionsService {
 
     private final SessionsRepository sessionsRepository;
     private final PlansRepository plansRepository;
+    private final SessionLogsRepository sessionLogsRepository;
+    private final UsersRepository usersRepository;
 
-    public SessionsService(SessionsRepository sessionsRepository, PlansRepository plansRepository) {
+    public SessionsService(
+            SessionsRepository sessionsRepository,
+            PlansRepository plansRepository,
+            SessionLogsRepository sessionLogsRepository,
+            UsersRepository usersRepository) {
         this.sessionsRepository = sessionsRepository;
         this.plansRepository = plansRepository;
+        this.sessionLogsRepository = sessionLogsRepository;
+        this.usersRepository = usersRepository;
     }
 
     private void validateOrderRange(Integer orderID) {
@@ -61,7 +72,7 @@ public class SessionsService {
         }
     }
 
-    private SessionsResponseDto toResponseDto(Sessions session) {
+    private SessionsResponseDto toResponseDto(Sessions session, String username) {
         SessionsResponseDto response = new SessionsResponseDto();
         response.setId(session.getId());
         response.setName(session.getName());
@@ -74,7 +85,16 @@ public class SessionsService {
                         Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(this::toExerciseExecutionDto)
                 .toList());
-        response.setSessionLogCount(session.getSessionLogCount());
+
+        // Compute sessionLogCount dynamically per-user
+        int sessionLogCount = 0;
+        if (username != null) {
+            Users owner = usersRepository.findByUsername(username).orElse(null);
+            if (owner != null) {
+                sessionLogCount = (int) sessionLogsRepository.countByOwnerAndOriginalSessionId(owner, session.getId());
+            }
+        }
+        response.setSessionLogCount(sessionLogCount);
         return response;
     }
 
@@ -92,17 +112,17 @@ public class SessionsService {
         return dto;
     }
 
-    public List<SessionsResponseDto> getAll() {
+    public List<SessionsResponseDto> getAll(String username) {
         return sessionsRepository.findAll()
                 .stream()
-                .map(this::toResponseDto)
+                .map(session -> toResponseDto(session, username))
                 .toList();
     }
 
-    public SessionsResponseDto getById(UUID id) {
+    public SessionsResponseDto getById(UUID id, String username) {
         Sessions session = sessionsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Session not found"));
-        return toResponseDto(session);
+        return toResponseDto(session, username);
     }
 
     public SessionsResponseDto create(SessionsCreateDto dto) {
@@ -133,7 +153,7 @@ public class SessionsService {
         plan.getSessions().add(session);
 
         Sessions saved = sessionsRepository.save(session);
-        return toResponseDto(saved);
+        return toResponseDto(saved, null);
     }
 
     public SessionsResponseDto update(UUID id, SessionsUpdateDto dto) {
@@ -183,7 +203,7 @@ public class SessionsService {
         existingSession.setName(dto.getName());
 
         Sessions saved = sessionsRepository.save(existingSession);
-        return toResponseDto(saved);
+        return toResponseDto(saved, null);
     }
 
     public void delete(UUID id) {

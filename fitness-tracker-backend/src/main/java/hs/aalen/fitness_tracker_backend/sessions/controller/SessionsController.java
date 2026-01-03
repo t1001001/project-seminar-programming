@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,14 +24,16 @@ public class SessionsController {
     }
 
     @GetMapping
-    public List<SessionsResponseDto> getAllSessions() {
-        return service.getAll();
+    public List<SessionsResponseDto> getAllSessions(Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return service.getAll(username);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SessionsResponseDto> getSessionById(@PathVariable UUID id) {
+    public ResponseEntity<SessionsResponseDto> getSessionById(@PathVariable UUID id, Principal principal) {
         try {
-            return ResponseEntity.ok(service.getById(id));
+            String username = principal != null ? principal.getName() : null;
+            return ResponseEntity.ok(service.getById(id, username));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -59,7 +62,7 @@ public class SessionsController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSession(
-            @PathVariable UUID id, 
+            @PathVariable UUID id,
             @Valid @RequestBody SessionsUpdateDto dto) {
         try {
             SessionsResponseDto updated = service.update(id, dto);
