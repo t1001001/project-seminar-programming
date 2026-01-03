@@ -1,3 +1,4 @@
+@if (!isLoginPage()) {
 <mat-toolbar class="app-toolbar">
   <div class="toolbar-content">
     <div class="app-brand">
@@ -18,19 +19,60 @@
       <a mat-button routerLink="/plans" routerLinkActive="active-link" (click)="closeMenu()">Plans</a>
       <a mat-button routerLink="/sessions" routerLinkActive="active-link" (click)="closeMenu()">Sessions</a>
       <a mat-button routerLink="/workouts" routerLinkActive="active-link" (click)="closeMenu()">Workouts</a>
+
+      @if (authService.isLoggedIn()) {
+      <div class="mobile-user-actions">
+        <span class="mobile-username">{{ authService.currentUser()?.username }}</span>
+        <button mat-button class="mobile-logout-btn" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Logout
+        </button>
+      </div>
+      } @else {
+      <div class="mobile-user-actions">
+        <a mat-button routerLink="/login" class="mobile-login-btn" (click)="closeMenu()">
+          <mat-icon>login</mat-icon>
+          Login
+        </a>
+      </div>
+      }
+
     </nav>
     <div class="header-actions">
-      <button mat-icon-button (click)="toggleTheme()" class="theme-toggle-btn">
-        <mat-icon>{{ themeService.currentTheme() === 'light' ? 'dark_mode' : 'light_mode' }}</mat-icon>
-      </button>
+      <div class="header-actions-pill">
+        <button mat-icon-button (click)="toggleTheme()" class="theme-toggle-btn">
+          <mat-icon>{{ themeService.currentTheme() === 'light' ? 'dark_mode' : 'light_mode' }}</mat-icon>
+        </button>
+        @if (authService.isLoggedIn()) {
+        <span class="pill-divider"></span>
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-avatar-btn">
+          <mat-icon class="user-avatar-icon">person</mat-icon>
+        </button>
+        <mat-menu #userMenu="matMenu" class="user-menu-dropdown">
+          <div class="user-menu-header">
+            <span class="user-menu-name">{{ authService.currentUser()?.username }}</span>
+          </div>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
+        } @else {
+        <span class="pill-divider"></span>
+        <a mat-button routerLink="/login" class="login-btn">
+          <mat-icon>login</mat-icon>
+          Login
+        </a>
+        }
+      </div>
       <button mat-icon-button class="hamburger-btn" (click)="toggleMenu()" [class.open]="menuOpen()">
         <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
       </button>
     </div>
-
   </div>
 </mat-toolbar>
+}
 
-<main class="app-content">
+<main class="app-content" [class.fullscreen]="isLoginPage()">
   <router-outlet />
 </main>
