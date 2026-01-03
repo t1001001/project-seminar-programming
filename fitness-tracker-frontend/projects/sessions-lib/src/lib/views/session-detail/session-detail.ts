@@ -72,6 +72,10 @@ export class SessionDetailComponent implements OnInit {
   }
 
   onStart(session: SessionDetail): void {
+    if (!this.authService.isLoggedIn()) {
+      showError(this.snackBar, 'Please log in to start a workout.');
+      return;
+    }
     if (!this.validateSessionForWorkout(session)) return;
     this.showWorkoutConfirmation(session);
   }
