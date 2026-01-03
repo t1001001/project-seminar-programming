@@ -13,6 +13,8 @@ import { SessionEditDialogComponent } from '../../ui/session-edit-dialog/session
 import { WorkoutLogicService, WorkoutStartDialogComponent } from 'workouts-lib';
 import { showError, showSuccess } from '../../shared';
 
+import { AuthService } from 'common-lib';
+
 @Component({
   selector: 'lib-session-detail',
   imports: [
@@ -34,6 +36,7 @@ export class SessionDetailComponent implements OnInit {
   private readonly workoutService = inject(WorkoutLogicService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  public readonly authService = inject(AuthService);
 
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
 

@@ -5,6 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { Exercise } from '../../provider-services/exercise-provider.service';
 
+import { AuthService } from 'common-lib';
+
 @Component({
   selector: 'ex-exercise-card',
   imports: [MatCardModule, MatButtonModule, MatIconModule],
@@ -14,7 +16,8 @@ import { Exercise } from '../../provider-services/exercise-provider.service';
 })
 export class ExerciseCardComponent {
   private readonly router = inject(Router);
-  
+  public readonly authService = inject(AuthService);
+
   exercise = input.required<Exercise>();
   delete = output<string>();
 

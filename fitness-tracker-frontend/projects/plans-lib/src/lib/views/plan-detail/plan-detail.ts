@@ -13,6 +13,8 @@ import { TrainingPlan, Session } from '../../provider-services/plan-provider.ser
 import { PlanEditDialogComponent } from '../../ui/plan-edit-dialog/plan-edit-dialog';
 import { showError, showSuccess } from '../../shared';
 
+import { AuthService } from 'common-lib';
+
 @Component({
   selector: 'lib-plan-detail',
 
@@ -34,6 +36,7 @@ export class PlanDetailComponent implements OnInit {
   private readonly planService = inject(PlanLogicService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  public readonly authService = inject(AuthService);
 
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
 

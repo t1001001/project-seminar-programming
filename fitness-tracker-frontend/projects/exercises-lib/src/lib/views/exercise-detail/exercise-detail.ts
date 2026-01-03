@@ -13,6 +13,8 @@ import { ExerciseLogicService } from '../../logic-services/exercise-logic.servic
 import { Exercise, ExerciseCategory } from '../../provider-services/exercise-provider.service';
 import { showError, showSuccess } from '../../shared';
 
+import { AuthService } from 'common-lib';
+
 @Component({
   selector: 'ex-exercise-detail',
   imports: [
@@ -37,6 +39,7 @@ export class ExerciseDetailComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
+  public readonly authService = inject(AuthService);
 
   private exerciseId: string | null = null;
   exercise: Exercise | null = null;

@@ -13,6 +13,8 @@ import { SessionDeleteDialogComponent } from '../../ui/session-delete-dialog/ses
 import { SessionCreateDialogComponent } from '../../ui/session-create-dialog/session-create-dialog';
 import { showError, showSuccess } from '../../shared';
 
+import { AuthService } from 'common-lib';
+
 @Component({
   selector: 'lib-sessions-overview',
   imports: [
@@ -31,6 +33,7 @@ export class SessionsOverviewComponent {
   private readonly sessionService = inject(SessionLogicService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  public readonly authService = inject(AuthService);
 
   readonly searchControl = new FormControl('');
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);

@@ -14,6 +14,8 @@ import { PlanFormDialogComponent } from '../../ui/plan-form-dialog/plan-form-dia
 import { PlanDeleteDialogComponent } from '../../ui/plan-delete-dialog/plan-delete-dialog';
 import { showError, showSuccess } from '../../shared';
 
+import { AuthService } from 'common-lib';
+
 @Component({
     selector: 'lib-plans-overview',
 
@@ -32,6 +34,7 @@ export class PlansOverviewComponent {
     private readonly planService = inject(PlanLogicService);
     private readonly dialog = inject(MatDialog);
     private readonly snackBar = inject(MatSnackBar);
+    public readonly authService = inject(AuthService);
 
     readonly searchControl = new FormControl('');
 

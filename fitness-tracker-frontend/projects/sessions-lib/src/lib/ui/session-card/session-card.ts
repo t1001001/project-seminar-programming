@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 
 import { SessionOverview } from '../../logic-services/session-logic.service';
 
+import { AuthService } from 'common-lib';
+
 @Component({
   selector: 'lib-session-card',
   imports: [MatCardModule, MatButtonModule, MatIconModule],
@@ -15,6 +17,7 @@ import { SessionOverview } from '../../logic-services/session-logic.service';
 })
 export class SessionCardComponent {
   private readonly router = inject(Router);
+  public readonly authService = inject(AuthService);
   session = input.required<SessionOverview>();
   delete = output<SessionOverview>();
 

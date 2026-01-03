@@ -13,6 +13,8 @@ import { ExerciseDeleteDialogComponent, DeleteDialogData } from '../../ui/exerci
 import { ExerciseFormDialogComponent } from '../../ui/exercise-form-dialog/exercise-form-dialog';
 import { showError, showSuccess } from '../../shared';
 
+import { AuthService } from 'common-lib';
+
 @Component({
   selector: 'ex-exercises-overview',
   imports: [ExerciseCardComponent, MatButtonModule, MatIconModule, ReactiveFormsModule],
@@ -25,6 +27,7 @@ export class ExercisesOverviewComponent {
   private readonly exerciseService = inject(ExerciseLogicService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  public readonly authService = inject(AuthService);
 
   readonly searchControl = new FormControl('');
 
