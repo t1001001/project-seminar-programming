@@ -15,6 +15,13 @@ projects/
 ├── common-lib/                        # Cross-cutting shared utilities
 │   └── src/
 │       └── lib/
+│           ├── auth/                  # Authentication module
+│           │   ├── user.model.ts      # User & LoginRequest interfaces
+│           │   ├── user-provider.service.ts  # HTTP calls for auth
+│           │   ├── auth.service.ts    # Signal-based auth state
+│           │   ├── auth.interceptor.ts  # Authorization header injection
+│           │   ├── auth.guard.ts      # Route protection
+│           │   └── index.ts           # Barrel file
 │           ├── constants/             # Shared constants (snackbar, http-error)
 │           ├── utils/                 # Shared utility functions
 │           └── common-lib.ts          # Barrel file for exports
@@ -76,6 +83,9 @@ common-lib/
 #### Exports (`common-lib.ts`)
 
 ```typescript
+// Authentication
+export * from './auth';
+
 // Constants
 export * from './constants/snackbar.constants';
 export * from './constants/http-error.constants';
@@ -83,6 +93,104 @@ export * from './constants/http-error.constants';
 // Utilities
 export * from './utils/snackbar.util';
 export * from './utils/http-error.util';
+```
+
+#### Authentication Module (`auth/`)
+
+The authentication module provides signal-based auth state management, HTTP interceptor, and route guards.
+
+##### AuthService
+
+```typescript
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { Observable, tap, catchError, throwError } from 'rxjs';
+import { UserProviderService } from './user-provider.service';
+import { User } from './user.model';
+
+const AUTH_STORAGE_KEY = 'fitness_auth_header';
+const USER_STORAGE_KEY = 'fitness_user';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+    private readonly userProvider = inject(UserProviderService);
+
+    private readonly currentUserSignal = signal<User | null>(null);
+    readonly currentUser = this.currentUserSignal.asReadonly();
+    readonly isLoggedIn = computed(() => this.currentUserSignal() !== null);
+
+    constructor() {
+        this.restoreSession();
+    }
+
+    login(username: string, password: string): Observable<string> {
+        const authHeader = 'Basic ' + btoa(username + ':' + password);
+        return this.userProvider.validateLogin(authHeader).pipe(
+            tap((returnedUsername) => {
+                localStorage.setItem(AUTH_STORAGE_KEY, authHeader);
+                localStorage.setItem(USER_STORAGE_KEY, returnedUsername);
+                this.currentUserSignal.set({ username: returnedUsername });
+            }),
+            catchError((error) => {
+                let errorMessage = 'Login failed. Please try again.';
+                if (error.status === 401) errorMessage = 'Invalid username or password.';
+                else if (error.status === 0) errorMessage = 'Cannot connect to server.';
+                return throwError(() => new Error(errorMessage));
+            })
+        );
+    }
+
+    logout(): void {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
+        this.currentUserSignal.set(null);
+    }
+
+    getAuthHeader(): string | null {
+        return localStorage.getItem(AUTH_STORAGE_KEY);
+    }
+
+    private restoreSession(): void {
+        const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+        const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (storedUser && storedAuth) {
+            this.currentUserSignal.set({ username: storedUser });
+        }
+    }
+}
+```
+
+##### Auth Interceptor
+
+```typescript
+import { HttpInterceptorFn } from '@angular/common/http';
+
+const AUTH_STORAGE_KEY = 'fitness_auth_header';
+
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+    const authHeader = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (authHeader) {
+        const cloned = req.clone({ setHeaders: { Authorization: authHeader } });
+        return next(cloned);
+    }
+    return next(req);
+};
+```
+
+##### Auth Guard
+
+```typescript
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+export const authGuard: CanActivateFn = () => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    if (authService.isLoggedIn()) {
+        return true;
+    }
+    return router.createUrlTree(['/login']);
+};
 ```
 
 #### Template: Snackbar Constants
@@ -697,16 +805,17 @@ reorderItems(items: Item[], parentId: string): Observable<void> {
 
 | Component Type | Allowed Injections |
 |----------------|-------------------|
-| **Simple UI** (cards, chips) | `Router` only |
+| **Simple UI** (cards, chips) | `Router`, `AuthService` (for conditional rendering) |
 | **Form Dialogs** (create) | `MatDialogRef`, `FormBuilder`, `MAT_DIALOG_DATA` |
 | **Confirmation Dialogs** | `MatDialogRef`, `MAT_DIALOG_DATA` |
 | **Edit Dialogs** (complex) | Logic services, `MatDialogRef`, `FormBuilder`, `MatSnackBar`, `MAT_DIALOG_DATA` |
 
-#### Template: Card Component
+#### Template: Card Component (with Auth)
 
 ```typescript
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from 'common-lib';
 
 @Component({
   selector: 'lib-[entity]-card',
@@ -717,6 +826,7 @@ import { Router } from '@angular/router';
 })
 export class [Entity]CardComponent {
   private readonly router = inject(Router);
+  public readonly authService = inject(AuthService);
   
   entity = input.required<[Entity]>();
   delete = output<[Entity]>();
@@ -730,6 +840,24 @@ export class [Entity]CardComponent {
     this.delete.emit(this.entity());
   }
 }
+```
+
+#### Template: Card HTML (Conditional Actions)
+
+```html
+<mat-card class="entity-card" (click)="onCardClick()">
+  <div class="card-content">
+    <h3>{{ entity().name }}</h3>
+    <!-- Other content -->
+    
+    @if (authService.isLoggedIn()) {
+    <button mat-raised-button class="delete-btn" (click)="onDelete($event)">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+    }
+  </div>
+</mat-card>
 ```
 
 #### Template: Form Dialog
@@ -797,11 +925,13 @@ export class [Entity]EditDialogComponent implements OnInit {
 | ✅ DO | ❌ DON'T |
 |-------|----------|
 | Inject logic services (NOT providers) | Handle HTTP status codes |
-| Manage component state | Contain complex business logic |
+| Inject `AuthService` for conditional UI | Contain complex business logic |
+| Manage component state | |
 | Coordinate UI components | |
 | Handle routing and navigation | |
 | Display notifications (snackbars) | |
 | Open dialogs and modals | |
+| Conditionally render actions based on auth | |
 
 #### Template: Overview Component (Observable-based)
 
@@ -1043,6 +1173,8 @@ export class [Entity]DetailComponent implements OnInit {
 | Logic Services → `shared/` ✅ | Direct HTTP error handling in components ❌ |
 | Views → Logic Services ✅ | |
 | Views → UI Components ✅ | |
+| Views → `AuthService` ✅ | |
+| UI Cards → `AuthService` ✅ | |
 | Logic Services → Provider Services ✅ | |
 | Edit Dialogs → Logic Services ✅ | |
 
@@ -1087,12 +1219,16 @@ When creating a new feature library `[feature]-lib`:
 - [ ] `input()` for data, `output()` for events
 - [ ] `ChangeDetectionStrategy.OnPush`
 - [ ] Service injections follow rules (see table above)
+- [ ] `AuthService` injected for conditional action rendering
+- [ ] `@if (authService.isLoggedIn())` wraps Create/Edit/Delete buttons
 
 ### View Components
 - [ ] Directory: `views/[view-name]/`
 - [ ] Inject logic service (not provider)
+- [ ] Inject `AuthService` for conditional UI
 - [ ] Dialog/notification handling
 - [ ] Refresh mechanism (`BehaviorSubject` or signals)
+- [ ] Create/Edit FAB buttons wrapped with `@if (authService.isLoggedIn())`
 
 ### Styling
 - [ ] Separate `.scss` files
@@ -1187,7 +1323,7 @@ The architecture is **repeatable and predictable** across all feature libraries.
 
 ---
 
-**Last Updated:** December 2025  
-**Shared Utilities:** `common-lib`  
+**Last Updated:** January 2026  
+**Shared Utilities:** `common-lib` (includes Authentication module)  
 **Feature Libraries:** `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`, `home-lib`
 
