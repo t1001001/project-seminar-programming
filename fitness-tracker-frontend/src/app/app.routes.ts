@@ -8,16 +8,22 @@ import { SessionsDetails } from './pages/sessions/sessions-details/sessions-deta
 import { WorkoutsOverview } from './pages/workouts/workouts-overview/workouts-overview';
 import { WorkoutsDetails } from './pages/workouts/workouts-details/workouts-details';
 import { HomeLanding } from './pages/home/home-landing/home-landing';
+import { LoginComponent } from './pages/login/login';
+import { authGuard } from 'common-lib';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: '/login',
     pathMatch: 'full',
   },
   {
     path: 'home',
     component: HomeLanding,
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
   },
   {
     path: 'exercises',
@@ -46,13 +52,16 @@ export const routes: Routes = [
   {
     path: 'workouts',
     component: WorkoutsOverview,
+    canActivate: [authGuard],
   },
   {
     path: 'workouts/:id',
     component: WorkoutsDetails,
+    canActivate: [authGuard],
   },
   {
     path: '**',
-    redirectTo: '/home',
+    redirectTo: '/login',
   },
 ];
+
