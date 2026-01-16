@@ -31,8 +31,7 @@ export class WorkoutLogicService {
   private readonly workoutSavedSubject = new Subject<WorkoutLog>();
   workoutSaved$ = this.workoutSavedSubject.asObservable();
 
-  private readonly workoutCancelledSubject = new Subject<WorkoutLog>();
-  workoutCancelled$ = this.workoutCancelledSubject.asObservable();
+
 
   startWorkout(sessionId: string): Observable<WorkoutLogWithExecutions> {
     return this.workoutProvider.startWorkout(sessionId).pipe(
@@ -94,12 +93,7 @@ export class WorkoutLogicService {
     return this.saveWorkout(workoutLogId, executionUpdates, notes);
   }
 
-  cancelWorkout(workoutLogId: string): Observable<WorkoutLog> {
-    return this.workoutProvider.cancelWorkout(workoutLogId).pipe(
-      tap((cancelledWorkout) => this.workoutCancelledSubject.next(cancelledWorkout)),
-      catchError((err) => handleWorkoutError(err, createWorkoutErrorConfig('cancel')))
-    );
-  }
+
 
   getAllWorkoutLogs(): Observable<WorkoutLog[]> {
     return this.workoutProvider.getAllWorkoutLogs().pipe(

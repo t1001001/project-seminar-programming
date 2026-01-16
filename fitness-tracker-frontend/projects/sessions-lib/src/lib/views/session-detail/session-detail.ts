@@ -1,17 +1,18 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { AsyncPipe } from '@angular/common';
-import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
 
 import { SessionDetail, SessionLogicService } from '../../logic-services/session-logic.service';
 import { SessionEditDialogComponent } from '../../ui/session-edit-dialog/session-edit-dialog';
 import { WorkoutLogicService, WorkoutStartDialogComponent } from 'workouts-lib';
 import { showError, showSuccess } from '../../shared';
+
+import { AuthService } from 'common-lib';
 
 @Component({
   selector: 'lib-session-detail',
@@ -20,7 +21,6 @@ import { showError, showSuccess } from '../../shared';
     MatIconModule,
     MatCardModule,
     MatDialogModule,
-    AsyncPipe,
   ],
   templateUrl: './session-detail.html',
   styleUrl: './session-detail.scss',
@@ -28,28 +28,29 @@ import { showError, showSuccess } from '../../shared';
 })
 
 export class SessionDetailComponent implements OnInit {
+  private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sessionService = inject(SessionLogicService);
   private readonly workoutService = inject(WorkoutLogicService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  public readonly authService = inject(AuthService);
 
-  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
-
-  session$: Observable<SessionDetail | null> | null = null;
+  private sessionId: string | null = null;
+  readonly session = signal<SessionDetail | null>(null);
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.initializeSessionObservable(id);
+    this.sessionId = this.route.snapshot.paramMap.get('id');
+    if (this.sessionId) {
+      this.loadSession(this.sessionId);
     } else {
       this.router.navigate(['/sessions']);
     }
   }
 
   onBack(): void {
-    this.router.navigate(['/sessions']);
+    this.location.back();
   }
 
   onEdit(session: SessionDetail): void {
@@ -69,12 +70,18 @@ export class SessionDetailComponent implements OnInit {
   }
 
   onStart(session: SessionDetail): void {
+    if (!this.authService.isLoggedIn()) {
+      showError(this.snackBar, 'Please log in to start a workout.');
+      return;
+    }
     if (!this.validateSessionForWorkout(session)) return;
     this.showWorkoutConfirmation(session);
   }
 
   refresh(): void {
-    this.refreshTrigger$.next();
+    if (this.sessionId) {
+      this.loadSession(this.sessionId);
+    }
   }
 
   navigateToExercise(exercise: any): void {
@@ -83,15 +90,14 @@ export class SessionDetailComponent implements OnInit {
     }
   }
 
-  private initializeSessionObservable(id: string): void {
-    this.session$ = this.refreshTrigger$.pipe(
-      switchMap(() => this.sessionService.getSessionDetail(id)),
-      catchError((err) => {
+  private loadSession(id: string): void {
+    this.sessionService.getSessionDetail(id).subscribe({
+      next: (session) => this.session.set(session),
+      error: (err) => {
         showError(this.snackBar, err.message);
         this.router.navigate(['/sessions']);
-        return of(null);
-      })
-    );
+      }
+    });
   }
 
   private validateSessionForWorkout(session: SessionDetail): boolean {
@@ -126,3 +132,4 @@ export class SessionDetailComponent implements OnInit {
     });
   }
 }
+

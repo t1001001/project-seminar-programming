@@ -33,12 +33,14 @@
         </div>
       </div>
 
+      @if (authService.isLoggedIn()) {
       <div class="actions-section">
         <button mat-raised-button type="button" class="delete-btn" (click)="onDelete($event)">
           <mat-icon>delete</mat-icon>
           Delete
         </button>
       </div>
+      }
     </div>
   </div>
 

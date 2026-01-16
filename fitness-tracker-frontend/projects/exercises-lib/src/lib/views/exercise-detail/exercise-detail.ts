@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -12,6 +12,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ExerciseLogicService } from '../../logic-services/exercise-logic.service';
 import { Exercise, ExerciseCategory } from '../../provider-services/exercise-provider.service';
 import { showError, showSuccess } from '../../shared';
+
+import { AuthService } from 'common-lib';
 
 @Component({
   selector: 'ex-exercise-detail',
@@ -36,12 +38,11 @@ export class ExerciseDetailComponent implements OnInit {
   private readonly exerciseService = inject(ExerciseLogicService);
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly cdr = inject(ChangeDetectorRef);
+  public readonly authService = inject(AuthService);
 
-  private exerciseId: string | null = null;
-  exercise: Exercise | null = null;
-
-  isEditMode = false;
+  private readonly exerciseId = signal<string | null>(null);
+  readonly exercise = signal<Exercise | null>(null);
+  readonly isEditMode = signal(false);
 
   readonly form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -53,30 +54,31 @@ export class ExerciseDetailComponent implements OnInit {
   readonly categories = Object.values(ExerciseCategory);
 
   ngOnInit(): void {
-    this.exerciseId = this.route.snapshot.paramMap.get('id');
-    if (this.exerciseId) {
-      this.loadExercise(this.exerciseId);
+    this.exerciseId.set(this.route.snapshot.paramMap.get('id'));
+    const id = this.exerciseId();
+    if (id) {
+      this.loadExercise(id);
     }
   }
 
   private loadExercise(id: string): void {
     this.exerciseService.getExerciseById(id).subscribe({
       next: (exercise) => {
-        this.exercise = exercise;
+        this.exercise.set(exercise);
         this.form.patchValue({
           name: exercise.name,
           category: exercise.category,
           description: exercise.description || '',
           muscleGroups: exercise.muscleGroups.join(', '),
         });
-        this.cdr.markForCheck();
       },
       error: (err) => showError(this.snackBar, err.message)
     });
   }
 
   onUpdate(): void {
-    if (this.form.valid && this.form.dirty && this.exerciseId) {
+    const id = this.exerciseId();
+    if (this.form.valid && this.form.dirty && id) {
       const formValue = this.form.value;
       const muscleGroupsArray = formValue.muscleGroups
         ? formValue.muscleGroups.split(',').map((group: string) => group.trim()).filter((g: string) => g.length > 0)
@@ -88,10 +90,10 @@ export class ExerciseDetailComponent implements OnInit {
         description: formValue.description || '',
         muscleGroups: muscleGroupsArray.length > 0 ? muscleGroupsArray : ['General'],
       };
-      this.exerciseService.updateExercise(this.exerciseId, exerciseData).subscribe({
+      this.exerciseService.updateExercise(id, exerciseData).subscribe({
         next: (updatedExercise) => {
-          this.exercise = updatedExercise;
-          this.isEditMode = false;
+          this.exercise.set(updatedExercise);
+          this.isEditMode.set(false);
           this.form.markAsPristine();
           this.form.patchValue({
             name: updatedExercise.name,
@@ -99,7 +101,6 @@ export class ExerciseDetailComponent implements OnInit {
             description: updatedExercise.description || '',
             muscleGroups: updatedExercise.muscleGroups.join(', '),
           });
-          this.cdr.markForCheck();
           showSuccess(this.snackBar, 'Exercise updated successfully!');
         },
         error: (err) => showError(this.snackBar, err.message)
@@ -112,13 +113,14 @@ export class ExerciseDetailComponent implements OnInit {
   }
 
   enableEditMode(): void {
-    this.isEditMode = true;
+    this.isEditMode.set(true);
   }
 
   cancelEdit(): void {
-    this.isEditMode = false;
-    if (this.exerciseId) {
-      this.loadExercise(this.exerciseId);
+    this.isEditMode.set(false);
+    const id = this.exerciseId();
+    if (id) {
+      this.loadExercise(id);
     }
     this.form.markAsPristine();
   }

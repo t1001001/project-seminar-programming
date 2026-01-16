@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import hs.aalen.fitness_tracker_backend.executionlogs.model.ExecutionLogs;
+import hs.aalen.fitness_tracker_backend.users.model.Users;
 
 @Entity
 @Getter
@@ -39,13 +40,16 @@ public class SessionLogs {
     @Column(length = 1000)
     private String notes;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false, updatable = false)
+    private Users owner;
+
     @OneToMany(mappedBy = "sessionLog", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ExecutionLogs> executionLogs = new ArrayList<>();
 
     public enum LogStatus {
         InProgress,
-        Completed,
-        Cancelled
+        Completed
     }
 }

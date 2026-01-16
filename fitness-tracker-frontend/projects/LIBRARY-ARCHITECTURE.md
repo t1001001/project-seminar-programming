@@ -2,7 +2,7 @@
 
 This document defines the standard architecture pattern for Angular feature libraries in this project. All new libraries **must** follow these patterns to ensure consistency, maintainability, and scalability.
 
-> **Reference Implementations:** See `common-lib` for shared utilities and `exercises-lib`, `sessions-lib`, `plans-lib`, and `workouts-lib` for feature library examples.
+> **Reference Implementations:** See `common-lib` for shared utilities and `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`, and `home-lib` for feature library examples.
 
 ---
 
@@ -15,6 +15,13 @@ projects/
 ├── common-lib/                        # Cross-cutting shared utilities
 │   └── src/
 │       └── lib/
+│           ├── auth/                  # Authentication module
+│           │   ├── user.model.ts      # User & LoginRequest interfaces
+│           │   ├── user-provider.service.ts  # HTTP calls for auth
+│           │   ├── auth.service.ts    # Signal-based auth state
+│           │   ├── auth.interceptor.ts  # Authorization header injection
+│           │   ├── auth.guard.ts      # Route protection
+│           │   └── index.ts           # Barrel file
 │           ├── constants/             # Shared constants (snackbar, http-error)
 │           ├── utils/                 # Shared utility functions
 │           └── common-lib.ts          # Barrel file for exports
@@ -24,7 +31,7 @@ projects/
         └── lib/
             ├── provider-services/     # HTTP & Backend Communication
             ├── logic-services/        # Business Logic Layer
-            ├── shared/                # Feature-specific constants, validation, error handling
+            ├── shared/                # Feature-specific constants, validation, error handling (Optional)
             ├── ui/                    # Reusable UI Components
             ├── views/                 # Smart Container Components
             └── [feature]-lib.ts       # Barrel file for API exports
@@ -76,6 +83,9 @@ common-lib/
 #### Exports (`common-lib.ts`)
 
 ```typescript
+// Authentication
+export * from './auth';
+
 // Constants
 export * from './constants/snackbar.constants';
 export * from './constants/http-error.constants';
@@ -83,6 +93,104 @@ export * from './constants/http-error.constants';
 // Utilities
 export * from './utils/snackbar.util';
 export * from './utils/http-error.util';
+```
+
+#### Authentication Module (`auth/`)
+
+The authentication module provides signal-based auth state management, HTTP interceptor, and route guards.
+
+##### AuthService
+
+```typescript
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { Observable, tap, catchError, throwError } from 'rxjs';
+import { UserProviderService } from './user-provider.service';
+import { User } from './user.model';
+
+const AUTH_STORAGE_KEY = 'fitness_auth_header';
+const USER_STORAGE_KEY = 'fitness_user';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+    private readonly userProvider = inject(UserProviderService);
+
+    private readonly currentUserSignal = signal<User | null>(null);
+    readonly currentUser = this.currentUserSignal.asReadonly();
+    readonly isLoggedIn = computed(() => this.currentUserSignal() !== null);
+
+    constructor() {
+        this.restoreSession();
+    }
+
+    login(username: string, password: string): Observable<string> {
+        const authHeader = 'Basic ' + btoa(username + ':' + password);
+        return this.userProvider.validateLogin(authHeader).pipe(
+            tap((returnedUsername) => {
+                localStorage.setItem(AUTH_STORAGE_KEY, authHeader);
+                localStorage.setItem(USER_STORAGE_KEY, returnedUsername);
+                this.currentUserSignal.set({ username: returnedUsername });
+            }),
+            catchError((error) => {
+                let errorMessage = 'Login failed. Please try again.';
+                if (error.status === 401) errorMessage = 'Invalid username or password.';
+                else if (error.status === 0) errorMessage = 'Cannot connect to server.';
+                return throwError(() => new Error(errorMessage));
+            })
+        );
+    }
+
+    logout(): void {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
+        this.currentUserSignal.set(null);
+    }
+
+    getAuthHeader(): string | null {
+        return localStorage.getItem(AUTH_STORAGE_KEY);
+    }
+
+    private restoreSession(): void {
+        const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+        const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (storedUser && storedAuth) {
+            this.currentUserSignal.set({ username: storedUser });
+        }
+    }
+}
+```
+
+##### Auth Interceptor
+
+```typescript
+import { HttpInterceptorFn } from '@angular/common/http';
+
+const AUTH_STORAGE_KEY = 'fitness_auth_header';
+
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+    const authHeader = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (authHeader) {
+        const cloned = req.clone({ setHeaders: { Authorization: authHeader } });
+        return next(cloned);
+    }
+    return next(req);
+};
+```
+
+##### Auth Guard
+
+```typescript
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+export const authGuard: CanActivateFn = () => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    if (authService.isLoggedIn()) {
+        return true;
+    }
+    return router.createUrlTree(['/login']);
+};
 ```
 
 #### Template: Snackbar Constants
@@ -173,7 +281,7 @@ export function handleHttpError(err: any, config: HttpErrorConfig): Observable<n
 
 ### Shared Folder (`shared/`)
 
-**Purpose:** Domain-specific constants, validation logic, and error handling for a feature library. Each library has its own `shared/` folder.
+**Purpose:** Domain-specific constants, validation logic, and error handling for a feature library. Each library has its own `shared/` folder, but it is **optional** if the feature is simple and doesn't require specific constants or validation.
 
 #### Directory Structure
 
@@ -697,16 +805,17 @@ reorderItems(items: Item[], parentId: string): Observable<void> {
 
 | Component Type | Allowed Injections |
 |----------------|-------------------|
-| **Simple UI** (cards, chips) | `Router` only |
+| **Simple UI** (cards, chips) | `Router`, `AuthService` (for conditional rendering) |
 | **Form Dialogs** (create) | `MatDialogRef`, `FormBuilder`, `MAT_DIALOG_DATA` |
 | **Confirmation Dialogs** | `MatDialogRef`, `MAT_DIALOG_DATA` |
 | **Edit Dialogs** (complex) | Logic services, `MatDialogRef`, `FormBuilder`, `MatSnackBar`, `MAT_DIALOG_DATA` |
 
-#### Template: Card Component
+#### Template: Card Component (with Auth)
 
 ```typescript
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from 'common-lib';
 
 @Component({
   selector: 'lib-[entity]-card',
@@ -717,6 +826,7 @@ import { Router } from '@angular/router';
 })
 export class [Entity]CardComponent {
   private readonly router = inject(Router);
+  public readonly authService = inject(AuthService);
   
   entity = input.required<[Entity]>();
   delete = output<[Entity]>();
@@ -730,6 +840,24 @@ export class [Entity]CardComponent {
     this.delete.emit(this.entity());
   }
 }
+```
+
+#### Template: Card HTML (Conditional Actions)
+
+```html
+<mat-card class="entity-card" (click)="onCardClick()">
+  <div class="card-content">
+    <h3>{{ entity().name }}</h3>
+    <!-- Other content -->
+    
+    @if (authService.isLoggedIn()) {
+    <button mat-raised-button class="delete-btn" (click)="onDelete($event)">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+    }
+  </div>
+</mat-card>
 ```
 
 #### Template: Form Dialog
@@ -797,18 +925,28 @@ export class [Entity]EditDialogComponent implements OnInit {
 | ✅ DO | ❌ DON'T |
 |-------|----------|
 | Inject logic services (NOT providers) | Handle HTTP status codes |
-| Manage component state | Contain complex business logic |
+| Inject `AuthService` for conditional UI | Contain complex business logic |
+| Manage component state | |
 | Coordinate UI components | |
 | Handle routing and navigation | |
 | Display notifications (snackbars) | |
 | Open dialogs and modals | |
+| Conditionally render actions based on auth | |
 
-#### Template: Overview Component (Observable-based)
+#### Template: Overview Component (Signal-based with toObservable)
 
 ```typescript
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { debounceTime, shareReplay, startWith, switchMap, catchError, of } from 'rxjs';
+import { showError, showSuccess } from '../shared';
+
 @Component({
   selector: 'lib-[entities]-overview',
-  imports: [/* UI components, AsyncPipe */],
+  imports: [/* UI components */],
   templateUrl: './[entities]-overview.html',
   styleUrl: './[entities]-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -818,10 +956,42 @@ export class [Entities]OverviewComponent {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
-  readonly entities$ = this.refreshTrigger$.pipe(
-    switchMap(() => this.service.getAll())
+  // Signal-based refresh trigger (increment to trigger refresh)
+  private readonly refreshTrigger = signal(0);
+
+  // Convert signal to observable for data fetching
+  private readonly entities = toSignal(
+    toObservable(this.refreshTrigger).pipe(
+      switchMap(() => this.service.getAll().pipe(
+        catchError((err) => {
+          showError(this.snackBar, err.message);
+          return of([] as [Entity][]);
+        })
+      )),
+      shareReplay(1)
+    ),
+    { initialValue: [] as [Entity][] }
   );
+
+  // Search with signal conversion
+  readonly searchControl = new FormControl('');
+  private readonly searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(startWith(''), debounceTime(200)),
+    { initialValue: '' }
+  );
+
+  // Derived state via computed signals
+  readonly filteredEntities = computed(() => {
+    const term = (this.searchTerm() || '').toLowerCase();
+    return this.entities().filter(e => e.name.toLowerCase().includes(term));
+  });
+
+  readonly totalCount = computed(() => this.entities().length);
+
+  // Refresh by incrementing the signal
+  refresh(): void {
+    this.refreshTrigger.update(v => v + 1);
+  }
 
   onCreate(): void {
     const dialogRef = this.dialog.open([Entity]FormDialogComponent, {
@@ -834,9 +1004,9 @@ export class [Entities]OverviewComponent {
         this.service.create(result).subscribe({
           next: () => {
             this.refresh();
-            this.snackBar.open('[Entity] created successfully!', 'Close', { duration: 3000 });
+            showSuccess(this.snackBar, '[Entity] created successfully!');
           },
-          error: (err) => this.snackBar.open(err.message, 'Close', { duration: 5000 }),
+          error: (err) => showError(this.snackBar, err.message),
         });
       }
     });
@@ -853,19 +1023,14 @@ export class [Entities]OverviewComponent {
         this.service.delete(entity.id).subscribe({
           next: () => {
             this.refresh();
-            this.snackBar.open('[Entity] deleted successfully!', 'Close', { duration: 3000 });
+            showSuccess(this.snackBar, '[Entity] deleted successfully!');
           },
-          error: (err) => this.snackBar.open(err.message, 'Close', { duration: 5000 }),
+          error: (err) => showError(this.snackBar, err.message),
         });
       }
     });
   }
-
-  refresh(): void {
-    this.refreshTrigger$.next();
-  }
 }
-```
 
 #### Template: Overview Component (Signal-based)
 
@@ -914,12 +1079,42 @@ export class [Entities]OverviewComponent {
 }
 ```
 
-#### Template: Detail Component
+#### Template: Overview HTML (Signal-based)
+
+```html
+<section class="[entities]-overview page-container">
+  <!-- Header with search and create -->
+  <div class="header">
+    <input [formControl]="searchControl" placeholder="Search..." />
+    @if (authService.isLoggedIn()) {
+    <button mat-raised-button (click)="onCreate()">Create</button>
+    }
+  </div>
+
+  <!-- Total count display -->
+  <p>Total: {{ totalCount() }}</p>
+
+  <!-- Entity list using signal -->
+  @if (filteredEntities(); as entities) {
+    @for (entity of entities; track entity.id) {
+    <lib-[entity]-card [entity]="entity" (delete)="onDelete($event)" />
+    }
+  }
+</section>
+```
+
+#### Template: Detail Component (Signal-based)
 
 ```typescript
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { showError, showSuccess } from '../shared';
+
 @Component({
   selector: 'lib-[entity]-detail',
-  imports: [/* UI components, AsyncPipe */],
+  imports: [/* UI components */],
   templateUrl: './[entity]-detail.html',
   styleUrl: './[entity]-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -931,20 +1126,18 @@ export class [Entity]DetailComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
 
-  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
-  entity$: Observable<[Entity] | null> | null = null;
+  // Store current entity ID for refresh
+  private entityId: string | null = null;
+  
+  // Signal-based entity state
+  readonly entity = signal<[Entity] | null>(null);
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.entity$ = this.refreshTrigger$.pipe(
-        switchMap(() => this.service.getById(id)),
-        catchError((err) => {
-          this.snackBar.open(err.message, 'Close', { duration: 5000 });
-          this.router.navigate(['/[entities]']);
-          return of(null);
-        })
-      );
+    this.entityId = this.route.snapshot.paramMap.get('id');
+    if (this.entityId) {
+      this.loadEntity(this.entityId);
+    } else {
+      this.router.navigate(['/[entities]']);
     }
   }
 
@@ -961,12 +1154,49 @@ export class [Entity]DetailComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((updated) => {
       if (updated) {
-        this.refreshTrigger$.next();
-        this.snackBar.open('[Entity] updated successfully!', 'Close', { duration: 3000 });
+        this.refresh();
+        showSuccess(this.snackBar, '[Entity] updated successfully!');
+      }
+    });
+  }
+
+  refresh(): void {
+    if (this.entityId) {
+      this.loadEntity(this.entityId);
+    }
+  }
+
+  private loadEntity(id: string): void {
+    this.service.getById(id).subscribe({
+      next: (entity) => this.entity.set(entity),
+      error: (err) => {
+        showError(this.snackBar, err.message);
+        this.router.navigate(['/[entities]']);
       }
     });
   }
 }
+```
+
+#### Template: Detail HTML (Signal-based)
+
+```html
+<section class="[entity]-detail page-container">
+  <button mat-button (click)="onBack()">Back</button>
+
+  @if (entity(); as entity) {
+  <mat-card class="detail-card">
+    <h1>{{ entity.name }}</h1>
+    <!-- Other entity details -->
+    
+    @if (authService.isLoggedIn()) {
+    <button mat-raised-button (click)="onEdit(entity)">Edit</button>
+    }
+  </mat-card>
+  } @else {
+  <p>Loading...</p>
+  }
+</section>
 ```
 
 ---
@@ -1043,6 +1273,8 @@ export class [Entity]DetailComponent implements OnInit {
 | Logic Services → `shared/` ✅ | Direct HTTP error handling in components ❌ |
 | Views → Logic Services ✅ | |
 | Views → UI Components ✅ | |
+| Views → `AuthService` ✅ | |
+| UI Cards → `AuthService` ✅ | |
 | Logic Services → Provider Services ✅ | |
 | Edit Dialogs → Logic Services ✅ | |
 
@@ -1052,8 +1284,10 @@ export class [Entity]DetailComponent implements OnInit {
 |-------|---------------|
 | **Provider** | Stateless (no caching) |
 | **Logic** | Event emission via `Subject` |
-| **View** | `BehaviorSubject` + `switchMap` or `toSignal` + `computed` |
+| **View** | `signal()` + `toObservable()` + `toSignal()` + `computed()` |
 | **UI** | Stateless (data via inputs) |
+
+> **Note:** Views use signals for local state management. For data fetching, a numeric signal is used as a refresh trigger, converted to an Observable via `toObservable()`, then piped through `switchMap` to fetch data, and finally converted back to a signal via `toSignal()`. Templates access signals using function call syntax (e.g., `entity()`).
 
 ---
 
@@ -1087,12 +1321,17 @@ When creating a new feature library `[feature]-lib`:
 - [ ] `input()` for data, `output()` for events
 - [ ] `ChangeDetectionStrategy.OnPush`
 - [ ] Service injections follow rules (see table above)
+- [ ] `AuthService` injected for conditional action rendering
+- [ ] `@if (authService.isLoggedIn())` wraps Create/Edit/Delete buttons
 
 ### View Components
 - [ ] Directory: `views/[view-name]/`
 - [ ] Inject logic service (not provider)
+- [ ] Inject `AuthService` for conditional UI
 - [ ] Dialog/notification handling
-- [ ] Refresh mechanism (`BehaviorSubject` or signals)
+- [ ] Refresh mechanism (`signal()` + `toObservable()` or direct signal loading)
+- [ ] Create/Edit FAB buttons wrapped with `@if (authService.isLoggedIn())`
+- [ ] Templates use signal function call syntax: `entity()`, `@if (entity(); as e)`
 
 ### Styling
 - [ ] Separate `.scss` files
@@ -1187,7 +1426,7 @@ The architecture is **repeatable and predictable** across all feature libraries.
 
 ---
 
-**Last Updated:** December 2025  
-**Shared Utilities:** `common-lib`  
+**Last Updated:** January 2026  
+**Shared Utilities:** `common-lib` (includes Authentication module)  
 **Feature Libraries:** `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`, `home-lib`
 

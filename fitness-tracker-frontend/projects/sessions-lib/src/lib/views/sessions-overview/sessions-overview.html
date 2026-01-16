@@ -44,8 +44,11 @@
   </div>
   }
 
+
+  @if (authService.isLoggedIn()) {
   <button mat-fab extended class="create-fab" type="button" (click)="onCreate()">
     <span class="material-icons">add</span>
     Create
   </button>
+  }
 </section>

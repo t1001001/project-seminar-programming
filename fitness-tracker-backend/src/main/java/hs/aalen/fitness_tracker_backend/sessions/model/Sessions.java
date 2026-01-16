@@ -36,7 +36,4 @@ public class Sessions {
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ExerciseExecutions> exerciseExecutions = new ArrayList<>();
-
-    @Column(nullable = false)
-    private Integer sessionLogCount = 0;
 }

@@ -1,6 +1,7 @@
 package hs.aalen.fitness_tracker_backend.sessionlogs.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,8 @@ import hs.aalen.fitness_tracker_backend.sessionlogs.model.SessionLogs;
 import hs.aalen.fitness_tracker_backend.sessionlogs.repository.SessionLogsRepository;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
+import hs.aalen.fitness_tracker_backend.users.model.Users;
+import hs.aalen.fitness_tracker_backend.users.repository.UsersRepository;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,9 +31,33 @@ public class SessionLogsService {
     private SessionsRepository sessionsRepository;
     @Autowired
     private ExerciseExecutionsRepository exerciseExecutionsRepository;
+    @Autowired
+    private UsersRepository usersRepository;
+
+    /**
+     * Resolves the authenticated username to a Users entity.
+     */
+    private Users resolveUser(String username) {
+        return usersRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+    }
+
+    /**
+     * Fetches a SessionLog by ID and verifies ownership.
+     * 
+     * @throws AccessDeniedException if the session log does not belong to the user
+     */
+    private SessionLogs getSessionLogWithOwnershipCheck(UUID id, String username) {
+        Users owner = resolveUser(username);
+        return sessionLogsRepository.findByIdAndOwner(id, owner)
+                .orElseThrow(() -> new AccessDeniedException(
+                        "Session log not found or access denied"));
+    }
 
     @Transactional
-    public SessionLogsResponseDto startSession(UUID sessionId) {
+    public SessionLogsResponseDto startSession(UUID sessionId, String username) {
+        Users owner = resolveUser(username);
+
         Sessions session = sessionsRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
@@ -41,9 +68,6 @@ public class SessionLogsService {
                     "Cannot start training: Session must contain at least one exercise");
         }
 
-        // Increment session log count
-        Integer currentCount = session.getSessionLogCount() != null ? session.getSessionLogCount() : 0;
-        session.setSessionLogCount(currentCount + 1);
         // Create SessionLogs with denormalized data
         SessionLogs sessionLog = new SessionLogs();
         sessionLog.setSessionName(session.getName());
@@ -51,13 +75,14 @@ public class SessionLogsService {
         sessionLog.setSessionPlan(session.getPlan() != null ? session.getPlan().getDescription() : "");
         sessionLog.setStartedAt(Instant.now());
         sessionLog.setStatus(SessionLogs.LogStatus.InProgress);
-        // Store original session ID for reference (not a foreign key - allows deletion
-        // of original)
         sessionLog.setOriginalSessionId(session.getId());
+        // Set the owner - this is the key change for user isolation
+        sessionLog.setOwner(owner);
+
         // Save session log first to get ID
         SessionLogs savedLog = sessionLogsRepository.save(sessionLog);
-        // Get all exercise executions for this session and create execution logs
 
+        // Create execution logs for each exercise execution
         for (ExerciseExecutions execution : executions) {
             ExecutionLogs executionLog = new ExecutionLogs();
             // Denormalize ExerciseExecutions data
@@ -80,66 +105,45 @@ public class SessionLogsService {
             executionLog.setSessionLog(savedLog);
             savedLog.getExecutionLogs().add(executionLog);
         }
+
         // Save again with execution logs
         SessionLogs finalLog = sessionLogsRepository.save(savedLog);
-        sessionsRepository.save(session);
         return mapToResponseDto(finalLog);
     }
 
     @Transactional
-    public SessionLogsResponseDto completeSession(UUID sessionLogId) {
-        SessionLogs sessionLog = sessionLogsRepository.findById(sessionLogId)
-                .orElseThrow(() -> new RuntimeException("SessionLog not found"));
+    public SessionLogsResponseDto completeSession(UUID sessionLogId, String username) {
+        SessionLogs sessionLog = getSessionLogWithOwnershipCheck(sessionLogId, username);
         sessionLog.setStatus(SessionLogs.LogStatus.Completed);
         sessionLog.setCompletedAt(Instant.now());
         SessionLogs updated = sessionLogsRepository.save(sessionLog);
         return mapToResponseDto(updated);
     }
 
-    @Transactional
-    public SessionLogsResponseDto cancelSession(UUID sessionLogId) {
-        SessionLogs sessionLog = sessionLogsRepository.findById(sessionLogId)
-                .orElseThrow(() -> new RuntimeException("SessionLog not found"));
-
-        if (sessionLog.getStatus() != SessionLogs.LogStatus.InProgress) {
-            throw new IllegalArgumentException(
-                    "Can only cancel a training that is in progress. Current status: " + sessionLog.getStatus());
-        }
-
-        sessionLog.setStatus(SessionLogs.LogStatus.Cancelled);
-        sessionLog.setCompletedAt(Instant.now());
-
-        SessionLogs updated = sessionLogsRepository.save(sessionLog);
-        return mapToResponseDto(updated);
-    }
-
-    public List<SessionLogsResponseDto> getAllSessionLogs() {
-        return sessionLogsRepository.findAll().stream()
+    public List<SessionLogsResponseDto> getAllSessionLogs(String username) {
+        Users owner = resolveUser(username);
+        return sessionLogsRepository.findByOwner(owner).stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public SessionLogsResponseDto getSessionLogById(UUID id) {
-        SessionLogs sessionLog = sessionLogsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("SessionLog not found"));
+    public SessionLogsResponseDto getSessionLogById(UUID id, String username) {
+        SessionLogs sessionLog = getSessionLogWithOwnershipCheck(id, username);
         return mapToResponseDto(sessionLog);
     }
 
-    public List<SessionLogsResponseDto> getSessionLogsBySessionId(UUID sessionId) {
-        return sessionLogsRepository.findByOriginalSessionId(sessionId).stream()
+    public List<SessionLogsResponseDto> getSessionLogsBySessionId(UUID sessionId, String username) {
+        Users owner = resolveUser(username);
+        return sessionLogsRepository.findByOwnerAndOriginalSessionId(owner, sessionId).stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public SessionLogsResponseDto updateSessionLog(UUID id, SessionLogsUpdateDto dto) {
-        SessionLogs sessionLog = sessionLogsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("SessionLog not found"));
+    public SessionLogsResponseDto updateSessionLog(UUID id, SessionLogsUpdateDto dto, String username) {
+        SessionLogs sessionLog = getSessionLogWithOwnershipCheck(id, username);
 
         if (sessionLog.getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException("Cannot update a completed training");
-        }
-        if (sessionLog.getStatus() == SessionLogs.LogStatus.Cancelled) {
-            throw new IllegalArgumentException("Cannot update a cancelled training");
         }
 
         if (dto.getNotes() != null) {
@@ -155,19 +159,14 @@ public class SessionLogsService {
         return mapToResponseDto(updated);
     }
 
-    public void deleteSessionLog(UUID id) {
-        SessionLogs sessionLog = sessionLogsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("SessionLog not found"));
+    @Transactional
+    public void deleteSessionLog(UUID id, String username) {
+        SessionLogs sessionLog = getSessionLogWithOwnershipCheck(id, username);
 
         // Only InProgress sessions can be deleted
-        // Completed sessions are permanent records
         if (sessionLog.getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException(
                     "Cannot delete a completed workout. Completed sessions are permanent records.");
-        }
-        if (sessionLog.getStatus() == SessionLogs.LogStatus.Cancelled) {
-            throw new IllegalArgumentException(
-                    "Cannot delete a cancelled training.");
         }
 
         sessionLogsRepository.deleteById(id);

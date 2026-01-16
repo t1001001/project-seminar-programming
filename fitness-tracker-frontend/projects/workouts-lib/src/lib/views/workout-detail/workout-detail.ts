@@ -1,12 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { AsyncPipe } from '@angular/common';
-import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
 
 import { WorkoutLogicService, WorkoutLogWithExecutions } from '../../logic-services/workout-logic.service';
 import { WorkoutEditDialogComponent } from '../../ui/workout-edit-dialog/workout-edit-dialog';
@@ -20,7 +19,6 @@ import { showError } from '../../shared';
     MatCardModule,
     MatSnackBarModule,
     MatDialogModule,
-    AsyncPipe,
   ],
   templateUrl: './workout-detail.html',
   styleUrl: './workout-detail.scss',
@@ -28,40 +26,31 @@ import { showError } from '../../shared';
 })
 
 export class WorkoutDetailComponent implements OnInit {
+  private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly workoutService = inject(WorkoutLogicService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
 
-  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
-
-  workoutLog$: Observable<WorkoutLogWithExecutions | null> | null = null;
-  private currentWorkoutLogId: string | null = null;
+  private workoutLogId: string | null = null;
+  readonly workoutLog = signal<WorkoutLogWithExecutions | null>(null);
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.currentWorkoutLogId = id;
-      this.workoutLog$ = this.refreshTrigger$.pipe(
-        switchMap(() => this.workoutService.getWorkoutLogWithExecutions(id)),
-        catchError((err) => {
-          showError(this.snackBar, err.message);
-          this.router.navigate(['/workouts']);
-          return of(null);
-        })
-      );
+    this.workoutLogId = this.route.snapshot.paramMap.get('id');
+    if (this.workoutLogId) {
+      this.loadWorkoutLog(this.workoutLogId);
     } else {
       this.router.navigate(['/workouts']);
     }
   }
 
   onBack(): void {
-    this.router.navigate(['/workouts']);
+    this.location.back();
   }
 
   onEdit(): void {
-    if (!this.currentWorkoutLogId) {
+    if (!this.workoutLogId) {
       return;
     }
 
@@ -70,14 +59,20 @@ export class WorkoutDetailComponent implements OnInit {
       maxWidth: '95vw',
       panelClass: 'custom-dialog-container',
       autoFocus: false,
-      data: { workoutLogId: this.currentWorkoutLogId }
+      data: { workoutLogId: this.workoutLogId }
     });
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.refreshTrigger$.next();
+        this.refresh();
       }
     });
+  }
+
+  refresh(): void {
+    if (this.workoutLogId) {
+      this.loadWorkoutLog(this.workoutLogId);
+    }
   }
 
   formatDateTime(dateStr: string): string {
@@ -94,4 +89,15 @@ export class WorkoutDetailComponent implements OnInit {
     });
     return `${dateFormatted} at ${timeFormatted}`;
   }
+
+  private loadWorkoutLog(id: string): void {
+    this.workoutService.getWorkoutLogWithExecutions(id).subscribe({
+      next: (log) => this.workoutLog.set(log),
+      error: (err) => {
+        showError(this.snackBar, err.message);
+        this.router.navigate(['/workouts']);
+      }
+    });
+  }
 }
+

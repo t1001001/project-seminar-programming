@@ -4,11 +4,12 @@
     Back
   </button>
 
-  @if (session$ | async; as session) {
+  @if (session(); as session) {
   <mat-card class="detail-card">
     <mat-card-content>
       <div class="header">
         <h1>Session Details</h1>
+        @if (authService.isLoggedIn()) {
         <div class="header-actions">
           <button mat-raised-button class="start-btn" type="button" (click)="onStart(session)">
             <mat-icon>play_arrow</mat-icon>
@@ -19,6 +20,7 @@
             Edit
           </button>
         </div>
+        }
       </div>
 
       <div class="detail-view">

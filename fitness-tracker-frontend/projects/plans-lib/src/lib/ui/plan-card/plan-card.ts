@@ -5,6 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TrainingPlan } from '../../provider-services/plan-provider.service';
 
+import { AuthService } from 'common-lib';
+
 @Component({
     selector: 'lib-plan-card',
 
@@ -15,6 +17,7 @@ import { TrainingPlan } from '../../provider-services/plan-provider.service';
 })
 export class PlanCardComponent {
     private readonly router = inject(Router);
+    public readonly authService = inject(AuthService);
 
     plan = input.required<TrainingPlan>();
     delete = output<TrainingPlan>();

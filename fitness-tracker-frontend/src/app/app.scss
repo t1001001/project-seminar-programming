@@ -72,6 +72,80 @@
   height: 100%;
 }
 
+.header-actions-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0.25rem;
+  background-color: color-mix(in srgb, var(--fitness-bg-elevated), transparent 70%);
+  border: 1px solid color-mix(in srgb, var(--fitness-border), transparent 50%);
+  border-radius: 50px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--fitness-bg-elevated), transparent 50%);
+  }
+}
+
+.pill-divider {
+  width: 1px;
+  height: 20px;
+  background-color: color-mix(in srgb, var(--fitness-border), transparent 30%);
+}
+
+.user-avatar-btn {
+  color: var(--fitness-text-primary);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    background-color: transparent;
+  }
+
+  // Ensure consistent icon size
+  .user-avatar-icon {
+    // Default material icon size is 24px, resetting to match theme toggle
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+  }
+}
+
+.mobile-user-actions {
+  display: none; // Hidden on desktop
+}
+
+.login-btn,
+.logout-btn {
+  color: var(--fitness-text-primary) !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  mat-icon {
+    margin-right: 0.25rem;
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  &:hover {
+    background-color: var(--fitness-bg-chip) !important;
+  }
+}
+
+.logout-btn {
+  color: var(--fitness-text-primary) !important;
+}
+
+.login-btn {
+  color: var(--fitness-text-primary) !important;
+
+  mat-icon {
+    color: var(--fitness-text-secondary);
+  }
+}
+
 .theme-toggle-btn {
   color: var(--fitness-text-primary);
   transition: transform 0.2s ease;
@@ -162,6 +236,10 @@
   flex: 1;
   width: 100%;
   box-sizing: border-box;
+
+  &.fullscreen {
+    min-height: 100vh;
+  }
 }
 
 
@@ -181,6 +259,25 @@
 
   .toolbar-content {
     padding: 0 1.5rem;
+  }
+
+  .header-actions-pill {
+    padding: 0.25rem;
+    background-color: transparent;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+
+    &:hover {
+      background-color: transparent;
+      box-shadow: none;
+    }
+  }
+
+  .pill-divider,
+  .user-avatar-btn,
+  .login-btn {
+    display: none;
   }
 
   .hamburger-btn {
@@ -240,6 +337,95 @@
 
     &:hover {
       background-color: var(--fitness-bg-chip);
+    }
+  }
+
+  .mobile-user-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.75rem 0 0 0;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--fitness-border);
+  }
+
+  .mobile-username {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--fitness-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .mobile-logout-btn {
+    width: 100%;
+    margin: 0;
+    padding: 1rem 1.5rem;
+    justify-content: flex-start;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--fitness-text-primary) !important;
+    border-radius: 8px !important;
+
+    mat-icon {
+      margin-right: 0.5rem;
+      color: var(--fitness-text-secondary);
+    }
+
+    &:hover {
+      background-color: var(--fitness-bg-chip);
+    }
+  }
+
+  .mobile-login-btn {
+    @extend .mobile-logout-btn;
+    color: var(--fitness-text-primary) !important;
+
+    mat-icon {
+      color: var(--fitness-text-secondary);
+    }
+  }
+}
+
+// User Menu Styling
+::ng-deep .user-menu-dropdown {
+  background-color: var(--fitness-bg-elevated) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--fitness-border) !important;
+  box-shadow: 0 4px 16px var(--fitness-shadow) !important;
+  padding: 0.25rem !important;
+  min-width: 180px !important;
+
+  .user-menu-header {
+    padding: 0.75rem 1rem 0.5rem;
+  }
+
+  .user-menu-name {
+    display: block;
+    color: var(--fitness-text-secondary);
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+  }
+
+  .mat-mdc-menu-item {
+    color: var(--fitness-text-primary) !important;
+    border-radius: 8px !important;
+    min-height: 40px !important;
+
+    mat-icon {
+      color: var(--fitness-text-secondary);
+      margin-right: 0.5rem;
+    }
+
+    &:hover {
+      background-color: var(--fitness-bg-chip) !important;
     }
   }
 }

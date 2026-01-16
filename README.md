@@ -1,34 +1,30 @@
-# Project Seminar Programming - Fitness Tracker
+# Fitness Tracker
 
-Repository for the project seminar in programming for the winter semester 25/26.
+A full-stack fitness tracking application for managing workout plans, sessions, and exercises.
 
-## Usage
-
-The repository includes Dockerfiles for both backend and frontend plus a `docker-compose.yml` for running them together.
+## Quick Start
 
 ```bash
 docker compose up --build
 ```
 
-The backend is then available at `http://localhost:8080` and the frontend at `http://localhost:4200`. To stop the stack and remove the containers, run:
+- **Frontend:** http://localhost:4200
+- **Backend:** http://localhost:8080
 
 ```bash
-docker compose down
+docker compose down  # Stop the stack
 ```
+
+## Project Structure
+
+| Directory | Description |
+|-----------|-------------|
+| [fitness-tracker-frontend](fitness-tracker-frontend/) | Angular 20 SPA |
+| [fitness-tracker-backend](fitness-tracker-backend/) | Spring Boot REST API |
 
 ## Contributors
 
-Donauer, Marc
-
-Kohnle, Philipp
-
-Krieger, Leonie
-
-Nguyen, Tobias
-
-Schulz, Lukas
-
-Sorg, Luca
+Donauer, Marc · Kohnle, Philipp · Krieger, Leonie · Nguyen, Tobias · Schulz, Lukas · Sorg, Luca
 
 ## License
 

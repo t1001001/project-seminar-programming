@@ -2,7 +2,7 @@
 
 This document defines the styling rules and patterns for all components in this application. **All new components must follow these guidelines** to ensure visual consistency and dark mode compatibility.
 
-> **Reference Implementations:** See `exercises-lib`, `sessions-lib`, and `plans-lib` for working examples.
+> **Reference Implementations:** See `exercises-lib`, `sessions-lib`, `plans-lib`, and `workouts-lib` for working examples.
 
 ---
 
@@ -12,29 +12,33 @@ This document defines the styling rules and patterns for all components in this 
 
 **All components MUST use CSS custom properties for theming.** Never use hardcoded colors.
 
-### Theme Variables
+### Theme Variables (styles.scss)
 
 ```scss
 /* ═══════════════════════════════════════════════════════════════
    BRAND COLORS (consistent across light/dark modes)
    ═══════════════════════════════════════════════════════════════ */
---fitness-primary              // Main brand color (green)
---fitness-primary-hover        // Hover state for primary
+--fitness-primary: #0DF259         // Main brand color (green)
+--fitness-primary-rgb: 13, 242, 89 // RGB for rgba() usage
+--fitness-primary-hover: #0BE84D   // Hover state
 
 /* ═══════════════════════════════════════════════════════════════
    ACTION COLORS (intentional, consistent across themes)
    ═══════════════════════════════════════════════════════════════ */
---fitness-action-update        // Light blue for edit/update
---fitness-action-update-hover  // Hover state
---fitness-action-delete        // Coral red for destructive actions
---fitness-action-delete-hover  // Hover state
+--fitness-action-update: #74C4FC        // Light blue for edit/update
+--fitness-action-update-rgb: 116, 196, 252
+--fitness-action-update-hover: #5AB8FA
+
+--fitness-action-delete: #FF6B6B        // Coral red for destructive
+--fitness-action-delete-rgb: 255, 107, 107
+--fitness-action-delete-hover: #FF5252
 
 /* ═══════════════════════════════════════════════════════════════
    BACKGROUNDS (adapt to light/dark mode)
    ═══════════════════════════════════════════════════════════════ */
---fitness-bg-page              // Page background
---fitness-bg-card              // Card surfaces
---fitness-bg-card-nested       // Nested cards (cards within cards)
+--fitness-bg-page              // Page background (#F5F8F6 / #0f1511)
+--fitness-bg-card              // Card surfaces (#FFFFFF / #1a1f1c)
+--fitness-bg-card-nested       // Nested cards (#f8faf9 / #222723)
 --fitness-bg-elevated          // Dialogs, menus
 --fitness-bg-chip              // Chips, badges, tags
 --fitness-bg-input             // Form inputs
@@ -45,7 +49,7 @@ This document defines the styling rules and patterns for all components in this 
 --fitness-text-primary         // Main content
 --fitness-text-secondary       // Labels, secondary info
 --fitness-text-tertiary        // Placeholders, disabled
---fitness-dark                 // High contrast text
+--fitness-dark                 // High contrast text (inverts in dark mode)
 
 /* ═══════════════════════════════════════════════════════════════
    BORDERS & SHADOWS (adapt to light/dark mode)
@@ -54,7 +58,9 @@ This document defines the styling rules and patterns for all components in this 
 --fitness-border-strong        // Focus/active borders
 --fitness-shadow               // Base shadow
 --fitness-shadow-strong        // Elevated shadow
---fitness-shadow-glow          // Primary color glow effect
+--fitness-shadow-glow-sm       // Small primary glow
+--fitness-shadow-glow          // Primary color glow
+--fitness-shadow-glow-lg       // Large primary glow
 --fitness-shadow-glow-update   // Update action glow
 --fitness-shadow-dropdown      // Dropdown/menu shadow
 
@@ -62,8 +68,11 @@ This document defines the styling rules and patterns for all components in this 
    STATUS COLORS (semantic states)
    ═══════════════════════════════════════════════════════════════ */
 --fitness-status-success       // Green - positive metrics
+--fitness-status-success-rgb   // RGB variant
 --fitness-status-info          // Blue - neutral insights
---fitness-status-warning       // Yellow - cautions
+--fitness-status-info-rgb
+--fitness-status-warning       // Yellow - cautions, in-progress
+--fitness-status-warning-rgb
 ```
 
 ### Usage Rules
@@ -73,6 +82,7 @@ This document defines the styling rules and patterns for all components in this 
 | `background-color: var(--fitness-bg-card);` | `background-color: #FFFFFF;` |
 | `color: var(--fitness-text-primary);` | `color: #111813;` |
 | `border: 1px solid var(--fitness-border);` | `border: 1px solid rgba(0,0,0,0.1);` |
+| `rgba(var(--fitness-primary-rgb), 0.15)` | `rgba(13, 242, 89, 0.15)` |
 
 ### Theme Toggle
 
@@ -81,14 +91,82 @@ import { ThemeService } from './services/theme.service';
 
 private readonly themeService = inject(ThemeService);
 
-// Toggle between light/dark
-this.themeService.toggleTheme();
+this.themeService.toggleTheme();         // Toggle light/dark
+this.themeService.setTheme('dark');      // Set specific theme
+const theme = this.themeService.currentTheme(); // Read current
+```
 
-// Set specific theme
-this.themeService.setTheme('dark');
+---
 
-// Read current theme
-const theme = this.themeService.currentTheme();
+## 🧭 Header & Navigation
+
+### Sticky Glassmorphism Header (app.scss)
+
+```scss
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: color-mix(in srgb, var(--fitness-bg-page), transparent 10%) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--fitness-text-primary) !important;
+  box-shadow: 0 4px 20px var(--fitness-shadow) !important;
+  border-bottom: 1px solid var(--fitness-border);
+  height: 100px !important;
+  transition: all 0.3s ease;
+}
+```
+
+### Navigation Links with Animated Underline
+
+```scss
+.app-nav a {
+  color: var(--fitness-text-secondary);
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+  padding: 0.75rem 0;
+  transition: color 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--fitness-primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+    border-radius: 3px;
+    box-shadow: var(--fitness-shadow-glow-sm);
+  }
+
+  &:hover, &.active-link {
+    color: var(--fitness-text-primary);
+    &::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+}
+```
+
+### Icon Button Pill Container
+
+```scss
+.header-actions-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0.25rem;
+  background-color: color-mix(in srgb, var(--fitness-bg-elevated), transparent 70%);
+  border: 1px solid color-mix(in srgb, var(--fitness-border), transparent 50%);
+  border-radius: 50px;
+  transition: all 0.2s ease;
+}
 ```
 
 ---
@@ -114,57 +192,25 @@ const theme = this.themeService.currentTheme();
 }
 ```
 
-**Layout Pattern:**
-```scss
-.card-content-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.info-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.actions-section {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-```
-
-**Card Footer:**
-```scss
-.card-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--fitness-border);
-}
-```
-
 **Nested Card Pattern:**
 ```scss
-// Parent card uses standard background
 .parent-card {
   background-color: var(--fitness-bg-card);
-  border-radius: 12px;
-  border: 1px solid var(--fitness-border);
-  padding: 1.5rem;
 }
 
-// Nested cards use slightly different background for visual distinction
 .nested-card {
   background-color: var(--fitness-bg-card-nested);
   border-radius: 12px;
   border: 1px solid var(--fitness-border);
   padding: 1rem;
+}
+```
+
+**Card with Status Border:**
+```scss
+.detail-card.in-progress {
+  border: 2px solid rgba(var(--fitness-status-warning-rgb), 0.6) !important;
+  box-shadow: 0 0 20px rgba(var(--fitness-status-warning-rgb), 0.15) !important;
 }
 ```
 
@@ -174,94 +220,49 @@ const theme = this.themeService.currentTheme();
 
 | Type | Variable | Usage |
 |------|----------|-------|
-| **Primary** | `--fitness-primary` | Create, Add, Confirm |
-| **Edit** | `--fitness-primary` | Edit (opens edit mode) |
-| **Start** | `--fitness-primary` | Start, Play, Begin |
+| **Primary** | `--fitness-primary` | Create, Add, Confirm, Start |
 | **Update** | `--fitness-action-update` | Update (submit form changes) |
 | **Delete** | `--fitness-action-delete` | Delete, Remove |
 | **Text** | transparent | Cancel, Back |
+| **Secondary** | transparent + border | Guest access, alternative actions |
 
 **Primary Button:**
 ```scss
-.primary-btn, .create-btn {
-  background-color: var(--fitness-primary);
-  color: var(--fitness-dark);
+.primary-btn, .login-btn {
+  background-color: var(--fitness-primary) !important;
+  color: var(--fitness-dark) !important;
   border-radius: 8px;
   padding: 0.5rem 1.5rem;
-  font-weight: 500;
-  text-transform: none;
-  box-shadow: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: var(--fitness-primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--fitness-shadow-glow);
-  }
-}
-```
-
-**Edit Button:**
-```scss
-.edit-btn {
-  background-color: var(--fitness-primary);
-  color: var(--fitness-dark);
-  border-radius: 8px;
-  padding: 0.5rem 1.5rem;
-  font-weight: 500;
-  text-transform: none;
-  box-shadow: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: var(--fitness-primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--fitness-shadow-glow);
-  }
-}
-```
-
-**Start Button:**
-```scss
-.start-btn {
-  background-color: var(--fitness-primary);
-  color: var(--fitness-dark);
-  border-radius: 8px;
-  padding: 0.5rem 1.3rem;
   font-weight: 600;
   text-transform: none;
-  box-shadow: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: var(--fitness-primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--fitness-shadow-glow);
-  }
-}
-```
-
-**Update Button:**
-```scss
-.update-btn {
-  background-color: var(--fitness-action-update);
-  color: var(--fitness-dark);
-  border-radius: 8px;
-  padding: 0.5rem 1.5rem;
-  font-weight: 500;
-  text-transform: none;
-  box-shadow: none;
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: var(--fitness-action-update-hover);
+    background-color: var(--fitness-primary-hover) !important;
     transform: translateY(-2px);
-    box-shadow: var(--fitness-shadow-glow-update);
+    box-shadow: var(--fitness-shadow-glow);
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+}
+```
+
+**Secondary/Outline Button:**
+```scss
+.access-btn {
+  background-color: transparent !important;
+  border: 1px solid var(--fitness-border) !important;
+  color: var(--fitness-text-primary) !important;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--fitness-bg-chip) !important;
   }
 }
 ```
@@ -274,8 +275,6 @@ const theme = this.themeService.currentTheme();
   border-radius: 8px;
   padding: 0.5rem 1.5rem;
   font-weight: 500;
-  text-transform: none;
-  box-shadow: none;
   transition: all 0.2s ease;
 
   &:hover {
@@ -286,149 +285,163 @@ const theme = this.themeService.currentTheme();
 }
 ```
 
-**Text/Cancel Button:**
+**Back/Text Button:**
 ```scss
-.cancel-btn {
-  color: var(--fitness-dark);
+.back-btn {
+  color: var(--fitness-text-primary) !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
   background-color: transparent;
-  border-radius: 0;
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  text-transform: none;
-  transition: all 0.2s ease;
+
+  mat-icon {
+    margin-right: 0.5rem;
+  }
 
   &:hover {
-    background-color: transparent;
-    color: var(--fitness-primary);
+    color: var(--fitness-primary) !important;
   }
 }
 ```
 
-**FAB (Floating Action Button):**
+**Button Group (Equal Width):**
 ```scss
-.fab {
-  position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  background-color: var(--fitness-primary);
-  color: var(--fitness-dark);
-  border-radius: 28px;
-  padding: 0 1.5rem;
-  height: 56px;
-  font-weight: 600;
-  text-transform: none;
-  box-shadow: var(--fitness-shadow-glow);
-  z-index: 100;
-  transition: all 0.2s ease;
+.button-group {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
 
-  &:hover {
-    background-color: var(--fitness-primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--fitness-shadow-glow-lg);
-  }
-
-  @media (max-width: 768px) {
-    bottom: 1rem;
-    left: 1rem;
+  button {
+    flex: 1;
+    height: 48px !important;
   }
 }
 ```
-
-**Button Icon Rules:**
-- Delete buttons: Include `delete` icon
-- Edit buttons: Include `edit` icon  
-- Create/Add buttons: Include `add` icon
 
 ---
 
-### Chips & Tags
+### Status Chips
 
-**Stat Chip:**
+**Semantic Status Chip:**
 ```scss
-.stat-chip {
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: fit-content;
+
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &.completed {
+    background-color: rgba(var(--fitness-primary-rgb), 0.15);
+    color: var(--fitness-primary);
+  }
+
+  &.in-progress {
+    background-color: rgba(var(--fitness-status-warning-rgb), 0.15);
+    color: var(--fitness-status-warning);
+  }
+}
+```
+
+**Stat Item with Comparison State:**
+```scss
+.stat-item {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   padding: 0.5rem 0.8rem;
   background-color: var(--fitness-bg-card);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--fitness-border);
   font-weight: 500;
-  color: var(--fitness-dark);
-  min-width: 90px;
 
-  .stat-icon {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
-    color: var(--fitness-text-secondary);
+  &.better {
+    background-color: rgba(var(--fitness-status-success-rgb), 0.15);
+    border-color: rgba(var(--fitness-status-success-rgb), 0.4);
+    color: var(--fitness-status-success);
+    font-weight: 600;
   }
 
-  .stat-label {
-    font-size: 0.75rem;
-    color: var(--fitness-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .stat-value {
-    font-size: 0.85rem;
-    color: var(--fitness-dark);
+  &.worse {
+    background-color: rgba(var(--fitness-action-delete-rgb), 0.15);
+    border-color: rgba(var(--fitness-action-delete-rgb), 0.4);
+    color: var(--fitness-action-delete);
     font-weight: 600;
   }
 }
 ```
 
-**Category/Tag Chip:**
+**Category Chip:**
 ```scss
-.tag-chip {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background-color: var(--fitness-bg-chip);
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--fitness-dark);
-}
-```
-
-**Order Chip:**
-```scss
-.order-chip {
+.category-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  background: var(--fitness-bg-chip);
+  padding: 0.2rem 0.6rem;
+  background-color: var(--fitness-bg-chip);
   border: 1px solid var(--fitness-border);
+  border-radius: 999px;
+  font-size: 0.75rem;
   color: var(--fitness-text-secondary);
   font-weight: 500;
-  font-size: 0.85rem;
-  height: 1.25rem;
+  text-transform: capitalize;
+}
+```
 
-  .order-value {
-    color: var(--fitness-dark);
-    font-weight: 600;
+---
+
+### Forms & Inputs
+
+**Material Form Field Overrides:**
+```scss
+::ng-deep {
+  .mat-mdc-form-field {
+    .mdc-text-field--filled {
+      background-color: var(--fitness-bg-input) !important;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .mdc-floating-label {
+      color: var(--fitness-text-secondary);
+    }
+
+    .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-line-ripple::after {
+      border-bottom-color: var(--fitness-primary);
+    }
+
+    input {
+      color: var(--fitness-text-primary);
+    }
   }
 }
 ```
 
-**Count Chip:**
+**Error Message:**
 ```scss
-.count-chip {
-  display: inline-flex;
+.error-message {
+  display: flex;
   align-items: center;
   justify-content: center;
-  height: 1.4rem;
-  min-width: 1.4rem;
-  padding: 0 0.45rem;
-  background-color: var(--fitness-bg-chip);
-  border-radius: 12px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--fitness-text-secondary);
-  border: 1px solid var(--fitness-border);
+  gap: 0.5rem;
+  color: var(--fitness-action-delete);
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  background-color: rgba(var(--fitness-action-delete-rgb), 0.1);
+  border-radius: 8px;
+  border: 1px solid var(--fitness-action-delete);
+
+  mat-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
 }
 ```
 
@@ -440,57 +453,18 @@ const theme = this.themeService.currentTheme();
 ```typescript
 this.dialog.open(ComponentName, {
   width: '500px',                          // 500px for forms, 400px for confirmations
-  maxWidth: '96vw',                        // Responsive max
-  panelClass: 'custom-dialog-container',   // REQUIRED for white background
+  maxWidth: '96vw',
+  panelClass: 'custom-dialog-container',   // REQUIRED for themed background
   data: { /* ... */ }
 });
 ```
 
-**Dialog Content Styling:**
+**Global Dialog Styling (styles.scss):**
 ```scss
-mat-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 400px;
-  padding: 1rem 0;
-  overflow: visible !important;
-}
-
-.required-hint {
-  margin: 0 0 1rem 0;
-  padding: 0.5rem 0;
-  font-size: 0.875rem;
-  color: var(--fitness-text-secondary);
-}
-
-.dialog-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-mat-form-field {
-  width: 100%;
-}
-```
-
-**Dialog Actions:**
-```scss
-.dialog-actions, mat-dialog-actions {
-  padding: 1rem 1.4rem 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-```
-
-**Scrollable Dialogs:**
-```scss
-.dialog-content {
-  max-height: 74vh;
-  overflow-y: auto;
-  overflow-x: visible;
+.custom-dialog-container .mat-mdc-dialog-container {
+  background-color: var(--fitness-bg-card) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--fitness-border);
 }
 ```
 
@@ -501,15 +475,23 @@ mat-form-field {
 **Configuration:**
 ```typescript
 this.snackBar.open(message, 'Close', {
-  duration: 3000,                    // 3-5 seconds
+  duration: 3000,
   horizontalPosition: 'center',
   verticalPosition: 'bottom',
   panelClass: ['success-snackbar'],  // or 'error-snackbar'
 });
 ```
 
-**Success Snackbar:** Green background (uses primary color)  
-**Error Snackbar:** Red background (hardcoded for visibility)
+**Snackbar Styles (styles.scss):**
+```scss
+.success-snackbar .mdc-snackbar__surface {
+  background-color: var(--fitness-primary) !important;
+}
+
+.error-snackbar .mdc-snackbar__surface {
+  background-color: var(--fitness-action-delete) !important;
+}
+```
 
 ---
 
@@ -524,6 +506,7 @@ this.snackBar.open(message, 'Close', {
   margin: 0 auto;
   padding: 2.5rem;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 ```
 
@@ -538,7 +521,6 @@ this.snackBar.open(message, 'Close', {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  position: relative;
 
   h1 {
     font-size: 2.5rem;
@@ -546,19 +528,6 @@ this.snackBar.open(message, 'Close', {
     color: var(--fitness-dark);
     margin: 0;
   }
-
-  .subtitle {
-    color: var(--fitness-text-secondary);
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin: 0;
-  }
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
 }
 ```
 
@@ -572,16 +541,6 @@ this.snackBar.open(message, 'Close', {
 }
 ```
 
-### List Layout
-
-```scss
-.items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-```
-
 ### Empty State
 
 ```scss
@@ -590,23 +549,16 @@ this.snackBar.open(message, 'Close', {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: center;
   padding: 2.5rem;
   color: var(--fitness-text-tertiary);
   background-color: var(--fitness-bg-chip);
   border-radius: 12px;
   border: 2px dashed var(--fitness-border);
 
-  .empty-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+  mat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
     opacity: 0.5;
-  }
-
-  p {
-    margin: 0;
-    font-weight: 500;
   }
 }
 ```
@@ -614,8 +566,6 @@ this.snackBar.open(message, 'Close', {
 ---
 
 ## 🎯 Timeline Component
-
-For displaying sequential items (sessions, events, etc.):
 
 **Basic Timeline:**
 ```scss
@@ -636,20 +586,6 @@ For displaying sequential items (sessions, events, etc.):
   }
 }
 
-.timeline-item {
-  position: relative;
-  margin-bottom: 1.5rem;
-
-  &.last-item {
-    margin-bottom: 0;
-  }
-
-  &:has(.timeline-content:hover) .timeline-marker {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 3px rgba(var(--fitness-primary-rgb), 0.4);
-  }
-}
-
 .timeline-marker {
   position: absolute;
   left: -2.735rem;
@@ -660,59 +596,73 @@ For displaying sequential items (sessions, events, etc.):
   background-color: var(--fitness-primary);
   border: 3px solid var(--fitness-bg-page);
   box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
-  z-index: 1;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.timeline-content {
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
 }
 ```
 
-**Drag-Drop Timeline:**
-```scss
-.timeline-wrapper {
-  --timeline-line-x: 1rem;
-  --timeline-left-space: 2.735rem;
-  position: relative;
-  padding-left: var(--timeline-left-space);
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
+---
 
-  &::before {
-    content: '';
-    position: absolute;
-    left: var(--timeline-line-x);
-    top: -0.75rem;
-    bottom: -0.75rem;
-    width: 2px;
-    background: rgba(var(--fitness-primary-rgb), 0.4);
-    border-radius: 4px;
+## ✨ Advanced Animations
+
+### Glassmorphism Cards
+
+```scss
+.buzzword-card {
+  background: color-mix(in srgb, var(--fitness-bg-elevated), transparent 90%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid var(--fitness-border);
+  border-radius: 16px;
+  transition: all 0.3s ease-out;
+}
+```
+
+### Animated Border (CSS @property)
+
+```scss
+@property --border-progress {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 4px;
+  background: conic-gradient(var(--fitness-primary) var(--border-progress), transparent 0deg);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  --border-progress: 0deg;
+  transition: --border-progress 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+}
+
+.card.active::after {
+  opacity: 1;
+  --border-progress: 360deg;
+}
+```
+
+### Scroll Indicator Animation
+
+```scss
+@keyframes scrollWheel {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(12px);
   }
 }
 
-// Drag states
-.timeline-item.cdk-drag-preview .drag-card {
-  box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.35), var(--fitness-shadow-glow);
-  transform: scale(1.01);
-  background: rgba(var(--fitness-primary-rgb), 0.12);
-}
-
-.timeline-item.cdk-drag-placeholder .drag-card {
-  border: 2px dashed rgba(var(--fitness-primary-rgb), 0.8);
-  background: var(--fitness-bg-card);
-  box-shadow: 0 0 0 2px rgba(var(--fitness-primary-rgb), 0.3);
-}
-
-.timeline-item.cdk-drag-animating {
-  transition: transform 180ms cubic-bezier(0.2, 0, 0, 1);
+.wheel {
+  animation: scrollWheel 1.5s infinite;
 }
 ```
 
@@ -726,15 +676,18 @@ font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-seri
 ```
 
 **Headings:**
+
 | Level | Size | Weight |
 |-------|------|--------|
-| H1 | 2.5rem | 700 |
+| H1 (Page) | 2.5rem | 700 |
+| H1 (Card) | 2rem | 700 |
 | H2 | 1.5rem | 600 |
 | H3 | 1.25rem | 600 |
+| H4 | 1.1rem | 600 |
 
 **Labels:**
 ```scss
-.label {
+.label, .detail-label {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--fitness-text-secondary);
@@ -748,103 +701,88 @@ font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-seri
 ## 📱 Responsive Breakpoints
 
 ```scss
-// Tablet
-@media (max-width: 1024px) { }
-
-// Small Tablet
-@media (max-width: 900px) { }
-
-// Mobile
-@media (max-width: 768px) { }
-
-// Small Mobile
-@media (max-width: 480px) { }
+@media (max-width: 1200px) { }  // Large tablets, small desktops
+@media (max-width: 900px)  { }  // Tablets - mobile nav kicks in
+@media (max-width: 768px)  { }  // Mobile
+@media (max-width: 640px)  { }  // Small mobile
+@media (max-width: 480px)  { }  // Extra small mobile
 ```
 
-**Common Responsive Patterns:**
+**Mobile Header Pattern (900px):**
 ```scss
-@media (max-width: 768px) {
-  .card-content-wrapper {
-    flex-direction: column;
-    gap: 1rem;
+@media (max-width: 900px) {
+  .app-toolbar {
+    height: 72px !important;
   }
 
-  .view-header {
+  .app-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     flex-direction: column;
-    align-items: flex-start;
-  }
+    background-color: var(--fitness-bg-card);
+    border-radius: 0 0 16px 16px;
+    box-shadow: var(--fitness-shadow-dropdown);
+    transform: translateY(-10px);
+    opacity: 0;
+    visibility: hidden;
 
-  h1 {
-    font-size: 1.5rem;
+    &.open {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
   }
 }
 ```
 
 ---
 
-## ✨ Animations
-
-**Standard Transition:**
-```scss
-transition: all 0.2s ease;
-```
-
-**Hover Lift:**
-```scss
-&:hover {
-  transform: translateY(-2px);
-}
-```
-
-**Glow Effects:**
-```scss
-box-shadow: var(--fitness-shadow-glow);        // Primary (green)
-box-shadow: var(--fitness-shadow-glow-update); // Update (blue)
-```
-
----
-
-## 📐 Spacing
+## 📐 Spacing Reference
 
 | Size | Value |
 |------|-------|
-| Small | 0.5rem (8px) |
-| Medium | 1rem (16px) |
-| Large | 1.5rem (24px) |
-| Extra Large | 2.5rem (40px) |
+| XS | 0.25rem (4px) |
+| SM | 0.5rem (8px) |
+| MD | 1rem (16px) |
+| LG | 1.5rem (24px) |
+| XL | 2rem (32px) |
+| 2XL | 2.5rem (40px) |
 
 **Common Paddings:**
-- Card content: `1.5rem`
+- Card content: `1.5rem` / `2rem`
+- Nested card: `1rem`
 - Button: `0.5rem 1.5rem`
-- Text button: `0.5rem 1rem`
-- Page content: `2rem` - `2.5rem`
+- Page content: `2.5rem`
+- Mobile page: `1rem` - `1.5rem`
 
 ---
 
 ## ✅ Checklist for New Components
 
-Before committing any new SCSS file:
-
 ### Theme Compliance
 - [ ] No hardcoded `#` color values
 - [ ] All backgrounds use `var(--fitness-bg-*)`
-- [ ] All text uses `var(--fitness-text-*)`
+- [ ] All text uses `var(--fitness-text-*)` or `var(--fitness-dark)`
 - [ ] All borders use `var(--fitness-border*)`
 - [ ] All shadows use `var(--fitness-shadow*)`
+- [ ] Status colors use `var(--fitness-status-*)`
 - [ ] Tested in both light AND dark modes
 
 ### Component Standards
-- [ ] Cards: 12px border radius, 1.5rem padding
-- [ ] Cards: Hover lift effect (translateY)
+- [ ] Cards: 12px border radius, proper padding
+- [ ] Cards: Hover lift effect (`translateY(-2px)`)
 - [ ] Buttons: Correct color for action type
-- [ ] Buttons: Include appropriate icon
+- [ ] Buttons: Include appropriate Material Icon
 - [ ] Dialogs: Include `panelClass: 'custom-dialog-container'`
 - [ ] Forms: Include "* Required fields" hint
+- [ ] Inputs: Override Material styles for theme
 
 ### Layout
 - [ ] Responsive styles for mobile (`@media (max-width: 768px)`)
 - [ ] Proper flex/grid layout
-- [ ] Empty state handling
+- [ ] Empty state handling with dashed border
 
 ---
 
@@ -853,22 +791,24 @@ Before committing any new SCSS file:
 - ❌ Hardcoded colors (breaks dark mode)
 - ❌ Shadows on cards by default
 - ❌ Uppercase text (except labels)
-- ❌ Emojis (use Material Icons)
+- ❌ Emojis in UI (use Material Icons)
 - ❌ Background on text button hover
-- ❌ Non-standard border radius (use 6/8/12/16/28px)
+- ❌ Non-standard border radius (use 6/8/12/16/28/999px)
+- ❌ Missing `::ng-deep` for Material overrides in components
 
 ## ✅ Do's
 
 - ✅ CSS variables for all colors
 - ✅ Material Icons for all icons
-- ✅ Transitions on interactive elements
+- ✅ Transitions on interactive elements (`0.2s ease`)
 - ✅ Consistent hover effects
 - ✅ Poppins font family
-- ✅ Proper spacing
-- ✅ Responsive design
+- ✅ `color-mix()` for transparent backgrounds
+- ✅ `rgba(var(--*-rgb), opacity)` for colored transparency
+- ✅ Responsive design at all breakpoints
 
 ---
 
-**Last Updated:** December 2025  
-**Version:** 3.0  
-**Reference Implementations:** `exercises-lib`, `sessions-lib`, `plans-lib`
+**Last Updated:** January 2026  
+**Version:** 4.0  
+**Reference Implementations:** `exercises-lib`, `sessions-lib`, `plans-lib`, `workouts-lib`

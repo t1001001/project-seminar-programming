@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export type WorkoutStatus = 'InProgress' | 'Completed' | 'Cancelled';
+export type WorkoutStatus = 'InProgress' | 'Completed';
 
 export interface WorkoutLog {
   id: string;
@@ -62,9 +62,7 @@ export class WorkoutProviderService {
     return this.http.put<WorkoutLog>(`${this.workoutLogsApiUrl}/${workoutLogId}/complete`, {});
   }
 
-  cancelWorkout(workoutLogId: string): Observable<WorkoutLog> {
-    return this.http.put<WorkoutLog>(`${this.workoutLogsApiUrl}/${workoutLogId}/cancel`, {});
-  }
+
 
   getAllWorkoutLogs(): Observable<WorkoutLog[]> {
     return this.http.get<WorkoutLog[]>(this.workoutLogsApiUrl);

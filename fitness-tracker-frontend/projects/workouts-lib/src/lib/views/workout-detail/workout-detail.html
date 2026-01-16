@@ -1,10 +1,10 @@
 <section class="workout-detail page-container">
   <button mat-button class="back-btn" type="button" (click)="onBack()">
     <mat-icon>arrow_back</mat-icon>
-    Back to Workouts
+    Back
   </button>
 
-  @if (workoutLog$ | async; as log) {
+  @if (workoutLog(); as log) {
   <mat-card class="detail-card" [class.in-progress]="log.status === 'InProgress'">
     <mat-card-content>
       <div class="header">
@@ -116,7 +116,7 @@
                 <div class="stats-row actual">
                   <span class="stats-label">Actual</span>
                   <div class="stats-values">
-                    <span class="stat-item" 
+                    <span class="stat-item"
                       [class.better]="execution.completed && execution.actualSets != null && execution.actualSets >= execution.exerciseExecutionPlannedSets"
                       [class.worse]="execution.completed && execution.actualSets != null && execution.actualSets < execution.exerciseExecutionPlannedSets">
                       <mat-icon>dynamic_form</mat-icon>

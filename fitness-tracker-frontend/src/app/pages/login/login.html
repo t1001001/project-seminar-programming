@@ -1,0 +1,51 @@
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Sign in to access your fitness tracker</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+            <mat-form-field appearance="fill">
+                <mat-label>Username</mat-label>
+                <input matInput formControlName="username" autocomplete="username" />
+                @if (form.get('username')?.hasError('required') && form.get('username')?.touched) {
+                <mat-error>Username is required</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Password</mat-label>
+                <input matInput formControlName="password" [type]="hidePassword() ? 'password' : 'text'"
+                    autocomplete="current-password" />
+                <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()"
+                    [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'">
+                    <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+                <mat-error>Password is required</mat-error>
+                }
+            </mat-form-field>
+
+            @if (errorMessage()) {
+            <div class="error-message">
+                <mat-icon>error_outline</mat-icon>
+                <span>{{ errorMessage() }}</span>
+            </div>
+            }
+
+            <div class="button-group">
+                <button mat-flat-button type="submit" class="login-btn" [disabled]="form.invalid || isLoading()">
+                    @if (isLoading()) {
+                    Signing in...
+                    } @else {
+                    Sign In
+                    }
+                </button>
+                <button mat-stroked-button type="button" class="access-btn" routerLink="/exercises">
+                    Browse as Guest
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
