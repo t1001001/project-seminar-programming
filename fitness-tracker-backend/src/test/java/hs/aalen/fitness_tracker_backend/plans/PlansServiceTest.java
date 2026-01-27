@@ -1,26 +1,24 @@
 package hs.aalen.fitness_tracker_backend.plans;
 
-import hs.aalen.fitness_tracker_backend.plans.dto.PlansCreateDTO;
-import hs.aalen.fitness_tracker_backend.plans.dto.PlansResponseDTO;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import hs.aalen.fitness_tracker_backend.plans.dto.PlansCreateDto;
+import hs.aalen.fitness_tracker_backend.plans.dto.PlansResponseDto;
 import hs.aalen.fitness_tracker_backend.plans.dto.PlansUpdateDto;
 import hs.aalen.fitness_tracker_backend.plans.model.Plans;
 import hs.aalen.fitness_tracker_backend.plans.repository.PlansRepository;
+import hs.aalen.fitness_tracker_backend.plans.service.PlansService;
 import hs.aalen.fitness_tracker_backend.sessions.model.Sessions;
 import hs.aalen.fitness_tracker_backend.sessions.repository.SessionsRepository;
-import hs.aalen.fitness_tracker_backend.plans.service.PlansService;
-
 import jakarta.persistence.EntityNotFoundException;
+import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PlansServiceTest {
@@ -51,7 +49,7 @@ class PlansServiceTest {
     void shouldReturnAllPlans() {
         when(repository.findAll()).thenReturn(List.of(plan));
 
-        List<PlansResponseDTO> result = service.getAll();
+        List<PlansResponseDto> result = service.getAll();
 
         assertEquals(1, result.size());
         assertEquals("Plan A", result.get(0).getName());
@@ -62,7 +60,7 @@ class PlansServiceTest {
     void shouldReturnPlanWhenIdExists() {
         when(repository.findById(planId)).thenReturn(Optional.of(plan));
 
-        PlansResponseDTO result = service.getById(planId);
+        PlansResponseDto result = service.getById(planId);
 
         assertEquals("Plan A", result.getName());
         verify(repository).findById(planId);
@@ -72,19 +70,23 @@ class PlansServiceTest {
     void shouldThrowExceptionWhenPlanNotFound() {
         when(repository.findById(planId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.getById(planId));
+        assertThrows(EntityNotFoundException.class, () ->
+            service.getById(planId)
+        );
     }
 
     @Test
     void shouldCreatePlanWhenNameIsUnique() {
-        PlansCreateDTO dto = new PlansCreateDTO();
+        PlansCreateDto dto = new PlansCreateDto();
         dto.setName("Plan B");
         dto.setDescription("Desc B");
 
-        when(repository.findByNameIgnoreCase("Plan B")).thenReturn(Optional.empty());
+        when(repository.findByNameIgnoreCase("Plan B")).thenReturn(
+            Optional.empty()
+        );
         when(repository.save(any(Plans.class))).thenReturn(plan);
 
-        PlansResponseDTO created = service.create(dto);
+        PlansResponseDto created = service.create(dto);
 
         assertEquals("Plan A", created.getName());
         verify(repository).save(any(Plans.class));
@@ -92,11 +94,13 @@ class PlansServiceTest {
 
     @Test
     void shouldThrowExceptionWhenPlanNameAlreadyExists() {
-        PlansCreateDTO dto = new PlansCreateDTO();
+        PlansCreateDto dto = new PlansCreateDto();
         dto.setName("Plan A");
         dto.setDescription("Desc");
 
-        when(repository.findByNameIgnoreCase("Plan A")).thenReturn(Optional.of(plan));
+        when(repository.findByNameIgnoreCase("Plan A")).thenReturn(
+            Optional.of(plan)
+        );
 
         assertThrows(IllegalArgumentException.class, () -> service.create(dto));
     }
@@ -119,7 +123,9 @@ class PlansServiceTest {
     void shouldThrowExceptionWhenPlanNotFoundOnDelete() {
         when(repository.findById(planId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.delete(planId));
+        assertThrows(EntityNotFoundException.class, () ->
+            service.delete(planId)
+        );
     }
 
     @Test
@@ -134,11 +140,15 @@ class PlansServiceTest {
         dto.setSessions(List.of(sessionId));
 
         when(repository.findById(planId)).thenReturn(Optional.of(plan));
-        when(repository.findByNameIgnoreCase("Plan Updated")).thenReturn(Optional.empty());
-        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(repository.findByNameIgnoreCase("Plan Updated")).thenReturn(
+            Optional.empty()
+        );
+        when(sessionsRepository.findById(sessionId)).thenReturn(
+            Optional.of(session)
+        );
         when(repository.save(any(Plans.class))).thenReturn(plan);
 
-        PlansResponseDTO updated = service.update(planId, dto);
+        PlansResponseDto updated = service.update(planId, dto);
 
         assertEquals("Plan Updated", updated.getName());
         assertEquals(1, plan.getSessions().size());
@@ -156,9 +166,13 @@ class PlansServiceTest {
         duplicate.setId(UUID.randomUUID());
 
         when(repository.findById(planId)).thenReturn(Optional.of(plan));
-        when(repository.findByNameIgnoreCase("Plan B")).thenReturn(Optional.of(duplicate));
+        when(repository.findByNameIgnoreCase("Plan B")).thenReturn(
+            Optional.of(duplicate)
+        );
 
-        assertThrows(IllegalArgumentException.class, () -> service.update(planId, dto));
+        assertThrows(IllegalArgumentException.class, () ->
+            service.update(planId, dto)
+        );
     }
 
     @Test
@@ -170,9 +184,15 @@ class PlansServiceTest {
         dto.setSessions(List.of(sessionId));
 
         when(repository.findById(planId)).thenReturn(Optional.of(plan));
-        when(repository.findByNameIgnoreCase("Plan Updated")).thenReturn(Optional.empty());
-        when(sessionsRepository.findById(sessionId)).thenReturn(Optional.empty());
+        when(repository.findByNameIgnoreCase("Plan Updated")).thenReturn(
+            Optional.empty()
+        );
+        when(sessionsRepository.findById(sessionId)).thenReturn(
+            Optional.empty()
+        );
 
-        assertThrows(EntityNotFoundException.class, () -> service.update(planId, dto));
+        assertThrows(EntityNotFoundException.class, () ->
+            service.update(planId, dto)
+        );
     }
 }
