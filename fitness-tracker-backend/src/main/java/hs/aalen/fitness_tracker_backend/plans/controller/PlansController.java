@@ -1,16 +1,16 @@
 package hs.aalen.fitness_tracker_backend.plans.controller;
 
-import hs.aalen.fitness_tracker_backend.plans.dto.PlansCreateDTO;
-import hs.aalen.fitness_tracker_backend.plans.dto.PlansResponseDTO;
+import hs.aalen.fitness_tracker_backend.plans.dto.PlansCreateDto;
+import hs.aalen.fitness_tracker_backend.plans.dto.PlansResponseDto;
 import hs.aalen.fitness_tracker_backend.plans.dto.PlansUpdateDto;
 import hs.aalen.fitness_tracker_backend.plans.service.PlansService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/plans")
@@ -23,12 +23,14 @@ public class PlansController {
     }
 
     @GetMapping
-    public List<PlansResponseDTO> getAllExercises() {
+    public List<PlansResponseDto> getAllExercises() {
         return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlansResponseDTO> getExerciseById(@PathVariable UUID id) {
+    public ResponseEntity<PlansResponseDto> getExerciseById(
+        @PathVariable UUID id
+    ) {
         try {
             return ResponseEntity.ok(service.getById(id));
         } catch (EntityNotFoundException e) {
@@ -37,13 +39,16 @@ public class PlansController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createExercise(@Valid @RequestBody PlansCreateDTO dto) {
+    public ResponseEntity<?> createExercise(
+        @Valid @RequestBody PlansCreateDto dto
+    ) {
         try {
-            PlansResponseDTO created = service.create(dto);
+            PlansResponseDto created = service.create(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                e.getMessage()
+            );
         }
     }
 
@@ -59,16 +64,18 @@ public class PlansController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSession(
-            @PathVariable UUID id, 
-            @Valid @RequestBody PlansUpdateDto dto) {
+        @PathVariable UUID id,
+        @Valid @RequestBody PlansUpdateDto dto
+    ) {
         try {
-            PlansResponseDTO updated = service.update(id, dto);
+            PlansResponseDto updated = service.update(id, dto);
             return ResponseEntity.ok(updated);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                e.getMessage()
+            );
         }
     }
 }

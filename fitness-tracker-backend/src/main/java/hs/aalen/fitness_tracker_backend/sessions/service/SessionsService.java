@@ -86,7 +86,7 @@ public class SessionsService {
                 .map(this::toExerciseExecutionDto)
                 .toList());
 
-        // Compute sessionLogCount dynamically per-user
+        // Count is user‑specific, so compute at read time
         int sessionLogCount = 0;
         if (username != null) {
             Users owner = usersRepository.findByUsername(username).orElse(null);

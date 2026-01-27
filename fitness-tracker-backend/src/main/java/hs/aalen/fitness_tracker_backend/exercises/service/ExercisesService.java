@@ -54,7 +54,7 @@ public class ExercisesService {
             throw new EntityNotFoundException("Exercise not found");
         }
 
-        // Find and delete all exercise executions referencing this exercise
+        // Remove dependent executions to avoid orphaned records
         List<hs.aalen.fitness_tracker_backend.exerciseexecutions.model.ExerciseExecutions> executions = exerciseExecutionsRepository
                 .findByExerciseId(id);
 

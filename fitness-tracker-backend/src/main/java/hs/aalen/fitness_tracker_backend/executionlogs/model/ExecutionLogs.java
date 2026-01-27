@@ -16,7 +16,7 @@ public class ExecutionLogs {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    // Denormalized ExerciseExecutions data
+    // Snapshot planned execution data to preserve history
     @Column(nullable = false)
     private Integer exerciseExecutionId;
     @Column(nullable = false)
@@ -25,7 +25,7 @@ public class ExecutionLogs {
     private Integer exerciseExecutionPlannedReps;
     @Column(nullable = false)
     private Integer exerciseExecutionPlannedWeight;
-    // Denormalized Exercise data
+    // Snapshot exercise metadata to preserve history
     @Column(nullable = false)
     private UUID exerciseId;
     @Column(nullable = false)
@@ -39,7 +39,7 @@ public class ExecutionLogs {
     private List<String> exerciseMuscleGroup;
     @Column(length = 1000)
     private String exerciseDescription;
-    // Actual execution data
+    // User‑recorded performance metrics
     @Column(nullable = false)
     private Integer actualSets;
     @Column(nullable = false)

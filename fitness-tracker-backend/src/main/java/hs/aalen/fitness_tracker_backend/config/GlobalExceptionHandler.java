@@ -1,5 +1,8 @@
 package hs.aalen.fitness_tracker_backend.config;
 
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -7,20 +10,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handle AccessDeniedException - used for authorization failures
-     * Returns 403 Forbidden with error message
-     */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(
-            AccessDeniedException ex, WebRequest request) {
+        AccessDeniedException ex,
+        WebRequest request
+    ) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.FORBIDDEN.value());
@@ -31,13 +28,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
 
-    /**
-     * Handle IllegalArgumentException - used for validation failures
-     * Returns 400 Bad Request with error message
-     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(
-            IllegalArgumentException ex, WebRequest request) {
+        IllegalArgumentException ex,
+        WebRequest request
+    ) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
@@ -48,16 +43,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handle RuntimeException with "not found" message
-     * Returns 404 Not Found with error message
-     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(
-            RuntimeException ex, WebRequest request) {
-
-        // Check if it's a "not found" error
-        if (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("not found")) {
+        RuntimeException ex,
+        WebRequest request
+    ) {
+        if (
+            ex.getMessage() != null &&
+            ex.getMessage().toLowerCase().contains("not found")
+        ) {
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("timestamp", LocalDateTime.now());
             body.put("status", HttpStatus.NOT_FOUND.value());
@@ -68,7 +62,6 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
         }
 
-        // For other runtime exceptions, return 500
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -79,4 +72,3 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
-

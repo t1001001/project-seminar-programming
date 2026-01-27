@@ -34,19 +34,13 @@ public class SessionLogsService {
     @Autowired
     private UsersRepository usersRepository;
 
-    /**
-     * Resolves the authenticated username to a Users entity.
-     */
+
     private Users resolveUser(String username) {
         return usersRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
-    /**
-     * Fetches a SessionLog by ID and verifies ownership.
-     * 
-     * @throws AccessDeniedException if the session log does not belong to the user
-     */
+    // Centralize ownership checks to keep access control consistent
     private SessionLogs getSessionLogWithOwnershipCheck(UUID id, String username) {
         Users owner = resolveUser(username);
         return sessionLogsRepository.findByIdAndOwner(id, owner)
@@ -61,14 +55,14 @@ public class SessionLogsService {
         Sessions session = sessionsRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        // Check if session has at least one exercise
+        // Prevent starting empty workouts
         List<ExerciseExecutions> executions = exerciseExecutionsRepository.findBySessionIdOrderByOrderID(sessionId);
         if (executions.isEmpty()) {
             throw new IllegalArgumentException(
                     "Cannot start training: Session must contain at least one exercise");
         }
 
-        // Create SessionLogs with denormalized data
+        // Snapshot session data so history isn’t affected by later edits
         SessionLogs sessionLog = new SessionLogs();
         sessionLog.setSessionName(session.getName());
         sessionLog.setSessionPlanName(session.getPlan() != null ? session.getPlan().getName() : "No Plan");
@@ -76,27 +70,27 @@ public class SessionLogsService {
         sessionLog.setStartedAt(Instant.now());
         sessionLog.setStatus(SessionLogs.LogStatus.InProgress);
         sessionLog.setOriginalSessionId(session.getId());
-        // Set the owner - this is the key change for user isolation
+        // Owner is required for per‑user access control
         sessionLog.setOwner(owner);
 
-        // Save session log first to get ID
+        // Persist first to get an ID for child logs
         SessionLogs savedLog = sessionLogsRepository.save(sessionLog);
 
-        // Create execution logs for each exercise execution
+        // Snapshot planned exercises into the workout log
         for (ExerciseExecutions execution : executions) {
             ExecutionLogs executionLog = new ExecutionLogs();
-            // Denormalize ExerciseExecutions data
+            // Persist planned execution details for a stable history
             executionLog.setExerciseExecutionId(execution.getOrderID());
             executionLog.setExerciseExecutionPlannedSets(execution.getPlannedSets());
             executionLog.setExerciseExecutionPlannedReps(execution.getPlannedReps());
             executionLog.setExerciseExecutionPlannedWeight(execution.getPlannedWeight());
-            // Denormalize Exercise data
+            // Persist exercise metadata so logs stay accurate if exercises change
             executionLog.setExerciseId(execution.getExercise().getId());
             executionLog.setExerciseName(execution.getExercise().getName());
             executionLog.setExerciseCategory(execution.getExercise().getCategory());
             executionLog.setExerciseMuscleGroup(execution.getExercise().getMuscleGroups());
             executionLog.setExerciseDescription(execution.getExercise().getDescription());
-            // Initialize actual values to planned values
+            // Default actuals to planned values until user edits
             executionLog.setActualSets(execution.getPlannedSets());
             executionLog.setActualReps(execution.getPlannedReps());
             executionLog.setActualWeight(execution.getPlannedWeight());
@@ -106,7 +100,7 @@ public class SessionLogsService {
             savedLog.getExecutionLogs().add(executionLog);
         }
 
-        // Save again with execution logs
+        // Persist the log with its child executions
         SessionLogs finalLog = sessionLogsRepository.save(savedLog);
         return mapToResponseDto(finalLog);
     }
@@ -163,7 +157,7 @@ public class SessionLogsService {
     public void deleteSessionLog(UUID id, String username) {
         SessionLogs sessionLog = getSessionLogWithOwnershipCheck(id, username);
 
-        // Only InProgress sessions can be deleted
+        // Completed workouts are immutable records
         if (sessionLog.getStatus() == SessionLogs.LogStatus.Completed) {
             throw new IllegalArgumentException(
                     "Cannot delete a completed workout. Completed sessions are permanent records.");
