@@ -15,9 +15,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(
-        AccessDeniedException ex,
-        WebRequest request
-    ) {
+            AccessDeniedException ex, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.FORBIDDEN.value());
@@ -30,9 +28,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(
-        IllegalArgumentException ex,
-        WebRequest request
-    ) {
+            IllegalArgumentException ex, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
@@ -45,12 +41,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(
-        RuntimeException ex,
-        WebRequest request
-    ) {
-        if (
-            ex.getMessage() != null &&
-            ex.getMessage().toLowerCase().contains("not found")
+            RuntimeException ex, WebRequest request) {
+        if (ex.getMessage() != null &&
+ex.getMessage().toLowerCase().contains("not found")
         ) {
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("timestamp", LocalDateTime.now());
