@@ -120,13 +120,13 @@ public class ExerciseExecutionsService {
             execution.setPlannedWeight(dto.getPlannedWeight());
         }
 
-        // Swap order numbers if another execution has the target order
+        // Preserve unique ordering by swapping instead of rejecting
         if (dto.getOrderID() != null) {
             Integer oldOrder = execution.getOrderID();
             Integer newOrder = dto.getOrderID();
 
             if (!oldOrder.equals(newOrder)) {
-                java.util.Optional<ExerciseExecutions> executionWithTargetOrder = 
+                java.util.Optional<ExerciseExecutions> executionWithTargetOrder =
                         findExecutionWithOrder(execution.getSession().getId(), newOrder, id);
                 if (executionWithTargetOrder.isPresent()) {
                     ExerciseExecutions otherExecution = executionWithTargetOrder.get();

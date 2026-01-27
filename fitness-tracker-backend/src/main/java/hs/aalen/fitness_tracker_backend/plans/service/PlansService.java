@@ -63,7 +63,7 @@ public class PlansService {
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Plan not found"));
 
-        // Orphan all sessions by setting their plan reference to null
+        // Detach sessions to avoid FK violations when deleting a plan
         for (Sessions session : plan.getSessions()) {
             session.setPlan(null);
         }
