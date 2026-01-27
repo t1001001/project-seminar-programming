@@ -42,9 +42,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(
             RuntimeException ex, WebRequest request) {
-        if (ex.getMessage() != null &&
-ex.getMessage().toLowerCase().contains("not found")
-        ) {
+        if (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("not found")) {
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("timestamp", LocalDateTime.now());
             body.put("status", HttpStatus.NOT_FOUND.value());
