@@ -51,9 +51,11 @@ buildNumber.properties
 # VS Code
 .vscode/
 .cursor/
+.codex/
+.agent/
 
 # Mac OS
 .DS_Store
 
 # Docs
-/docs 
+/docs
