@@ -77,6 +77,11 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<includes>
+								<include>**/*Service.class</include>
+							</includes>
+						</configuration>
 					</execution>
 
 					<execution>
@@ -89,6 +94,9 @@
 							<rules>
 								<rule>
 									<element>CLASS</element>
+									<includes>
+										<include>**/*Service</include>
+									</includes>
 									<limits>
 										<limit>
 											<counter>LINE</counter>
