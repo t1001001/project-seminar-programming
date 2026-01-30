@@ -112,7 +112,7 @@ If you want to restrict exposure to localhost only, bind explicitly in `docker-c
 
 The backend seeds initial data on startup (users + example exercises/plans/sessions).
 
-Authentication uses **HTTP Basic**.
+Authentication uses **HTTP Basic Authentication**.
 
 Default users:
 
