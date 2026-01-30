@@ -14,7 +14,7 @@ RUN ./mvnw dependency:go-offline -B
 COPY src ./src
 
 # Build JAR
-RUN ./mvnw clean package
+RUN ./mvnw clean verify
 
 # Run with JDK 21 runtime
 FROM eclipse-temurin:21
