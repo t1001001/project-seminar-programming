@@ -1,16 +1,25 @@
-FROM node:22-alpine
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies (reproducible via package-lock.json)
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --no-audit --no-fund
 
-# Copy source files
+# Build Angular app (production)
 COPY . .
+RUN npm run build -- --configuration production
 
-# Expose Angular dev server port
-EXPOSE 4200
+FROM nginx:1.27-alpine
 
-# Start Angular dev server
-CMD ["npm", "start", "--", "--host", "0.0.0.0", "--poll", "2000"]
+WORKDIR /usr/share/nginx/html
+
+# SPA routing + sensible defaults
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Angular 20 application build output is under dist/<project>/browser
+COPY --from=build /app/dist/fitness-tracker-frontend/browser/ ./
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

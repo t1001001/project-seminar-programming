@@ -1,241 +1,200 @@
 # Fitness Tracker Frontend
 
-An Angular 20 application for managing workout plans, sessions, exercises, and tracking workouts. Built with a modular library architecture and Angular Material.
+[![Build](https://img.shields.io/badge/build-npm-blue)](./package.json)
+[![Angular](https://img.shields.io/badge/Angular-20.3.12-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](./Dockerfile)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
+
+Angular 20 (standalone) frontend for the Fitness Tracker system. The codebase is intentionally split into a small **app shell** (`src/`) and a set of reusable **feature libraries** (`projects/*`) that encapsulate domain logic and UI.
+
+## Contents
+
+- [System Overview](#system-overview)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+- [Authentication](#authentication)
+- [Routes](#routes)
+- [Project Structure](#project-structure)
+- [Docs & Help](#docs--help)
+- [Maintainers](#maintainers)
+
+## System Overview
+
+This frontend is part of a 2-service setup:
+
+- **Backend**: Spring Boot REST API (Java 21), Spring Security (HTTP Basic), H2 in-memory DB → `http://localhost:8080`
+- **Frontend**: Angular app (this folder) → `http://localhost:4200`
+
+The frontend calls the backend via REST endpoints under `http://localhost:8080/api/v1/**`.
+
+Note: Backend URLs are currently **hardcoded** to `http://localhost:8080` inside the feature library provider services (e.g. `projects/*/src/lib/provider-services/*`).
+
+For running the full system (frontend + backend), refer to the repository root README.
 
 ## Tech Stack
 
-- **Angular 20.3.12** with standalone components
-- **Angular Material 20.2.13** for UI components
-- **Angular CDK** for accessibility and utilities
-- **RxJS 7.8** for reactive programming
-- **GSAP 3.13** for animations
-- **TypeScript 5.9**
-- **Karma/Jasmine** for unit testing
+- Angular 20 (standalone) + Angular Router + HttpClient
+- Angular Material/CDK
+- TypeScript + RxJS
+- Karma/Jasmine unit tests
+- GSAP animations (home/landing)
 
-## Prerequisites
+## Architecture
 
-Before running the project, install the following:
+### Technical Features
 
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- [Angular CLI](https://angular.dev/tools/cli) (v20.3.9 or higher)
-- [Docker](https://docs.docker.com/desktop/) (optional, for containerized deployment)
+- **Standalone-first Angular**: bootstrapped with `bootstrapApplication` and `ApplicationConfig`.
+- **Modular monorepo-style libraries**: `projects/*` are buildable Angular libraries (via `ng-packagr`) and are imported by name using TS path mappings.
+- **Containerized frontend**: Docker image serves a production build (`ng build`) via nginx.
 
-## Usage
+### App Shell (`src/`)
 
-### Development Server
+The app shell is intentionally thin:
 
-```bash
-npm install
-npm start
+- Bootstrap: `src/main.ts`
+- Global providers: `src/app/app.config.ts` (router, animations, HttpClient + interceptor)
+- Routes: `src/app/app.routes.ts`
+- Global layout + `<router-outlet />`: `src/app/app.ts` / `src/app/app.html`
+
+### Routing Strategy
+
+`src/app/app.routes.ts` maps routes to **page wrapper components** located in `src/app/pages/**`. These wrappers usually import exactly one library view component, for example:
+
+- `src/app/pages/exercises/**` → components from `projects/exercises-lib`
+- `src/app/pages/plans/**` → components from `projects/plans-lib`
+
+This keeps the app shell stable while feature libraries evolve independently.
+
+Lazy loading can be introduced via `loadComponent` / `loadChildren` as needed; routes are currently defined via eager `component:` mappings.
+
+### Library Architecture (`projects/*`)
+
+Feature libraries follow a consistent layering:
+
+```
+[feature]-lib/src/lib/
+├── provider-services/    # HTTP communication (API calls)
+├── logic-services/       # orchestration + error handling + view models
+├── ui/                   # reusable presentational components
+├── views/                # smart/container components used by the app wrappers
+└── shared/               # feature-specific constants, validators, error mapping
 ```
 
-The application will be available at `http://localhost:4200/`.
+#### Conventions (from `projects/LIBRARY-ARCHITECTURE.md`)
 
-### Building for Production
+- **Data flow**: `views/` → `logic-services/` → `provider-services/` → backend.
+- **Error handling**:
+  - Provider layer: no `catchError` (errors bubble up).
+  - Logic layer: `catchError` + feature-specific `shared/error-handler.util.ts` (built on `handleHttpError` from `common-lib`) to map HTTP errors to user-friendly messages.
+  - View layer: display `err.message` and show notifications via `showError` / `showSuccess` (commonly re-exported from `shared/`).
+- **Dependency rules** (high-level): views inject logic services (not providers), UI components stay presentational, `common-lib` is the only cross-cutting dependency.
+- **State management**: views use `signal()` + `computed()`. For refreshable lists a common pattern is `refreshTrigger: signal(number)` → `toObservable()` → `switchMap(fetch)` → `toSignal()`.
+- **Templates**: use signal function-call syntax (`entity()`) and modern control flow (`@if`, `@for`); write actions are commonly wrapped with `@if (authService.isLoggedIn())`.
+- **Exports**: each library exposes a single public surface via its barrel file (`[feature]-lib.ts`); `shared/index.ts` can re-export `common-lib` helpers for convenience.
+- **Styling**: prefer theme CSS variables from `src/styles.scss` (no hardcoded colors); verify light + dark mode.
 
-```bash
-npm run build
-```
+**`common-lib`** is cross-cutting and is consumed by the app shell and all feature libs:
 
-Build artifacts are stored in the `dist/` directory.
+- `AuthService`: auth state + session persistence
+- `authInterceptor`: injects `Authorization` header
+- `authGuard`: route protection
+- shared snackbar + HTTP error helpers
 
-### Running with Docker
+Feature libraries:
+
+- `exercises-lib`: exercise catalog CRUD
+- `plans-lib`: training plan CRUD + editing flows
+- `sessions-lib`: session templates + exercise executions
+- `workouts-lib`: user-specific workout logging (guarded routes)
+- `home-lib`: landing/dashboard UI (GSAP hero animation)
+
+## Getting Started
+
+### Option A: Docker (frontend-only)
+
+From this folder (`fitness-tracker-frontend/`):
 
 ```bash
 docker build -t fitness-tracker-frontend-app .
-docker run -p 4200:80 fitness-tracker-frontend-app
+docker run --rm -p 4200:80 fitness-tracker-frontend-app
 ```
 
----
+### Option B: Local Dev Server
 
-## Application Routes
+Prerequisites:
 
-| Route | Component | Auth Required |
-|-------|-----------|---------------|
-| `/login` | LoginComponent | ❌ |
-| `/home` | HomeLanding | ❌ |
-| `/exercises` | ExercisesOverview | ❌ |
-| `/exercises/:id` | ExercisesDetails | ❌ |
-| `/plans` | PlansOverview | ❌ |
-| `/plans/:id` | PlansDetails | ❌ |
-| `/sessions` | SessionsOverview | ❌ |
-| `/sessions/:id` | SessionsDetails | ❌ |
-| `/workouts` | WorkoutsOverview | ✅ |
-| `/workouts/:id` | WorkoutsDetails | ✅ |
+- Node.js (LTS recommended)
+- Backend running on `http://localhost:8080` (start `../fitness-tracker-backend`)
 
----
+```bash
+npm ci
+npm start
+```
+
+### Scripts
+
+```bash
+npm start      # dev server
+npm test       # unit tests (Karma/Jasmine)
+npm run build  # production build into dist/
+```
+
+## Authentication
+
+The app uses **HTTP Basic Authentication** against the backend.
+
+- Login UI: `/login`
+- Session persistence: stored in `localStorage` by `AuthService` (`common-lib`)
+- Auto-header: `authInterceptor` adds the `Authorization` header to API calls
+- Guarded routes: `/workouts/**` uses `authGuard`
+
+Default dev credentials (seeded by backend on startup via `DatabaseSeeder`):
+
+- Username: `max`
+- Password: `passwort123`
+
+## Routes
+
+| Route | Auth Required |
+|---|---|
+| `/login` | ❌ |
+| `/home` | ❌ |
+| `/exercises` | ❌ |
+| `/exercises/:id` | ❌ |
+| `/plans` | ❌ |
+| `/plans/:id` | ❌ |
+| `/sessions` | ❌ |
+| `/sessions/:id` | ❌ |
+| `/workouts` | ✅ |
+| `/workouts/:id` | ✅ |
 
 ## Project Structure
 
 ```
 fitness-tracker-frontend/
-├── src/
+├── src/                   # app shell (routing + layout)
 │   └── app/
-│       ├── pages/            # Route components
-│       │   ├── exercises/
-│       │   ├── plans/
-│       │   ├── sessions/
-│       │   ├── workouts/
-│       │   ├── home/
-│       │   └── login/
-│       ├── services/         # App-level services
-│       ├── app.routes.ts     # Route configuration
-│       └── app.ts            # Root component
-├── projects/                 # Angular libraries
-│   ├── common-lib/           # Shared utilities & auth
-│   ├── exercises-lib/        # Exercise management
-│   ├── plans-lib/            # Training plans
-│   ├── sessions-lib/         # Workout sessions
-│   ├── workouts-lib/         # Workout tracking
-│   └── home-lib/             # Landing page
-└── public/                   # Static assets
+│       ├── pages/          # route wrapper components
+│       ├── services/       # app-level services (e.g. theming)
+│       ├── app.routes.ts
+│       └── app.ts
+├── projects/               # buildable Angular libraries (domain features)
+│   ├── common-lib/
+│   ├── exercises-lib/
+│   ├── plans-lib/
+│   ├── sessions-lib/
+│   ├── workouts-lib/
+│   └── home-lib/
+└── public/                 # static assets
 ```
 
----
+## Docs & Help
 
-## Libraries
+- Backend README: [fitness-tracker-backend/README.md](../fitness-tracker-backend/README.md)
+- Angular docs: <https://angular.dev/>
+- Angular Material: <https://material.angular.io/>
 
-The application uses a **feature-based library architecture**. Each library follows a layered pattern:
+## Maintainers
 
-```
-[feature]-lib/
-└── src/lib/
-    ├── provider-services/    # HTTP communication
-    ├── logic-services/       # Business logic
-    ├── ui/                   # Reusable UI components
-    ├── views/                # Smart container components
-    └── shared/               # Constants & utilities
-```
-
-### common-lib
-
-Cross-cutting utilities shared across all feature libraries.
-
-**Key Features:**
-- **Authentication** - Signal-based auth state, HTTP interceptor, route guards
-- **Snackbar Utilities** - `showError()`, `showSuccess()` helpers
-- **HTTP Error Handling** - Centralized error handler with user-friendly messages
-
-**Exports:**
-- `AuthService` - Login/logout, session persistence
-- `authGuard` - Route protection for authenticated routes
-- `authInterceptor` - Automatic Authorization header injection
-
-### exercises-lib
-
-Manages the exercise catalog - browsing, creating, editing, and deleting exercises.
-
-**Components:**
-- `ExercisesOverviewComponent` - List all exercises
-- `ExerciseDetailComponent` - Individual exercise details
-- `ExerciseFormDialogComponent` - Create/edit dialog
-- `ExerciseDeleteDialogComponent` - Delete confirmation
-
-**Services:**
-- `ExerciseLogicService` - Business logic
-- `ExerciseProviderService` - HTTP communication
-
-### plans-lib
-
-Manages training plans and their organization.
-
-**Components:**
-- `PlansOverviewComponent` - List all plans
-- `PlanDetailComponent` - Plan details with sessions
-- `PlanFormDialogComponent` - Create/edit dialog
-- `PlanDeleteDialogComponent` - Delete confirmation
-- `PlanCardComponent` - Plan summary card
-
-**Services:**
-- `PlanLogicService` - Business logic
-- `PlanProviderService` - HTTP communication
-
-### sessions-lib
-
-Manages workout sessions within training plans.
-
-**Components:**
-- `SessionsOverviewComponent` - List all sessions
-- `SessionDetailComponent` - Session details with exercises
-- `SessionFormDialogComponent` - Create/edit dialog
-- `SessionDeleteDialogComponent` - Delete confirmation
-- `SessionCardComponent` - Session summary card
-
-**Services:**
-- `SessionLogicService` - Business logic, exercise execution management
-- `SessionProviderService` - HTTP communication
-
-### workouts-lib
-
-Manages active workout tracking and history (user-authenticated).
-
-**Components:**
-- `WorkoutsOverviewComponent` - List user's workout logs
-- `WorkoutDetailComponent` - Active workout tracking
-- `WorkoutCardComponent` - Workout summary card
-
-**Services:**
-- `WorkoutLogicService` - Workout state management, completion tracking
-- `WorkoutProviderService` - HTTP communication for session logs & execution logs
-
-**Features:**
-- Start/complete workout sessions
-- Track actual sets, reps, and weight
-- Add notes to workouts and exercises
-- View workout history
-
-### home-lib
-
-Landing page and home components.
-
-**Components:**
-- `HomeLandingComponent` - Welcome page
-
----
-
-## Authentication
-
-The app uses HTTP Basic Authentication with the backend API.
-
-- **Login** - Enter credentials on `/login` page
-- **Session Persistence** - Auth token stored in localStorage
-- **Protected Routes** - `/workouts/**` requires authentication
-- **Auto-header** - `authInterceptor` automatically adds Authorization header
-
----
-
-## Testing
-
-### Unit Tests
-
-```bash
-npm test
-```
-
-Runs tests with [Karma](https://karma-runner.github.io).
-
-### End-to-End Tests
-
-```bash
-ng e2e
-```
-
----
-
-## Code Scaffolding
-
-Generate new components:
-
-```bash
-ng generate component component-name
-ng generate --help  # See all schematics
-```
-
----
-
-## Additional Resources
-
-- [LIBRARY-ARCHITECTURE.md](projects/LIBRARY-ARCHITECTURE.md) - Detailed library patterns and templates
-- [UI-STYLE-GUIDE.md](UI-STYLE-GUIDE.md) - UI styling guidelines
-- [ANGULAR-BEST-PRACTICES.md](ANGULAR-BEST-PRACTICES.md) - Angular coding conventions
-- [Angular CLI Documentation](https://angular.dev/tools/cli)
+Maintained by the Fitness Tracker project team (Project Seminar Programming).

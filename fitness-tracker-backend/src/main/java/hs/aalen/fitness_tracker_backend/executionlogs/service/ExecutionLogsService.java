@@ -24,23 +24,17 @@ public class ExecutionLogsService {
     @Autowired
     private UsersRepository usersRepository;
 
-    /**
-     * Resolves the authenticated username to a Users entity.
-     */
     private Users resolveUser(String username) {
         return usersRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
-    /**
-     * Verifies that an ExecutionLog belongs to a SessionLog owned by the user.
-     */
+    // Centralize ownership checks to keep access control consistent
     private ExecutionLogs getExecutionLogWithOwnershipCheck(UUID id, String username) {
         Users owner = resolveUser(username);
         ExecutionLogs executionLog = executionLogsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ExecutionLog not found"));
 
-        // Check ownership through parent SessionLog
         if (!executionLog.getSessionLog().getOwner().getId().equals(owner.getId())) {
             throw new AccessDeniedException("Execution log not found or access denied");
         }
@@ -61,7 +55,6 @@ public class ExecutionLogsService {
 
     public List<ExecutionLogsResponseDto> getAllExecutionLogs(String username) {
         Users owner = resolveUser(username);
-        // Get all session logs owned by user, then collect their execution logs
         return sessionLogsRepository.findByOwner(owner).stream()
                 .flatMap(sessionLog -> sessionLog.getExecutionLogs().stream())
                 .map(this::mapToResponseDto)
@@ -75,7 +68,6 @@ public class ExecutionLogsService {
 
     public List<ExecutionLogsResponseDto> getExecutionLogsBySessionLogId(UUID sessionLogId, String username) {
         Users owner = resolveUser(username);
-        // Verify ownership of the session log
         sessionLogsRepository.findByIdAndOwner(sessionLogId, owner)
                 .orElseThrow(() -> new AccessDeniedException("Session log not found or access denied"));
 

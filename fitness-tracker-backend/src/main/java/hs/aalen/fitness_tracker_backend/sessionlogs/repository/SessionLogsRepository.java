@@ -18,7 +18,7 @@ public interface SessionLogsRepository extends JpaRepository<SessionLogs, UUID> 
 
     List<SessionLogs> findByStartedAtBetween(LocalDateTime start, LocalDateTime end);
 
-    // User-filtered queries for data isolation
+    // Scope queries to a user to enforce isolation.
     List<SessionLogs> findByOwner(Users owner);
 
     List<SessionLogs> findByOwnerAndOriginalSessionId(Users owner, UUID originalSessionId);
