@@ -42,7 +42,7 @@ When running via Docker, the frontend is served by **nginx** inside the containe
 
 ## Demo Video
 
-<a href="https://www.youtube.com/watch?v=RdLICEDnyN0" target="_blank" rel="noopener noreferrer">
+<a href="https://www.youtube.com/watch?v=iMviRGk6YoQ" target="_blank" rel="noopener noreferrer">
   <img src="https://img.youtube.com/vi/RdLICEDnyN0/hqdefault.jpg" width="450" alt="Fitness Tracker demo video (YouTube)" />
 </a>
 
